@@ -1,6 +1,7 @@
 const { User, Game } = require('../models');
 const { signToken } = require('../utils/auth');
 const { AuthenticationError } =require('apollo-server-express');
+
 const resolvers = {
   Query: {
     me: async (parent, args, context) => {
@@ -87,16 +88,15 @@ const resolvers = {
       }
       throw new AuthenticationError('Please log in');
     },
-    User: {
-      avatarUrl: (user) => {
-        const baseUrl = 'https://avatars.dicebear.com/api';
-        const style = user.avatarStyle || 'bottts';
-        const seed = user.avatarSeed || user._id.toString();
-        return `${baseUrl}/${style}/${encodeURIComponent(seed)}.svg`;
-      }
-    }
   },
-
+  User: {
+    avatarUrl: (user) => {
+      const baseUrl = 'https://api.dicebear.com/9.x';
+      const style = user.avatarStyle || 'pixel-art';
+      const seed = user.avatarSeed || user._id.toString();
+      return `${baseUrl}/${style}/svg?seed=${encodeURIComponent(seed)}`;
+    },
+  },
 };
 
 module.exports = resolvers;
