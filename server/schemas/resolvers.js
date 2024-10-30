@@ -1,24 +1,23 @@
 const { User, Game } = require('../models');
-const { signToken, AuthenticationError } = require('../utils/auth');
-
+const { signToken } = require('../utils/auth');
+const { AuthenticationError } =require('apollo-server-express');
 const resolvers = {
   Query: {
-    user: async (parent, args, context) => {
+    me: async (parent, args, context) => {
       if (context.user) {
-        const user = await User.findById(context.user._id).populate({
-          path: 'orders.products',
-          populate: 'category',
-        });
-
-        user.orders.sort((a, b) => b.purchaseDate - a.purchaseDate);
+        const user = await User.findById(context.user._id);
 
         return user;
       }
+      throw new AuthenticationError('Please log in.');
+    },
+    user: async (parent, args, context) => {
+      const user = await User.findById(args._id);
 
-      throw AuthenticationError;
+      return user;
     },
     users: async () => {
-        return User.find({});
+      return User.find({});
     },
     game: async (parent, { gameId }, context) => {
       if (context.user) {
@@ -40,20 +39,19 @@ const resolvers = {
           new: true,
         });
       }
-
-      throw AuthenticationError;
+      throw new AuthenticationError('Please log in.');
     },
     login: async (parent, { email, password }) => {
       const user = await User.findOne({ email });
 
       if (!user) {
-        throw AuthenticationError;
+        throw new AuthenticationError('Incorrect email or password');
       }
 
       const correctPw = await user.isCorrectPassword(password);
 
       if (!correctPw) {
-        throw AuthenticationError;
+        throw new AuthenticationError('Incorrect email or password');
       }
 
       const token = signToken(user);
@@ -62,7 +60,7 @@ const resolvers = {
     },
     createGame: async (parents, args, context) => {
       if (context.user) {
-        const questions = await fetchTriviaQuestions();
+        // const questions = await fetchTriviaQuestions();
         const game = await Game.create({
           players: [context.user._id],
           questions,
@@ -87,9 +85,18 @@ const resolvers = {
           throw new Error('Game is full or does not exist')
         }
       }
-      throw new AuthenticationError('Must log in');
+      throw new AuthenticationError('Please log in');
     },
+    User: {
+      avatarUrl: (user) => {
+        const baseUrl = 'https://avatars.dicebear.com/api';
+        const style = user.avatarStyle || 'bottts';
+        const seed = user.avatarSeed || user._id.toString();
+        return `${baseUrl}/${style}/${encodeURIComponent(seed)}.svg`;
+      }
+    }
   },
+
 };
 
 module.exports = resolvers;
