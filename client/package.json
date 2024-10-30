@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.15",
+    "@dicebear/adventurer": "^9.2.2",
+    "@dicebear/collection": "^9.2.2",
+    "@dicebear/core": "^9.2.2",
     "@stripe/stripe-js": "^1.54.0",
     "@testing-library/react": "^14.0.0",
     "graphql": "^16.6.0",
