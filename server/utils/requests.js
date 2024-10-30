@@ -12,8 +12,11 @@ export const getQuestions = ({ category, difficulty }) => {
 
 export const category = [
     { label: 'Video Games', value: 14},
-    { label: 'Sports', value: 21},
+    { label: 'History', value: 23},
     { label: 'Books', value: 10},
+    { label: 'Entertainment: Music', value: 12},
+    { label: 'Entertainment: Film', value: 11},
+    { label: 'Sports', value: 21},
 ];
 
 export const difficulty = [ 'easy', 'medium', 'hard']
