@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const { Schema } = mongoose;
 const bcrypt = require('bcrypt');
 
@@ -23,16 +22,46 @@ const userSchema = new Schema({
     type: String,
     required: true,
     minlength: 5
-  }
+  },
+  avatarStyle: {
+    type: String,
+    default: 'bottts'
+  },
+  avatarSeed: {
+    type: String,
+  },
+  preferences: {
+    colorTheme: {
+      type: String,
+      default: 'light'
+    },
+  },
+  stats: {
+    gamesPlayed: {
+      type: Number, 
+      default: 0
+    },
+    gamesWon: {
+      type: Number,
+      default: 0
+    },
+  },
+  friends: [{
+    type: Schema.Types.ObjectId, 
+    ref: 'User'
+  }]
 });
 
 // set up pre-save middleware to create password
 userSchema.pre('save', async function(next) {
+  if (this.isNew) {
+    this.avatarSeed = this._id.toString();
+  }
+
   if (this.isNew || this.isModified('password')) {
     const saltRounds = 10;
     this.password = await bcrypt.hash(this.password, saltRounds);
   }
-
   next();
 });
 
