@@ -1,15 +1,15 @@
 import { createAvatar } from '@dicebear/core';
 import { adventurer } from '@dicebear/collection';
 // import { style } from '@dicebear/adventurer';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { create } from '@dicebear/adventurer';
 import AvatarDisplay from './AvatarDisplay';
-import { useNavigate } from 'react-router-dom';
 
 
-const AvatarsList = ({ onSelect }) => {
 
-    const navigate = useNavigate();
+const AvatarsList = () => {
+    const [selectedAvatar, setSelectedAvatar] = useState(null);
+
    
  
     const avatarsArray = useMemo(() => {
@@ -25,8 +25,12 @@ const AvatarsList = ({ onSelect }) => {
 
 
     const handleAvatarSelect = (src) => {
-        navigate(`avatar/${src}`)
+        setSelectedAvatar(src)
 
+    };
+
+    const clearSelection = () => {
+        setSelectedAvatar(null);
     }
        
         
@@ -36,9 +40,14 @@ const AvatarsList = ({ onSelect }) => {
   
     return (
         <div className='avatar-container'>
-           {avatarsArray.map((src, index) => (
-            <img className='avatar' id={index + 1} key={index} src={src} alt={`Avatar ${index + 1}`} onClick={() => handleAvatarSelect(src)}></img>
-        ))}
+            {selectedAvatar ? (
+                <AvatarDisplay src={selectedAvatar} onClear={clearSelection} />
+            ) : (
+                avatarsArray.map((src, index) => (
+                    <img className='avatar' id={index + 1} key={index} src={src} alt={`Avatar ${index + 1}`} onClick={() => handleAvatarSelect(src)}></img>
+                ))
+            )}
+           
         </div>
     )
 
