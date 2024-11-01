@@ -31,3 +31,24 @@ export const ADD_USER = gql`
     }
   }
 `;
+
+export const CREATE_GAME = gql`
+  mutation CreateGame($amount: Int, $category: String, $difficulty: String) {
+    createGame(amount: $amount, category: $category, difficulty: $difficulty) {
+      _id
+      players {
+        _id
+        firstName
+      }
+      questions {
+        question
+        correctAnswer
+        incorrectAnswers
+        category
+        difficulty
+      }
+      state
+      scores
+    }
+  }
+`;

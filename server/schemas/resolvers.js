@@ -1,6 +1,7 @@
 const { User, Game } = require('../models');
 const { signToken } = require('../utils/auth');
 const { AuthenticationError } =require('apollo-server-express');
+const { fetchTriviaQuestions } = require('../utils/requests');
 
 const resolvers = {
   Query: {
@@ -61,15 +62,28 @@ const resolvers = {
     },
     createGame: async (parents, args, context) => {
       if (context.user) {
-        // const questions = await fetchTriviaQuestions();
-        const game = await Game.create({
-          players: [context.user._id],
-          questions,
-          scores: {
-            [context.user._id] : 0
-          },
-        });
-        return game;
+        const { amount, category, difficulty } = args;
+
+        try {
+          const questions = await fetchTriviaQuestions(amount, category, difficulty);
+
+          if (!questions || questions.length === 0) {
+            throw new Error('No trivia questions available for the specified parameters');
+          }
+
+          const game = await Game.create({
+            players: [context.user._id],
+            questions,
+            scores: {
+              [context.user._id] : 0
+            },
+            state: 'waiting',
+          });
+          return game;
+        } catch (error) {
+          console.error('Error:', error);
+          throw new Error('Failed to create game.')
+        }
       }
       throw new AuthenticationError('Please log in');
     },

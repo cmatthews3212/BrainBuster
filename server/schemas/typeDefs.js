@@ -1,6 +1,8 @@
 const { gql } = require('apollo-server-express');
 
 const typeDefs = gql`
+  scalar JSON
+
   type User {
     _id: ID
     firstName: String
@@ -25,9 +27,22 @@ const typeDefs = gql`
   type Game {
     _id: ID
     players: [User]
-    currentQuestionIndex: Int
+    questions: [Question]
+    scores: JSON
     state: String
-    createdAt: String
+  }
+
+  type Question {
+    category: String
+    id: String
+    correctAnswer: String
+    incorrectAnswers: [String]
+    question: String
+    tags: [String]
+    type: String
+    difficulty: String
+    regions: [String]
+    isNiche: Boolean
   }
 
   type Query {
@@ -46,7 +61,7 @@ const typeDefs = gql`
     addUser(firstName: String!, lastName: String!, email: String!, password: String!, avatarStyle: String!): Auth
     updateUser(firstName: String, lastName: String, email: String, password: String): User
     login(email: String!, password: String!): Auth
-    createGame: Game
+    createGame(amount: Int, category: String, difficulty: String): Game
     joinGame(gameId: ID!): Game
   }
 `;

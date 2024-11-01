@@ -5,6 +5,22 @@ import {
   difficulty,
 } from "../../../../server/utils/requests";
 
+import { useMutation } from '@apollo/client';
+import { CREATE_GAME } from '../../utils/mutations';
+
+const categories = [
+  { label: 'Music', value: 'music'},
+  { label: 'Sport and Leisure', value: 'sport_and_leisure'},
+  { label: 'Film and TV', value: 'film_and_tv'},
+  { label: 'Arts and Literature', value: 'arts_and_literature'},
+  { label: 'History', value: 'history'},
+  { label: 'Society and Culture', value: 'society_and_culture'},
+  { label: 'Science', value: 'science'},
+  { label: 'Geography', value: 'geography'},
+  { label: 'Food and Drink', value: 'food_and_drink'},
+  { label: 'General Knowledge', value: 'general_knowledge'},
+]
+
 const Quiz = () => {
   const [questions, setQuestions] = useState([]);
   const [error, setError] = useState(null);
@@ -16,11 +32,8 @@ const Quiz = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getQuestions({
-        category: selectedCategory,
-        difficulty: selectedDifficulty,
-      });
-      setQuestions(data.results);
+      const data = await fetchTriviaQuestions(10, selectedCategory, selectedDifficulty)
+      setQuestions(data);
     } catch (err) {
       setError(err.message);
     }
