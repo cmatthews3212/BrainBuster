@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const { avatarSchema } = require('./Avatar');
 const bcrypt = require('bcrypt');
 
 const userSchema = new Schema({
@@ -23,13 +24,7 @@ const userSchema = new Schema({
     required: true,
     minlength: 5
   },
-  avatarStyle: {
-    type: String,
-    default: 'bottts'
-  },
-  avatarSeed: {
-    type: String,
-  },
+  avatar: avatarSchema,
   preferences: {
     colorTheme: {
       type: String,
