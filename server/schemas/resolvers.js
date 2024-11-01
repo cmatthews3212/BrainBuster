@@ -102,49 +102,41 @@ const resolvers = {
       }
       throw new AuthenticationError('Please log in');
     },
-    addAvatar: async (parent, { userId, seed, src, size, hair }, context) => {
+    addAvatar: async (parent, { userId, avatar }, context) => {
       if (!context.user) console.error('Please log in');
-      const avatarData = { seed, src, size, hair };
 
-      const user = await User.findByIdAndUpdate(
-        userId,
-        { avatar: avatarData},
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
+      const user = await User.findById(userId);
+
       if (!user) {
         console.error('User not found')
       }
-      return user;
+
+      user.avatar = avatar;
+      await user.save();
+      return user.avatar;
     },
-    updateAvatar: async (parent, { userId, seed, src, size, hair }, context) => {
+    updateAvatar: async (parent, { userId, avatar}, context) => {
       if (!context.user) console.error('Please log in');
-      const avatarUpdates = {};
-      if (seed) avatarUpdates['avatar.seed'] = seed;
-      if (src) avatarUpdates['avatar.src'] = src;
-      if (size) avatarUpdates['avatar.size'] = size;
-      if (hair) avatarUpdates['avatar.hair'] = hair;
+      const user = await User.findById(userId);
+      if (!user) console.error('User not found')
 
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { $set: avatarUpdates },
-        { new: true, runValidators: true }
-      );
+        if (avatar.seed) user.avatar.seed = avatar.seed;
+        if (avatar.src) user.avatar.src = avatar.src;
+        if (avatar.size) user.avatar.size = avatar.size;
+        if (avatar.hair) user.avatar.hair = avatar.hair;
 
-      if (!updatedUser) console.error('User not found');
-      return updatedUser;
+        await user.savte();
+        return user.avatar;
     },
   },
-  User: {
-    avatarUrl: (user) => {
-      const baseUrl = 'https://api.dicebear.com/9.x';
-      const style = user.avatarStyle || 'pixel-art';
-      const seed = user.avatarSeed || user._id.toString();
-      return `${baseUrl}/${style}/svg?seed=${encodeURIComponent(seed)}`;
-    },
-  },
+  // User: {
+  //   avatarUrl: (user) => {
+  //     const baseUrl = 'https://api.dicebear.com/9.x';
+  //     const style = user.avatarStyle || 'pixel-art';
+  //     const seed = user.avatarSeed || user._id.toString();
+  //     return `${baseUrl}/${style}/svg?seed=${encodeURIComponent(seed)}`;
+  //   },
+  // },
 };
 
 module.exports = resolvers;

@@ -52,3 +52,33 @@ export const CREATE_GAME = gql`
     }
   }
 `;
+
+export const ADD_AVATAR = gql`
+  mutation addAvatar($userId: ID!, $avatar: avatarInput!) {
+    addAvatar(userId: $userId, avatar: $avatar){
+      _id
+      email
+      avatar {
+        seed
+        src
+        size
+        hair
+      }
+    }
+  }
+`;
+
+export const UPDATE_AVATAR = gql`
+  mutation addAvatar($userId: ID!, $avatarId: ID!) {
+    addAvatar(userId: $userId, avatarId: $avatarId){
+      _id
+      email
+      avatar {
+        seed
+        src
+        size
+        hair
+      }
+    }
+  }
+`;
