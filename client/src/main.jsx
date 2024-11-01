@@ -12,6 +12,7 @@ import About from './pages/About.jsx';
 import Profile from './pages/Profile.jsx'
 import Avatars from './pages/Avatars.jsx';
 import AvatarDisplay  from './components/Avatar/AvatarDisplay.jsx';
+import CustomizeAvatar from './components/Avatar/CustomizeAvatar.jsx';
 
 const router = createBrowserRouter([
   {
@@ -40,7 +41,7 @@ const router = createBrowserRouter([
       }, {
         path: '/avatar/:src',
         element: <AvatarDisplay />
-      },
+      }, 
       
     ],
   },

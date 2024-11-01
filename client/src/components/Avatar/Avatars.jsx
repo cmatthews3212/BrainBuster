@@ -14,18 +14,22 @@ const AvatarsList = () => {
  
     const avatarsArray = useMemo(() => {
         const avatarSeeds = ["Chase", "Destiny", "Kingston", "Jessica", "Jack"];
-        return avatarSeeds.map(seed => createAvatar(adventurer, {
-            seed,
-            size: 120,
-            randomizeIds: true,
-        }).toDataUri());
+        return avatarSeeds.map((seed, index) => ({
+            id: index + 1,
+            src: createAvatar(adventurer, {
+                seed,
+                size: 120,
+                randomizeIds: true,
+
+            }).toDataUri()
+        }))
     }, []);
 
        
 
 
-    const handleAvatarSelect = (src) => {
-        setSelectedAvatar(src)
+    const handleAvatarSelect = (avatar)=> {
+        setSelectedAvatar(avatar)
 
     };
 
@@ -34,6 +38,7 @@ const AvatarsList = () => {
     }
        
         
+    console.log(avatarsArray[1])
       
        
    
@@ -41,10 +46,10 @@ const AvatarsList = () => {
     return (
         <div className='avatar-container'>
             {selectedAvatar ? (
-                <AvatarDisplay src={selectedAvatar} onClear={clearSelection} />
+                <AvatarDisplay name={selectedAvatar.seed} id={selectedAvatar.id} src={selectedAvatar.src} onClear={clearSelection} />
             ) : (
-                avatarsArray.map((src, index) => (
-                    <img className='avatar' id={index + 1} key={index} src={src} alt={`Avatar ${index + 1}`} onClick={() => handleAvatarSelect(src)}></img>
+                avatarsArray.map((avatar) => (
+                    <img name={avatar.seed}className='avatar'  key={avatar.id} src={avatar.src} alt={`Avatar ${avatar.id}`} onClick={() => handleAvatarSelect(avatar)}></img>
                 ))
             )}
            
