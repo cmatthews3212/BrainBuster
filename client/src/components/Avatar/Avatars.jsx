@@ -1,44 +1,58 @@
 import { createAvatar } from '@dicebear/core';
 import { adventurer } from '@dicebear/collection';
 // import { style } from '@dicebear/adventurer';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { create } from '@dicebear/adventurer';
 import AvatarDisplay from './AvatarDisplay';
-import { useNavigate } from 'react-router-dom';
 
 
-const AvatarsList = ({ onSelect }) => {
 
-    const navigate = useNavigate();
+const AvatarsList = () => {
+    const [selectedAvatar, setSelectedAvatar] = useState(null);
+
    
  
     const avatarsArray = useMemo(() => {
         const avatarSeeds = ["Chase", "Destiny", "Kingston", "Jessica", "Jack"];
-        return avatarSeeds.map(seed => createAvatar(adventurer, {
-            seed,
-            size: 120,
-            randomizeIds: true,
-        }).toDataUri());
+        return avatarSeeds.map((seed, index) => ({
+            id: index + 1,
+            src: createAvatar(adventurer, {
+                seed,
+                size: 120,
+                randomizeIds: true,
+
+            }).toDataUri()
+        }))
     }, []);
 
        
 
 
-    const handleAvatarSelect = (src) => {
-        navigate(`avatar/${src}`)
+    const handleAvatarSelect = (avatar)=> {
+        setSelectedAvatar(avatar)
 
+    };
+
+    const clearSelection = () => {
+        setSelectedAvatar(null);
     }
        
         
+    console.log(avatarsArray[1])
       
        
    
   
     return (
         <div className='avatar-container'>
-           {avatarsArray.map((src, index) => (
-            <img className='avatar' id={index + 1} key={index} src={src} alt={`Avatar ${index + 1}`} onClick={() => handleAvatarSelect(src)}></img>
-        ))}
+            {selectedAvatar ? (
+                <AvatarDisplay name={selectedAvatar.seed} id={selectedAvatar.id} src={selectedAvatar.src} onClear={clearSelection} />
+            ) : (
+                avatarsArray.map((avatar) => (
+                    <img name={avatar.seed}className='avatar'  key={avatar.id} src={avatar.src} alt={`Avatar ${avatar.id}`} onClick={() => handleAvatarSelect(avatar)}></img>
+                ))
+            )}
+           
         </div>
     )
 

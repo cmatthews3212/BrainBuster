@@ -1,11 +1,29 @@
 import React from 'react';
-import { useParams  } from 'react-router-dom';
+import { useState } from 'react';
+import CustomizeAvatar from './CustomizeAvatar';
 
-const AvatarDisplay = () => {
-    const { src } = useParams();
+const AvatarDisplay = ({ src, avatarId, onClear }) => {
+    const [isCustomizing, setIsCustomizing] = useState(false);
+
+    if (!src) return null;
+
+    const handleSelectedAvatar = () => {
+       setIsCustomizing(true);
+
+    }
+
+    if (isCustomizing) {
+        return <CustomizeAvatar id={avatarId} src={src} onBack={onClear} />
+    }
     return (
         <div className='avatar-display'>
-            <img src={src} alt='Selected Avatar' />
+            <h2>Your Avatar!</h2>
+            <img id={avatarId} src={src} alt='Selected Avatar' />
+            <div>
+            <button onClick={handleSelectedAvatar}>Select this Avatar</button>
+            <button onClick={onClear}>Back to Avatars</button>
+
+            </div>
         </div>
     );
 };
