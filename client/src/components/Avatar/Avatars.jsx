@@ -16,6 +16,7 @@ const AvatarsList = () => {
         const avatarSeeds = ["Chase", "Destiny", "Kingston", "Jessica", "Jack"];
         return avatarSeeds.map((seed, index) => ({
             id: index + 1,
+            seed,
             src: createAvatar(adventurer, {
                 seed,
                 size: 120,
@@ -49,7 +50,7 @@ const AvatarsList = () => {
                 <AvatarDisplay name={selectedAvatar.seed} id={selectedAvatar.id} src={selectedAvatar.src} onClear={clearSelection} />
             ) : (
                 avatarsArray.map((avatar) => (
-                    <img name={avatar.seed}className='avatar'  key={avatar.id} src={avatar.src} alt={`Avatar ${avatar.id}`} onClick={() => handleAvatarSelect(avatar)}></img>
+                    <img name={avatar.seed} className='avatar'  key={avatar.id} src={avatar.src} alt={`Avatar ${avatar.id}`} onClick={() => handleAvatarSelect(avatar)}></img>
                 ))
             )}
            

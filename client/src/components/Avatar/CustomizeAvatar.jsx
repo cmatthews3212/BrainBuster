@@ -11,33 +11,42 @@ import { adventurer } from '@dicebear/collection';
 const CustomizeAvatar = ({ src, id, name, onBack }) => {
     if (!src) return null;
 
-    const [avatarSrc, setAvatarSrc] = useState('');
+    const [avatarSrc, setAvatarSrc] = useState("");
     const [options, setOptions] = useState({
-        seed: `avatar-${id}`,
-        accessories: 'roundGlasses',
-        hair: 'shortFlat',
-        clothingColor: '#FFD700',
-        backgroundColor: '#FFFFFF',
+        seed: name,
+        glasses: [],
+        glassesProbability: 100
+  
 
     });
 
+    // const renderGlassesClick = (glasses) => {
+    //     const avatar = createAvatar(adventurer, {
+    //         seed: name,
+    //         glasses: glasses
+    //     });
+        
+    //     return avatar.toDataUri()
+    // }
+
     useEffect(() => {
+
         const avatar = createAvatar(adventurer, {
             seed: options.seed,
-            accessories: options.accessories,
-            hair: options.hair,
-            clothingColor: options.clothingColor,
-            backgroundColor: options.backgroundColor,
+            glasses: [options.glasses],
+            glassesProbability: 100,
             size: 120,
-            randomizeIds: false,
+       
+          
+            
 
         });
 
-        setAvatarSrc(avatar.toDataUri())
+       setAvatarSrc(avatar.toDataUri())
     }, [options]);
 
     const handleOptionsChange = (key, value) => {
-        setOptions((prevOptions) => ({...prevOptions, [key]: value }))
+        setOptions((prevOptions) => ({...prevOptions, [key]: value }));
     }
    
 
@@ -46,11 +55,15 @@ const CustomizeAvatar = ({ src, id, name, onBack }) => {
         <div className='customize-container'>
            <h2>Customize my Avatar!</h2>
            <div>
-            <img id={id} src={src}></img>
+            <img key={avatarSrc} name={name} src={avatarSrc}></img>
             <div className='customizations'>
                 <label>Acessories
-                    <select value={options.accessories}
-                    onChange={(e) => handleOptionsChange('accessories', e.target.value)}></select>
+                    <select value={options.glasses}
+                    onChange={(e) => handleOptionsChange(glasses, e.target.value)}>
+                        <option value="variant01">Round Glasses</option>
+                        <option value="variant02">Sunglasses</option>
+                        <option value="variant03">None</option>
+                    </select>
                 </label>
 
                 
