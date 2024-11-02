@@ -57,14 +57,14 @@ const typeDefs = gql`
   }
 
   type Avatar {
-    avatarId: ID!
+    avatarId: ID
     seed: String!
     size: Int
     hair: String
   }
 
   input AvatarInput {
-    avatarId: ID!
+    avatarId: ID
     seed: String!
     size: Int
     hair: String

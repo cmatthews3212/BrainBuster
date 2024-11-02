@@ -6,6 +6,7 @@ export const LOGIN = gql`
       token
       user {
         _id
+        avatar
       }
     }
   }
@@ -62,6 +63,7 @@ export const ADD_AVATAR = gql`
       _id
       email
       avatar {
+        _id
         seed
         size
         hair
@@ -77,7 +79,6 @@ export const UPDATE_AVATAR = gql`
       email
       avatar {
         seed
-        src
         size
         hair
       }
