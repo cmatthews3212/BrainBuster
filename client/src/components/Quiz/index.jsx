@@ -87,7 +87,7 @@ const Quiz = () => {
           onChange={(e) => setSelectedCategory(e.target.value)}
           disabled={questions.length > 0}
         >
-          {category.map((cat) => (
+          {categories.map((cat) => (
             <option key={cat.value} value={cat.value}>
               {cat.label}
             </option>
