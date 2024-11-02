@@ -3,6 +3,7 @@ import { QUERY_USERS } from "../utils/queries";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
 import { SET_USERS } from "../utils/actions";
+import JoinGame from "../components/Game/JoinGame";
 
 const Home = () => {
 
@@ -23,8 +24,12 @@ const Home = () => {
     }
   return (
     <div className="container">
-     <h1>HOME</h1>
-     {state.users.map(user => (<div key={user.email}>{user.email}</div>))}
+     <div className="avatarCont"></div>
+     <div className="join">
+     <JoinGame></JoinGame>
+
+     </div>
+     {/* {state.users.map(user => (<div key={user.email}>{user.email}</div>))} */}
     </div>
   );
 };
