@@ -77,38 +77,40 @@ const Quiz = () => {
   const isQuizComplete = Object.keys(userAnswers).length === questions.length;
 
   return (
-    <div>
-      <h1>Trivia!</h1>
+    <div className="quiz-container">
+      <h2>Chose your Game!</h2>
       <div>
-        <label>
-          Category:
-          <select
+        <h3>
+          CATEGORY
+      </h3>
+      <hr></hr>
+          <ul
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
           disabled={questions.length > 0}
         >
           {categories.map((cat) => (
-            <option key={cat.value} value={cat.value}>
+            <li onClick={(e) => setSelectedCategory(e.target.value)} key={cat.value} value={cat.value}>
               {cat.label}
-            </option>
+            </li>
           ))}
-        </select>
-      </label>
-      <label>
-        Difficulty:
-        <select
+        </ul>
+      <h3>
+        DIFFICULTY
+        </h3>
+        <hr></hr>
+        <ul
           value={selectedDifficulty}
           onChange={(e) => setSelectedDifficulty(e.target.value)}
           disabled={questions.length > 0}
         >
           {difficulties.map((diff) => (
-            <option key={diff} value={diff}>
+            <li key={diff} value={diff}>
               {diff.charAt(0).toUpperCase() + diff.slice(1)}
-            </option>
+            </li>
           ))}
-        </select>
-      </label>
-      <button onClick={fetchQuestions} disabled={loading || questions.length > 0}>
+        </ul>
+      
+      <button className="quizBtn" onClick={fetchQuestions} disabled={loading || questions.length > 0}>
         { loading ? "Loading..." : "Start Quiz"}
       </button>
     </div>

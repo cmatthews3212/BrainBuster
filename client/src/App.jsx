@@ -35,9 +35,9 @@ function App() {
     <ApolloProvider client={client}>
       <div>
         <GlobalProvider>
-          <Nav />
+          <Nav/>
           <Outlet />
-          <Quiz />
+         
         </GlobalProvider>
       </div>
     </ApolloProvider>

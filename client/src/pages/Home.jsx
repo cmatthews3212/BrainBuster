@@ -4,8 +4,10 @@ import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
 import { SET_USERS } from "../utils/actions";
 import JoinGame from "../components/Game/JoinGame";
+import Nav from "../components/Nav";
 
 const Home = () => {
+  
 
     
     const [state, dispatch] = useGlobalContext();
@@ -26,6 +28,7 @@ const Home = () => {
     <div className="container">
      <div className="avatarCont"></div>
      <div className="join">
+    
      <JoinGame></JoinGame>
 
      </div>

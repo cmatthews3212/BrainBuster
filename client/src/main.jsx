@@ -11,6 +11,7 @@ import Signup from './pages/Signup';
 import About from './pages/About.jsx';
 import Profile from './pages/Profile.jsx'
 import Avatars from './pages/Avatars.jsx';
+import Quiz from './components/Quiz/index.jsx';
 // import AvatarDisplay  from './components/Avatar/AvatarDisplay.jsx';
 
 
@@ -42,7 +43,10 @@ const router = createBrowserRouter([
       },{
         path: '/avatars',
         element: <Avatars />
-      }, 
+      }, {
+        path: '/quiz',
+        element: <Quiz />
+      }
       // {
       //   path: '/avatar/:src',
       //   element: <AvatarDisplay />
