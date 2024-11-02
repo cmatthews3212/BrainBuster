@@ -1,10 +1,4 @@
 import { useState, useEffect } from "react";
-import {
-  getQuestions,
-  category,
-  difficulty,
-} from "../../../../server/utils/requests";
-
 import { useMutation } from '@apollo/client';
 import { CREATE_GAME } from '../../utils/mutations';
 
@@ -21,6 +15,8 @@ const categories = [
   { label: 'General Knowledge', value: 'general_knowledge'},
 ]
 
+const difficulties = ['easy', 'medium', 'hard'];
+
 const Quiz = () => {
   const [questions, setQuestions] = useState([]);
   const [error, setError] = useState(null);
@@ -28,20 +24,28 @@ const Quiz = () => {
   const [selectedCategory, setSelectedCategory] = useState(category[0].value);
   const [selectedDifficulty, setSelectedDifficulty] = useState(difficulty[0]);
 
+  const [createGame] = useMutation(CREATE_GAME);
+
   const fetchQuestions = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchTriviaQuestions(10, selectedCategory, selectedDifficulty)
-      setQuestions(data);
+      const { data } = await createGame({
+        variables: {
+          amount: 10,
+          category: selectedCategory,
+          difficulty: selectedDifficulty,
+        },
+      })
+
+      setQuestions(data.createGame.questions);
     } catch (err) {
+      console.error('Error fetching questions:', err);
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchQuestions();
-  }, [selectedCategory, selectedDifficulty]);
 
   const decodeHtml = (html) => {
     const txt = document.createElement("textarea");
@@ -52,53 +56,55 @@ const Quiz = () => {
   return (
     <div>
       <h1>Trivia!</h1>
-      {loading && <p>Loading...</p>}
-      {error && <p>Error: {error}</p>}
-      {!loading && !error && (
-        <div>
-          <div>
-            <label>
-              Category:
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                {category.map((cat) => (
-                  <option key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Difficulty:
-              <select
-                value={selectedDifficulty}
-                onChange={(e) => setSelectedDifficulty(e.target.value)}
-              >
-                {difficulty.map((diff) => (
-                  <option key={diff} value={diff}>
-                    {diff.charAt(0).toUpperCase() + diff.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button onClick={fetchQuestions}>Fetch Questions</button>
-          </div>
-          <div>
-            {questions.map((question, index) => (
-              <div key={index}>
-                <h3>{decodeHtml(question.question)}</h3>
-                <ul>
-                  {[...question.incorrect_answers, question.correct_answer].map(
-                    (answer, idx) => (
-                      <li key={idx}>{decodeHtml(answer)}</li>
-                    )
-                  )}
-                </ul>
-              </div>
+      <div>
+        <label>
+          Category:
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            disabled={question.length > 0}
+          >
+            {category.map((cat) => (
+              <option key={cat.value} value={cat.value}>
+                {cat.label}
+              </option>
             ))}
-          </div>
+          </select>
+        </label>
+        <label>
+          Difficulty:
+          <select
+            value={selectedDifficulty}
+            onChange={(e) => setSelectedDifficulty(e.target.value)}
+            disabled={question.length > 0}
+          >
+            {difficulty.map((diff) => (
+              <option key={diff} value={diff}>
+                {diff.charAt(0).toUpperCase() + diff.slice(1)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button onClick={fetchQuestions} disabled={loading || questions.length > 0}>
+          { loading ? "Loading..." : "Start Quiz"}
+        </button>
+      </div>
+      {error && <p>Error: {error}</p>}
+      {questions.length > 0 && (
+        <div>
+          {questions.map((question, index) => (
+            <div key={index}>
+              <h3>{decodeHtml(question.question)}</h3>
+              <ul>
+                {shuffleAnswers([
+                  ...question.incorrectAnswers,
+                  question.correctAnswer
+                ]).map((answer, idx) => (
+                  <li key={idx}>{decodeHtml(answer)}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       )}
     </div>
