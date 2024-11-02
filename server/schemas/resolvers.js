@@ -103,12 +103,16 @@ const resolvers = {
       throw new AuthenticationError('Please log in');
     },
     addAvatar: async (parent, { userId, avatar }, context) => {
-      if (!context.user) console.error('Please log in');
+      if (!context.user) {
+        console.error('Please log in');
+        throw new AuthenticationError('Please log in.');
+      }
 
       const user = await User.findById(userId);
 
       if (!user) {
-        console.error('User not found')
+        console.error('User not found');
+        throw new AuthenticationError('User not found.');
       }
 
       user.avatar = avatar;
@@ -116,15 +120,22 @@ const resolvers = {
       return user.avatar;
     },
     updateAvatar: async (parent, { userId, avatar}, context) => {
-      if (!context.user) console.error('Please log in');
+      if (!context.user) {
+        console.error('Please log in');
+        throw new AuthenticationError('Please log in.');
+      }
       const user = await User.findById(userId);
-      if (!user) console.error('User not found')
 
-        if (avatar.seed) user.avatar.seed = avatar.seed;
-        if (avatar.size) user.avatar.size = avatar.size;
-        if (avatar.hair) user.avatar.hair = avatar.hair;
+      if (!user) {
+        console.error('User not found');
+        throw new AuthenticationError('User not found.');
+      }
 
-        await user.savte();
+      if (avatar.seed) user.avatar.seed = avatar.seed;
+      if (avatar.size) user.avatar.size = avatar.size;
+      if (avatar.hair) user.avatar.hair = avatar.hair;
+
+        await user.save();
         return user.avatar;
     },
   },

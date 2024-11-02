@@ -22,7 +22,7 @@ const Quiz = () => {
   const [userAnswers, setUserAnswers] = useState({});
   const [score, setScore] = useState({});
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState(categories[0].value);
   const [selectedDifficulty, setSelectedDifficulty] = useState(difficulties[0]);

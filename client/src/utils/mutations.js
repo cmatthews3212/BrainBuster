@@ -73,8 +73,8 @@ export const ADD_AVATAR = gql`
 `;
 
 export const UPDATE_AVATAR = gql`
-  mutation addAvatar($userId: ID!, $avatarId: ID!) {
-    addAvatar(userId: $userId, avatarId: $avatarId){
+  mutation updateAvatar($userId: ID!, $avatar: AvatarInput!) {
+    updateAvatar(userId: $userId, avatar: $avatar){
       _id
       email
       avatar {

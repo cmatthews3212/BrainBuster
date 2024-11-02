@@ -50,7 +50,7 @@ const userSchema = new Schema({
 // set up pre-save middleware to create password
 userSchema.pre('save', async function(next) {
   if (this.isNew) {
-    this.avatarSeed = this._id.toString();
+    this.avatar.seed = this._id.toString();
   }
 
   if (this.isNew || this.isModified('password')) {
