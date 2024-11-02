@@ -27,10 +27,13 @@ export const ADD_USER = gql`
       token
       user {
         _id
+    
       }
     }
   }
 `;
+
+
 
 export const CREATE_GAME = gql`
   mutation CreateGame($amount: Int, $category: String, $difficulty: String) {
@@ -60,7 +63,6 @@ export const ADD_AVATAR = gql`
       email
       avatar {
         seed
-        src
         size
         hair
       }

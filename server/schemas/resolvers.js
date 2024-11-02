@@ -121,7 +121,6 @@ const resolvers = {
       if (!user) console.error('User not found')
 
         if (avatar.seed) user.avatar.seed = avatar.seed;
-        if (avatar.src) user.avatar.src = avatar.src;
         if (avatar.size) user.avatar.size = avatar.size;
         if (avatar.hair) user.avatar.hair = avatar.hair;
 

@@ -59,24 +59,22 @@ const typeDefs = gql`
   type Avatar {
     avatarId: ID!
     seed: String!
-    src: String!
     size: Int
     hair: String
   }
 
-  type AvatarInput {
+  input AvatarInput {
     avatarId: ID!
     seed: String!
-    src: String!
     size: Int
     hair: String
   }
 
   type Mutation {
-    addUser(firstName: String!, lastName: String!, email: String!, password: String!, avatar: Avatar!): Auth
-    addAvatar(userId: ID!, avatar: avatarInput!): Avatar
+    addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
+    addAvatar(userId: ID!, avatar: AvatarInput!): Avatar
     updateUser(firstName: String, lastName: String, email: String, password: String): User
-    updateAvatar(userId: ID!, avatar: avatarInput): Avatar
+    updateAvatar(userId: ID!, avatar: AvatarInput): Avatar
     login(email: String!, password: String!): Auth
     createGame(amount: Int, category: String, difficulty: String): Game
     joinGame(gameId: ID!): Game

@@ -1,6 +1,10 @@
 const { Schema } = require('mongoose');
 
 const avatarSchema = new Schema({
+    avatarId: {
+        type: Schema.Types.ObjectId,
+        required: true,
+    },
     seed: {
             type: String,
             required: true,
@@ -18,4 +22,4 @@ const avatarSchema = new Schema({
  
 });
 
-module.exports = avatarSchema;
+module.exports = {avatarSchema};
