@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 function Nav() {
   function showNavigation() {
-    // if (Auth.loggedIn()) {
+    if (Auth.loggedIn()) {
       return (
         <ul className="flex-row">
           <li className="mx-1">
@@ -20,21 +20,21 @@ function Nav() {
           </li>
         </ul>
       );
-    // } else {
-    //   return (
-    //     <ul className="flex-row">
-    //       <li className="mx-1">
-    //         <Link to="/signup">Signup</Link>
-    //       </li>
-    //       <li className="mx-1">
-    //         <Link to="/login">Login</Link>
-    //       </li>
-    //       <li className="mx-1">
-    //         <Link to="/about">About</Link>
-    //       </li>
-    //     </ul>
-    //   );
-    // }
+    } else {
+      return (
+        <ul className="flex-row">
+          <li className="mx-1">
+            <Link to="/signup">Signup</Link>
+          </li>
+          <li className="mx-1">
+            <Link to="/login">Login</Link>
+          </li>
+          <li className="mx-1">
+            <Link to="/about">About</Link>
+          </li>
+        </ul>
+      );
+    }
   }
 
   return (
