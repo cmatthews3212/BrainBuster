@@ -4,6 +4,7 @@ import { adventurer } from '@dicebear/collection';
 import { useMemo, useState } from 'react';
 import { create } from '@dicebear/adventurer';
 import AvatarDisplay from './AvatarDisplay';
+import CustomizeAvatar from './CustomizeAvatar';
 // "Jack", "Wyatt", "Nolan", "Christopher", "Katherine", "Vivian", "Jessica", "Ryan", "Brooklynn", "Liliana", "Avery", "Maria", "Kimberly", "Christian", "Caleb", "Luis", "Brian", "Amaya", "Mason", "Jameson", "Alexander", "Sawyer", "Easton", "Andrea", "Christian", "Jocelyn", "Mason", "Caleb", "Ryan", "Liliana", "Valentina", "Sophia"
 
 
@@ -24,9 +25,10 @@ const AvatarsList = () => {
                 size: 120,
                 hairProbability: 0,
                 glassesProbability: 0,
-                mouth: ["variant01"],
-                eyes: ["variant01"],
-                eyebrows: ["variant12"]
+                mouth: [],
+                eyes: [],
+                eyebrows: []
+            
 
                 
             
@@ -56,11 +58,13 @@ const AvatarsList = () => {
     return (
         <div className='avatar-container'>
             {selectedAvatar ? (
-                <AvatarDisplay name={selectedAvatar.seed} id={selectedAvatar.id} src={selectedAvatar.src} onClear={clearSelection} />
+                <CustomizeAvatar name={selectedAvatar.seed} id={selectedAvatar.id} src={selectedAvatar.src} onClear={clearSelection} />
             ) : (
+            
                 avatarsArray.map((avatar) => (
                     <img name={avatar.seed} className='avatar'  key={avatar.id} src={avatar.src} alt={`Avatar ${avatar.id}`} onClick={() => handleAvatarSelect(avatar)}></img>
                 ))
+               
             )}
            
         </div>
