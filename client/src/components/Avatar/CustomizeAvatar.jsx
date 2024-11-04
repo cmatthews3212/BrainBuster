@@ -3,7 +3,7 @@ import { useEffect, useState, useMemo } from 'react';
 import AvatarDisplay from './AvatarDisplay';
 import { useParams } from 'react-router-dom';
 import { createAvatar } from '@dicebear/core';
-import { adventurer } from '@dicebear/collection';
+import { adventurer, glass } from '@dicebear/collection';
 
 
 
@@ -26,11 +26,25 @@ const CustomizeAvatar = ({ src, name, onBack }) => {
     const [selectedEyes, setSelectedEyes] = useState(src)
     const [selectedEyebrows, setSelectedEyebrows] = useState(src)
     const [selectedEarrings, setSelectedEarrings] = useState(src)
+    const [earringsProb, setEarringsProb] = useState(100)
     const [selectedFeatures, setSelectedFeatures] = useState(src)
+    const [featuresProb, setFeaturesProb] = useState(100)
     const [selectedGlasses, setSelectedGlasses] = useState(src)
+    const [glassesProb, setGlassesProb] = useState(100)
     
     const [hairStyle, setHairStyle] = useState(false);
     const [hairColor, setHairColor] = useState(false);
+    const [mouth, setMouth] = useState(false)
+    const [eyes, setEyes] = useState(false)
+    const [eyebrows, setEyebrows] = useState(false)
+    const [earrings, setEarrings] = useState(false)
+    const [features, setFeatures] = useState(false)
+    const [glasses, setGlasses] = useState(false)
+
+
+
+
+
 
     useEffect(() => {
         const updatedAvatar = createAvatar(adventurer, {
@@ -39,14 +53,21 @@ const CustomizeAvatar = ({ src, name, onBack }) => {
             hairProbability: 100,
             hair: [selectedHair],
             hairColor: [selectedHairColor],
-            glassesProbability: 0,
-            mouth: ["variant01"],
-            eyes: ["variant01"],
-            eyebrows: ["variant12"],
+            glassesProbability: 100,
+            mouth: [selectedMouth],
+            eyes: [selectedEyes],
+            eyebrows: [selectedEyebrows],
+            earrings: [selectedEarrings],
+            earringsProbability: earringsProb,
+            features: [selectedFeatures],
+            featuresProbability: featuresProb,
+            glasses: [selectedGlasses],
+            glassesProb: glassesProb,
+
         }).toDataUri();
 
         setCurrentSrc(updatedAvatar);
-    }, [selectedHair, selectedHairColor, name]);
+    }, [selectedHair, selectedHairColor, selectedMouth, selectedEyes, selectedEyebrows, selectedEarrings, selectedFeatures, selectedGlasses,earringsProb, featuresProb, glassesProb, name]);
 
         const hairArray = useMemo(() => {
      
@@ -57,16 +78,22 @@ const CustomizeAvatar = ({ src, name, onBack }) => {
                     hairProbability: 100,
                     hairColor: [selectedHairColor],
                     glassesProbability: 0,
-                    mouth: ["variant01"],
-                    eyes: ["variant01"],
-                    eyebrows:  ["variant12"],
-                    hair: [hair]
+                    mouth: [selectedMouth],
+                    eyes: [selectedEyes],
+                    eyebrows:  [selectedEyebrows],
+                    hair: [hair],
+                    earrings: [selectedEarrings],
+                    earringsProbability: earringsProb,
+                    features: [selectedFeatures],
+                    featuresProbability: featuresProb,
+                    glasses: [selectedGlasses],
+                    glassesProbability: glassesProb,
         
 
                 }).toDataUri(),
                 hair,
             }))
-        }, [selectedHairColor, name]);
+        }, [selectedHairColor, selectedMouth, selectedEyes, selectedEyebrows, selectedEarrings, selectedFeatures, earringsProb, featuresProb, selectedGlasses, glassesProb, name]);
     
 
         const hairColorArray = useMemo(() => {
@@ -78,17 +105,179 @@ const CustomizeAvatar = ({ src, name, onBack }) => {
                     hairProbability: 100,
                     hairColor: [color],
                     glassesProbability: 0,
-                    mouth: ["variant01"],
-                    eyes: ["variant01"],
-                    eyebrows: ["variant12"],
-                    hair: [selectedHair]
+                    mouth: [selectedMouth],
+                    eyes: [selectedEyes],
+                    eyebrows: [selectedEyebrows],
+                    hair: [selectedHair],
+                    earrings: [selectedEarrings],
+                    earringsProbability: earringsProb,
+                    features: [selectedFeatures],
+                    featuresProbability: featuresProb,
+                    glasses: [selectedGlasses],
+                    glassesProbability: glassesProb,
 
 
                 }).toDataUri(),
                 color,
             }))
-        }, [selectedHair, name]);
+        }, [selectedHair, selectedMouth, selectedEyes, selectedEyebrows, selectedEarrings, selectedFeatures, earringsProb, featuresProb, selectedGlasses, glassesProb, name]);
 
+        const mouthArray = useMemo(() => {
+     
+            return mouthSeeds.map((mouth) => ({
+               src: createAvatar(adventurer, {
+                    seed: name,
+                    size: 120,
+                    hairProbability: 100,
+                    hairColor: [selectedHairColor],
+                    glassesProbability: 0,
+                    mouth: [mouth],
+                    eyes: [selectedEyes],
+                    eyebrows: [selectedEyebrows],
+                    hair: [selectedHair],
+                    earrings: [selectedEarrings],
+                    earringsProbability: earringsProb,
+                    features: [selectedFeatures],
+                    featuresProbability: featuresProb,
+                    glasses: [selectedGlasses],
+                    glassesProbability: glassesProb,
+
+
+                }).toDataUri(),
+                mouth,
+            }))
+        }, [selectedHair, selectedHairColor, selectedEyes, selectedEyebrows, selectedEarrings, selectedFeatures, earringsProb, featuresProb, selectedGlasses, glassesProb, name]);
+
+        const eyesArray = useMemo(() => {
+     
+            return eyesSeeds.map((eyes) => ({
+               src: createAvatar(adventurer, {
+                    seed: name,
+                    size: 120,
+                    hairProbability: 100,
+                    hairColor: [selectedHairColor],
+                    glassesProbability: 0,
+                    mouth: [selectedMouth],
+                    eyes: [eyes],
+                    eyebrows: [selectedEyebrows],
+                    hair: [selectedHair],
+                    earrings: [selectedEarrings],
+                    earringsProbability: earringsProb,
+                    features: [selectedFeatures],
+                    featuresProbability: featuresProb,
+                    glasses: [selectedGlasses],
+                    glassesProbability: glassesProb,
+
+
+
+                }).toDataUri(),
+                eyes,
+            }))
+        }, [selectedHair, selectedHairColor, selectedMouth, selectedEyebrows, selectedEarrings, selectedFeatures, earringsProb, featuresProb, selectedGlasses, glassesProb, name]);
+
+        const eyebrowsArray = useMemo(() => {
+     
+            return eyebrowSeeds.map((eyebrows) => ({
+               src: createAvatar(adventurer, {
+                    seed: name,
+                    size: 120,
+                    hairProbability: 100,
+                    hairColor: [selectedHairColor],
+                    glassesProbability: 0,
+                    mouth: [selectedMouth],
+                    eyes: [selectedEyes],
+                    eyebrows: [eyebrows],
+                    hair: [selectedHair],
+                    earrings: [selectedEarrings],
+                    earringsProbability: earringsProb,
+                    features: [selectedFeatures],
+                    featuresProbability: featuresProb,
+                    glasses: [selectedGlasses],
+                    glassesProbability: glassesProb,
+
+
+                }).toDataUri(),
+                eyebrows,
+            }))
+        }, [selectedHair, selectedHairColor, selectedMouth,selectedEyes, selectedEarrings, selectedFeatures, earringsProb, featuresProb, selectedGlasses, glassesProb, name]);
+
+        const earringsArray = useMemo(() => {
+     
+            return earringsSeeds.map((earrings) => ({
+               src: createAvatar(adventurer, {
+                    seed: name,
+                    size: 120,
+                    hairProbability: 100,
+                    hairColor: [selectedHairColor],
+                    glassesProbability: 0,
+                    mouth: [selectedMouth],
+                    eyes: [selectedEyes],
+                    eyebrows: [selectedEyebrows],
+                    hair: [selectedHair],
+                    earrings: [earrings],
+                    earringsProbability: earringsProb,
+                    features: [selectedFeatures],
+                    featuresProbability: featuresProb,
+                    glasses: [selectedGlasses],
+                    glassesProbability: glassesProb,
+
+
+                }).toDataUri(),
+                earrings,
+            }))
+        }, [selectedHair, selectedHairColor, selectedMouth,selectedEyes, selectedEyebrows, selectedFeatures, earringsProb, featuresProb, selectedGlasses, glassesProb, name]);
+
+        const featuresArray = useMemo(() => {
+     
+            return featuresSeeds.map((features) => ({
+               src: createAvatar(adventurer, {
+                    seed: name,
+                    size: 120,
+                    hairProbability: 100,
+                    hairColor: [selectedHairColor],
+                    glassesProbability: 0,
+                    mouth: [selectedMouth],
+                    eyes: [selectedEyes],
+                    eyebrows: [selectedEyebrows],
+                    hair: [selectedHair],
+                    earrings: [selectedEarrings],
+                    earringsProbability: earringsProb,
+                    features: [features],
+                    featuresProbability: featuresProb,
+                    glasses: [selectedGlasses],
+                    glassesProbability: glassesProb,
+
+
+                }).toDataUri(),
+                features,
+            }))
+        }, [selectedHair, selectedHairColor, selectedMouth,selectedEyes, selectedEyebrows, selectedEarrings, earringsProb, featuresProb, selectedGlasses, glassesProb, name]);
+
+        const glassesArray = useMemo(() => {
+     
+            return glassesSeeds.map((glasses) => ({
+               src: createAvatar(adventurer, {
+                    seed: name,
+                    size: 120,
+                    hairProbability: 100,
+                    hairColor: [selectedHairColor],
+                    glassesProbability: 0,
+                    mouth: [selectedMouth],
+                    eyes: [selectedEyes],
+                    eyebrows: [selectedEyebrows],
+                    hair: [selectedHair],
+                    earrings: [selectedEarrings],
+                    earringsProbability: earringsProb,
+                    features: [features],
+                    featuresProbability: featuresProb,
+                    glasses: [glasses],
+                    glassesProbability: glassesProb,
+
+
+                }).toDataUri(),
+                glasses,
+            }))
+        }, [selectedHair, selectedHairColor, selectedMouth,selectedEyes, selectedEyebrows, selectedEarrings, earringsProb, featuresProb, selectedFeatures, glassesProb, name]);
         
         const handleHairClick = (hair) => {
             setSelectedHair(hair)
@@ -100,12 +289,62 @@ const CustomizeAvatar = ({ src, name, onBack }) => {
            
         }
 
+        const handleMouthClick = (mouth) => {
+            setSelectedMouth(mouth)
+        }
+
+        const handleEyesClick = (eyes) => {
+            setSelectedEyes(eyes)
+        }
+
+        const handleEyebrowsClick = (eyebrows) => {
+            setSelectedEyebrows(eyebrows)
+        }
+
+        const handleEarringsClick = (earrings) => {
+            setSelectedEarrings(earrings)
+           
+        }
+
+        const handleFeaturesClick = (features) => {
+            setSelectedFeatures(features)
+        }
+
+        const handleGlassesClick = (glasses) => {
+            setSelectedGlasses(glasses)
+        }
+
         const handleToggleHair = () => {
             setHairStyle(!hairStyle);
         }
 
         const hanldeToggleColor = () => {
             setHairColor(!hairColor)
+        }
+
+        const handleToggleMouth = () => {
+            setMouth(!mouth)
+        }
+
+        const hanldeToggleEyes = () => {
+            setEyes(!eyes)
+        }
+
+        const handleToggleEyebrows =() => {
+            setEyebrows(!eyebrows)
+        }
+
+        
+        const handleToggleEarrings =() => {
+            setEarrings(!earrings)
+        }
+
+        const handleToggleFeatures = () => {
+            setFeatures(!features)
+        }
+
+        const handleToggleGlasses = () => {
+            setGlasses(!glasses)
         }
        
 
@@ -142,6 +381,66 @@ const CustomizeAvatar = ({ src, name, onBack }) => {
                     {/* <h2>Hair Color</h2> */}
                 {hairColorArray.map((color) => (
                         <img  onClick={() => handleHairColorClick(color.color)}  name={color.seed} className='avatar-hair-list' src={color.src}></img>
+                    ))} 
+
+                </div>
+                )}
+                 <button className='customizeBtn' onClick={handleToggleMouth}>{mouth ? 'Select' : 'Choose'} Mouth </button>
+                 {mouth && (
+                <div className='selections'>
+                    {/* <h2>Hair Style</h2> */}
+                {mouthArray.map((mouth) => (
+                        <img  onClick={() => handleMouthClick(mouth.mouth)}  name={mouth.seed} className='avatar-hair-list' src={mouth.src}></img>
+                    ))} 
+
+                </div>
+                )}
+                  <button className='customizeBtn' onClick={hanldeToggleEyes}>{eyes ? 'Select' : 'Choose'} Eyes </button>
+                 {eyes && (
+                <div className='selections'>
+                    {/* <h2>Hair Style</h2> */}
+                {eyesArray.map((eyes) => (
+                        <img  onClick={() => handleEyesClick(eyes.eyes)}  name={eyes.seed} className='avatar-hair-list' src={eyes.src}></img>
+                    ))} 
+
+                </div>
+                )}
+                    <button className='customizeBtn' onClick={handleToggleEyebrows}>{eyebrows ? 'Select' : 'Choose'} Eyebrows </button>
+                 {eyebrows && (
+                <div className='selections'>
+                    {/* <h2>Hair Style</h2> */}
+                {eyebrowsArray.map((eyebrows) => (
+                        <img  onClick={() => handleEyebrowsClick(eyebrows.eyebrows)}  name={eyebrows.seed} className='avatar-hair-list' src={eyebrows.src}></img>
+                    ))} 
+
+                </div>
+                )}
+                   <button className='customizeBtn' onClick={handleToggleEarrings}>{earrings ? 'Select' : 'Choose'} Earrings </button>
+                 {earrings && (
+                <div className='selections'>
+                    {/* <h2>Hair Style</h2> */}
+                {earringsArray.map((earrings) => (
+                        <img  onClick={() => handleEarringsClick(earrings.earrings)}  name={earrings.seed} className='avatar-hair-list' src={earrings.src}></img>
+                    ))} 
+
+                </div>
+                )}
+                   <button className='customizeBtn' onClick={handleToggleFeatures}>{features ? 'Select' : 'Choose'} Features </button>
+                 {features && (
+                <div className='selections'>
+                    {/* <h2>Hair Style</h2> */}
+                {featuresArray.map((features) => (
+                        <img  onClick={() => handleFeaturesClick(features.features)}  name={features.seed} className='avatar-hair-list' src={features.src}></img>
+                    ))} 
+
+                </div>
+                )}
+                   <button className='customizeBtn' onClick={handleToggleGlasses}>{glasses ? 'Select' : 'Choose'} Glasses </button>
+                 {glasses && (
+                <div className='selections'>
+                    {/* <h2>Hair Style</h2> */}
+                {glassesArray.map((glasses) => (
+                        <img  onClick={() => handleGlassesClick(glasses.glasses)}  name={glasses.seed} className='avatar-hair-list' src={glasses.src}></img>
                     ))} 
 
                 </div>
