@@ -19,89 +19,138 @@ const CustomizeAvatar = ({ src, name, onBack }) => {
     const glassesSeeds = ["variant01","variant02","variant03","variant04","variant05"]
     if (!src) return null;
 
-    const [avatarSrc, setAvatarSrc] = useState("");
-    const [options, setOptions] = useState({
-        seed: name,
-        hairProbability: 0,
-        glassesProbability: 0,
-        mouth: ["variant01"],
-        eyes: ["variant01"],
-        eyebrows: ["variant12"]
-        
-    });
+    const [currentSrc, setCurrentSrc] = useState(src)
+    const [selectedHair, setSelectedHair] = useState(src);
+    const [selectedHairColor, setSelectedHairColor] = useState(src)
+    const [selectedMouth, setSelectedMouth] = useState(src)
+    const [selectedEyes, setSelectedEyes] = useState(src)
+    const [selectedEyebrows, setSelectedEyebrows] = useState(src)
+    const [selectedEarrings, setSelectedEarrings] = useState(src)
+    const [selectedFeatures, setSelectedFeatures] = useState(src)
+    const [selectedGlasses, setSelectedGlasses] = useState(src)
+    
+    const [hairStyle, setHairStyle] = useState(false);
+    const [hairColor, setHairColor] = useState(false);
 
+    useEffect(() => {
+        const updatedAvatar = createAvatar(adventurer, {
+            seed: name,
+            size: 120,
+            hairProbability: 100,
+            hair: [selectedHair],
+            hairColor: [selectedHairColor],
+            glassesProbability: 0,
+            mouth: ["variant01"],
+            eyes: ["variant01"],
+            eyebrows: ["variant12"],
+        }).toDataUri();
+
+        setCurrentSrc(updatedAvatar);
+    }, [selectedHair, selectedHairColor, name]);
 
         const hairArray = useMemo(() => {
      
-            const seeds = hairSeeds.map((hair) => ({
+            return hairSeeds.map((hair) => ({
                src: createAvatar(adventurer, {
-                    seed: options.seed,
+                    seed: name,
                     size: 120,
                     hairProbability: 100,
-                    hairColor: hairColorSeeds[0],
+                    hairColor: [selectedHairColor],
+                    glassesProbability: 0,
+                    mouth: ["variant01"],
+                    eyes: ["variant01"],
+                    eyebrows:  ["variant12"],
+                    hair: [hair]
+        
+
+                }).toDataUri(),
+                hair,
+            }))
+        }, [selectedHairColor, name]);
+    
+
+        const hairColorArray = useMemo(() => {
+     
+            return hairColorSeeds.map((color) => ({
+               src: createAvatar(adventurer, {
+                    seed: name,
+                    size: 120,
+                    hairProbability: 100,
+                    hairColor: [color],
                     glassesProbability: 0,
                     mouth: ["variant01"],
                     eyes: ["variant01"],
                     eyebrows: ["variant12"],
-                    hair: [hair]
+                    hair: [selectedHair]
 
-                }).toDataUri()
+
+                }).toDataUri(),
+                color,
             }))
-            return seeds
-        }, []);
+        }, [selectedHair, name]);
 
         
-
-        const renderHairSelect = () => {
-            for (const hair of hairArray) {
-
-            }
+        const handleHairClick = (hair) => {
+            setSelectedHair(hair)
+      
         }
-    
+       
+        const handleHairColorClick = (color) => {
+            setSelectedHairColor(color)
+           
+        }
 
-    
+        const handleToggleHair = () => {
+            setHairStyle(!hairStyle);
+        }
 
-    useEffect(() => {
+        const hanldeToggleColor = () => {
+            setHairColor(!hairColor)
+        }
+       
 
-        const avatar = createAvatar(adventurer, {
-            seed: options.seed,
-            size: 120,
-            hair: options.hair,
-            mouth: options.mouth,
-            eyes: options.eyes,
-            eyebrows: options.eyebrows,
-            glassesProbability: options.glassesProbability
-            
-
-        });
-
-       setAvatarSrc(avatar.toDataUri())
-    }, [options]);
-
-    const handleOptionsChange = (key, value) => {
-        setOptions((prevOptions) => ({...prevOptions, [key]: value }));
-    }
-
+  
     
    
 
 
     return (
         <div className='customize-container'>
-           <h2>Customize my Avatar!</h2>
-           <div>
-            <img key={src} name={name} src={src}></img>
+           <div className='cust-top'>
+                <h2>CUSTOMIZE YOUR AVATAR</h2>
+                <button className="changeBtn" onClick={onBack}>Change Avatar</button>
+                <div>
+
+                    <img id='avatar-select' key={currentSrc} name={name} src={currentSrc}></img>
+                </div>
+           </div>
+        
             <div className='customizations'>
-                <h2>Hair Style</h2>
-            {hairArray.map((hair) => (
-                    <img name={hair.seed} className='avatar' src={hair.src}></img>
-                ))}
+                <button className='customizeBtn' onClick={handleToggleHair}>{hairStyle ? 'Select' : 'Choose'} Hair Style</button>
+                {hairStyle && (
+                <div className='selections'>
+                    {/* <h2>Hair Style</h2> */}
+                {hairArray.map((hair) => (
+                        <img  onClick={() => handleHairClick(hair.hair)}  name={hair.seed} className='avatar-hair-list' src={hair.src}></img>
+                    ))} 
+
+                </div>
+                )}
+                <button className='customizeBtn' onClick={hanldeToggleColor}>{hairColor ? 'Select' : 'Choose'} Hair Color</button>
+                {hairColor && (
+                <div className='selections'>
+                    {/* <h2>Hair Color</h2> */}
+                {hairColorArray.map((color) => (
+                        <img  onClick={() => handleHairColorClick(color.color)}  name={color.seed} className='avatar-hair-list' src={color.src}></img>
+                    ))} 
+
+                </div>
+                )}
                 
             </div>
 
            </div>
-           <button onClick={onBack}>Change Avatar</button>
-        </div>
+      
     )
 
 

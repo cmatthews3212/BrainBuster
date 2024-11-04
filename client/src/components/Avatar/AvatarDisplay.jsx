@@ -17,11 +17,11 @@ const AvatarDisplay = ({ src, avatarId, name, onClear }) => {
     }
     return (
         <div className='avatar-display'>
-            <h2>Your Avatar!</h2>
+            <h2>YOUR AVATAR</h2>
             <img name={name} id={avatarId} src={src} alt='Selected Avatar' />
-            <div>
-            <button onClick={handleSelectedAvatar}>Select this Avatar</button>
-            <button onClick={onClear}>Back to Avatars</button>
+            <div className='btns'>
+            <button className='customizeBtn' onClick={handleSelectedAvatar}>Select this Avatar</button>
+            <button className='customizeBtn' onClick={onClear}>Back to Avatars</button>
 
             </div>
         </div>
