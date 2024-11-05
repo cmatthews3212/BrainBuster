@@ -71,7 +71,6 @@ export const UPDATE_AVATAR = gql`
       _id
       email
       avatar {
-        seed
         src
       }
     }
