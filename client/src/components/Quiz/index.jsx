@@ -20,7 +20,7 @@ const difficulties = ['easy', 'medium', 'hard'];
 const Quiz = () => {
   const [questions, setQuestions] = useState([]);
   const [userAnswers, setUserAnswers] = useState({});
-  const [score, setScore] = useState({});
+  const [score, setScore] = useState(0);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -77,44 +77,48 @@ const Quiz = () => {
   const isQuizComplete = Object.keys(userAnswers).length === questions.length;
 
   return (
+    <>
     <div className="quiz-container">
       <h2>Chose your Game!</h2>
       <div>
-        <h3>
-          CATEGORY
-      </h3>
-      <hr></hr>
-          <ul
-          value={selectedCategory}
-          disabled={questions.length > 0}
-        >
-          {categories.map((cat) => (
-            <li onClick={(e) => setSelectedCategory(e.target.value)} key={cat.value} value={cat.value}>
-              {cat.label}
-            </li>
-          ))}
-        </ul>
-      <h3>
-        DIFFICULTY
-        </h3>
-        <hr></hr>
-        <ul
-          value={selectedDifficulty}
-          onChange={(e) => setSelectedDifficulty(e.target.value)}
-          disabled={questions.length > 0}
-        >
+        <h3>CATEGORY</h3>
+        <hr />
+          <div className="category-selection">
+            {categories.map((cat) => (
+              <button
+                key={cat.value}
+                onClick={() => setSelectedCategory(cat.value)}
+                disabled={questions.length > 0}
+                className={selectedCategory === cat.value ? 'selected' : ''}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+      </div>
+      <div>
+      <h3>DIFFICULTY</h3>
+        <hr />
+        <div className="difficulty-selection">
           {difficulties.map((diff) => (
-            <li key={diff} value={diff}>
+            <button
+              key={diff}
+              onClick={() => setSelectedDifficulty(diff)}
+              disabled={questions.length > 0}
+              className={selectedDifficulty === diff ? 'selected' : ''}
+            >
               {diff.charAt(0).toUpperCase() + diff.slice(1)}
-            </li>
+            </button>
           ))}
-        </ul>
-      
+        </div>
+      </div>
       <button className="quizBtn" onClick={fetchQuestions} disabled={loading || questions.length > 0}>
         { loading ? "Loading..." : "Start Quiz"}
       </button>
     </div>
-    {error && <p>Error: {error}</p>}
+
+    {error && <p className="error-text">Error: {error}</p>}
+
     {questions.length > 0 && (
       <div>
         <p>Score: {score}/{questions.length}</p>
@@ -155,7 +159,7 @@ const Quiz = () => {
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 };
 
