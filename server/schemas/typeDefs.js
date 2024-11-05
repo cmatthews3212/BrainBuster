@@ -57,17 +57,13 @@ const typeDefs = gql`
   }
 
   type Avatar {
-    avatarId: ID
-    seed: String!
-    size: Int
-    hair: String
+    avatarId: ID!
+    src: String!
   }
 
   input AvatarInput {
     avatarId: ID
-    seed: String!
-    size: Int
-    hair: String
+    src: String
   }
 
   type Mutation {

@@ -56,6 +56,11 @@
     flex-direction: column;
 }
 
+.customize-container .cust-top .changeBtns {
+    display: flex;
+    justify-content: space-around;
+}
+
 .changeBtn {
     background-color: #e8702a;
     padding: 10px;
