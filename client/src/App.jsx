@@ -9,6 +9,7 @@ import { setContext } from '@apollo/client/link/context';
 
 import Nav from './components/Nav';
 import { GlobalProvider } from './utils/GlobalState';
+import Quiz from './components/Quiz';
 
 const httpLink = createHttpLink({
   uri: '/graphql',
@@ -34,8 +35,9 @@ function App() {
     <ApolloProvider client={client}>
       <div>
         <GlobalProvider>
-          <Nav />
+          <Nav/>
           <Outlet />
+         
         </GlobalProvider>
       </div>
     </ApolloProvider>

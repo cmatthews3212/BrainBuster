@@ -1,0 +1,92 @@
+.avatar:hover {
+    cursor: pointer;
+}
+
+.avatar-container {
+   display: flex;
+   flex-wrap: wrap;
+   margin: 0 auto;
+   margin-top: 50px;
+   margin-bottom: 50px;
+   justify-content: center;
+   align-items: center;
+   width: 70%;
+   /* border: 5px solid #0c457d; */
+   background-color: #0c457d;
+   border-radius: 10px;
+   padding: 30px;
+   box-shadow: 0 4px 12px -2px black;
+}
+
+.avatar-container h2 {
+    text-align: center;
+    background-color: #0c457d;
+    color: white;
+    padding: 20px;
+    font-weight: 200;
+    border-radius: 5px;
+}
+.customize-container .cust-top div img {
+    width: 90%;
+    /* justify-content: center; */
+    /* align-items: center; */
+}
+
+
+
+.btns {
+    display: flex;
+    flex-direction: column;
+}
+
+.avatar-display {
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.avatar-display div {
+    display: flex;
+    /* flex-direction: column; */
+}
+
+/* Customize Avatar  */
+.customizations {
+    display: flex;
+    flex-direction: column;
+}
+
+.changeBtn {
+    background-color: #e8702a;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+}
+
+.customizeBtn {
+    background-color: #e8702a;
+    border: 5px solid #0c457d;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 20px;
+    margin: 10px;
+    border-radius: 10px;
+    
+  }
+
+
+.selections {
+    /* display: flex;
+    flex-direction: row; */
+
+}
+
+.selections img {
+    width: 100px;
+
+    
+
+}
+
+

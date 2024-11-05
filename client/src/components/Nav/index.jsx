@@ -2,16 +2,21 @@ import Auth from "../../utils/auth";
 import { Link } from "react-router-dom";
 
 function Nav() {
-
   function showNavigation() {
     if (Auth.loggedIn()) {
       return (
         <ul className="flex-row">
           <li className="mx-1">
-            {/* this is not using the Link component to logout or user and then refresh the application to the start */}
-            <a href="/" onClick={() => Auth.logout()}>
-              Logout
+            {/* Logout link to clear auth and redirect to home */}
+            <a className="link" href="/" onClick={() => Auth.logout()}>
+              LOGOUT
             </a>
+          </li>
+          <li className="mx-1">
+            <Link className="link" to="/dashboard">DASHBOARD</Link>
+          </li>
+          <li className="mx-1">
+            <Link className="link" to="/profile">PROFILE</Link>
           </li>
         </ul>
       );
@@ -19,14 +24,13 @@ function Nav() {
       return (
         <ul className="flex-row">
           <li className="mx-1">
-            <Link to="/signup">
-              Signup
-            </Link>
+            <Link className="link" to="/signup">SIGNUP</Link>
           </li>
           <li className="mx-1">
-            <Link to="/login">
-              Login
-            </Link>
+            <Link className="link" to="/login">LOGIN</Link>
+          </li>
+          <li className="mx-1">
+            <Link className="link" to="/about">ABOUT</Link>
           </li>
         </ul>
       );
@@ -34,22 +38,16 @@ function Nav() {
   }
 
   return (
+    <div className="head-container">
     <header className="flex-row px-1">
       <h1>
-        <Link to="/">
-          PROJECT 3
-        </Link>
+        <Link className="h1" to="/">BrainBuster</Link>
       </h1>
-        <ul>
-            <li>
-                <Link to="/about">About</Link>
-            </li>
-        </ul>
-       
+    </header>
       <nav>
         {showNavigation()}
       </nav>
-    </header>
+      </div>
   );
 }
 
