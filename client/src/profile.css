@@ -1,0 +1,32 @@
+.profile .profile-head{
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 50px;
+}
+
+.profile .profile-head div {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile .profile-head div button {
+    background-color: #e8702a;
+    border: none;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.profile-info {
+    display: flex;
+}
+
+.friends-container {
+    border: 5px solid black;
+    width: 65%;
+}
+
+.stats-container {
+    border: 5px solid black;
+    width: 35%;
+}

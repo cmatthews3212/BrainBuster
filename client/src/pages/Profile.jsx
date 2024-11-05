@@ -17,8 +17,9 @@ const Profile = () => {
         const { loading, data } = useQuery(GET_ME);
 
         
+    
 
-        const avatarSrc = data?.me || {}
+        const userData = data?.me || {}
 
       
 
@@ -27,8 +28,28 @@ const Profile = () => {
     return (
    
         <div className="profile">
-            <img src={avatarSrc.avatar.src}></img>
-            <button onClick={renderAvatarsPage}>See Avatars</button>
+            <div className='profile-head'>
+                <h2>Hello, {userData.firstName}</h2>
+                <div>
+                <img src={userData.avatar.src}></img>
+                <button className="change-avatar-btn" onClick={renderAvatarsPage}>Change Avatar</button>
+
+                </div>
+
+            </div>
+            <div className='profile-info'>
+
+            <div className='friends-container'>
+                <h2>Your Friends</h2>
+                
+
+            </div>
+            <div className='stats-container'>
+                <h2>Your Stats</h2>
+
+            </div>
+            </div>
+
             
         </div>
     )
