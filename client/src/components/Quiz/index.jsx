@@ -35,6 +35,21 @@ const Quiz = () => {
     setUserAnswers({});
     setScore(0);
 
+    const categoryExists = categories.some(cat => cat.value === selectedCategory);
+    const difficultyExists = difficulties.includes(selectedDifficulty);
+
+    if (!categoryExists) {
+      setError('Invalid category selected.');
+      setLoading(false);
+      return;
+    }
+
+    if (!difficultyExists) {
+      setError('Invalid difficulty selected.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data } = await createGame({
         variables: {
@@ -44,10 +59,15 @@ const Quiz = () => {
         },
       });
 
-      setQuestions(data.createGame.questions);
+      if (data && data.createGame && data.createGame.questions) {
+        setQuestions(data.createGame.questions);
+      } else {
+        throw new Error('No questions received from the server.');
+      }
     } catch (err) {
       console.error('Error fetching questions:', err);
-      setError(err.message);
+      const errorMessage = err?.graphQLErrors?.[0]?.message || err.message || 'An error occurred.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -64,6 +84,8 @@ const Quiz = () => {
   };
 
   const handleAnswerSelect = (questionIndex, answer) => {
+    if (userAnswers[questionIndex] !== undefined) return;
+
     setUserAnswers((prev) => ({
       ...prev,
       [questionIndex]: answer,
@@ -78,48 +100,48 @@ const Quiz = () => {
 
   return (
     <>
-    <div className="quiz-container">
-      <h2>Chose your Game!</h2>
-      <div>
-        <h3>CATEGORY</h3>
-        <hr />
-          <div className="category-selection">
-            {categories.map((cat) => (
+      <div className="quiz-container">
+        <h2>Chose your Game!</h2>
+        <div>
+          <h3>CATEGORY</h3>
+          <hr />
+            <div className="category-selection">
+              {categories.map((cat) => (
+                <button
+                  key={cat.value}
+                  onClick={() => setSelectedCategory(cat.value)}
+                  disabled={questions.length > 0}
+                  className={selectedCategory === cat.value ? 'selected' : ''}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+        </div>
+        <div>
+        <h3>DIFFICULTY</h3>
+          <hr />
+          <div className="difficulty-selection">
+            {difficulties.map((diff) => (
               <button
-                key={cat.value}
-                onClick={() => setSelectedCategory(cat.value)}
+                key={diff}
+                onClick={() => setSelectedDifficulty(diff)}
                 disabled={questions.length > 0}
-                className={selectedCategory === cat.value ? 'selected' : ''}
+                className={selectedDifficulty === diff ? 'selected' : ''}
               >
-                {cat.label}
+                {diff.charAt(0).toUpperCase() + diff.slice(1)}
               </button>
             ))}
           </div>
-      </div>
-      <div>
-      <h3>DIFFICULTY</h3>
-        <hr />
-        <div className="difficulty-selection">
-          {difficulties.map((diff) => (
-            <button
-              key={diff}
-              onClick={() => setSelectedDifficulty(diff)}
-              disabled={questions.length > 0}
-              className={selectedDifficulty === diff ? 'selected' : ''}
-            >
-              {diff.charAt(0).toUpperCase() + diff.slice(1)}
-            </button>
-          ))}
         </div>
+        <button className="quizBtn" onClick={fetchQuestions} disabled={loading || questions.length > 0}>
+          { loading ? "Loading..." : "Start Quiz"}
+        </button>
       </div>
-      <button className="quizBtn" onClick={fetchQuestions} disabled={loading || questions.length > 0}>
-        { loading ? "Loading..." : "Start Quiz"}
-      </button>
-    </div>
 
-    {error && <p className="error-text">Error: {error}</p>}
+      {error && <p className="error-text">Error: {error}</p>}
 
-    {questions.length > 0 && (
+      {questions.length > 0 && (
       <div>
         <p>Score: {score}/{questions.length}</p>
         {isQuizComplete && (

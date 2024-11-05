@@ -81,8 +81,8 @@ const resolvers = {
           });
           return game;
         } catch (error) {
-          console.error('Error:', error);
-          throw new Error('Failed to create game.')
+          console.error('Error in createGame resolver:', error);
+          throw new Error(error.message || 'Failed to create game.');
         }
       }
       throw new AuthenticationError('Please log in');
