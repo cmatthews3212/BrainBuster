@@ -2,7 +2,7 @@ import Avatar from '../components/Avatar/Avatars';
 import CustomizeAvatar from '../components/Avatar/CustomizeAvatar';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
-import { QUERY_USER } from '../utils/queries';
+import { GET_ME } from '../utils/queries';
 // this should have the "friends", "settings", and "rankings" as components
 
 const Profile = () => {
@@ -14,17 +14,20 @@ const Profile = () => {
     }
 
   
-        const { loading, error, data } = useQuery(QUERY_USER, {
-            variables: { avatar }
-        });
+        const { loading, data } = useQuery(GET_ME);
 
-        const avatarSrc = data.user.avatar.src;
+        
+
+        const avatarSrc = data?.me || {}
+
+      
 
 
 
     return (
    
         <div className="profile">
+            <img src={avatarSrc.avatar.src}></img>
             <button onClick={renderAvatarsPage}>See Avatars</button>
             
         </div>

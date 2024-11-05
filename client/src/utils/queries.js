@@ -13,6 +13,19 @@ export const QUERY_USER = gql`
   }
 `;
 
+export const GET_ME = gql`
+  query me {
+    me{
+      _id
+      firstName
+      lastName
+      avatar {
+        src
+      }
+    }
+  }
+`
+
 export const QUERY_USERS = gql`
   {
     users {
