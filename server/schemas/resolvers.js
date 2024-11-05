@@ -131,9 +131,8 @@ const resolvers = {
         throw new AuthenticationError('User not found.');
       }
 
-      if (avatar.seed) user.avatar.seed = avatar.seed;
-      if (avatar.size) user.avatar.size = avatar.size;
-      if (avatar.hair) user.avatar.hair = avatar.hair;
+      if (avatar.src) user.avatar.src = avatar.src;
+  
 
         await user.save();
         return user.avatar;
