@@ -44,7 +44,7 @@ async function fetchTriviaQuestions(amount, category, difficulty) {
         const data = await response.json();
         return data
     } catch (error) {
-        console.error('Error fetching quesions');
+        console.error('Error fetching questions', error);
         throw new Error('Failed to fetch questions');
     }
 }

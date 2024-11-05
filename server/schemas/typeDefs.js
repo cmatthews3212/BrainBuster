@@ -72,7 +72,7 @@ const typeDefs = gql`
     updateUser(firstName: String, lastName: String, email: String, password: String): User
     updateAvatar(userId: ID!, avatar: AvatarInput): Avatar
     login(email: String!, password: String!): Auth
-    createGame(amount: Int, category: String, difficulty: String): Game
+    createGame(amount: Int!, category: String!, difficulty: String!): Game
     joinGame(gameId: ID!): Game
   }
 `;
