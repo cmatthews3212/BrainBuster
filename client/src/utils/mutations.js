@@ -58,16 +58,9 @@ export const CREATE_GAME = gql`
 `;
 
 export const ADD_AVATAR = gql`
-  mutation addAvatar($userId: ID!, $avatar: avatarInput!) {
+  mutation addAvatar($userId: ID!, $avatar: AvatarInput!) {
     addAvatar(userId: $userId, avatar: $avatar){
-      _id
-      email
-      avatar {
-        _id
-        seed
-        size
-        hair
-      }
+      src
     }
   }
 `;
@@ -79,8 +72,7 @@ export const UPDATE_AVATAR = gql`
       email
       avatar {
         seed
-        size
-        hair
+        src
       }
     }
   }

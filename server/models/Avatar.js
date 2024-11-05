@@ -1,15 +1,9 @@
 const { Schema } = require('mongoose');
 
 const avatarSchema = new Schema({
-    seed: {
+    src: {
         type: String,
         required: true,
-    },
-    size: {
-        type: Number,
-    },
-    hair:{
-            type: String,
     },
  
 });
