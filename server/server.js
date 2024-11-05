@@ -84,7 +84,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("sumbitAnswer", (gameId, quesionIndex, answer) => {
+  socket.on("submitAnswer", (gameId, questionIndex, answer) => {
     console.log(`Answer recieved from ${socket.id}: ${answer}`);
     io.to(games[gameId].player1).emit("newAnswer", {
       questionIndex,
