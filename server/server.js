@@ -67,31 +67,46 @@ io.on("connection", (socket) => {
 
   socket.on("createGame", (gameId) => {
     console.log(`${socket.id} created a game with ID: ${gameId}`);
+
     games[gameId] = { player1: socket.id, player2: null };
+
+    socket.join(gameId);
+
     socket.emit("waitingForOpponent");
   });
 
   socket.on("joinGame", (gameId) => {
-    console.log(`${socket.id} joined game ${gameId}`);
-    if (games[gameId] && !games[gameId].player2) {
-      games[gameId].player2 = socket.id;
-      io.to(gameId).emit("gameStarted", { opponentId: socket.id });
-      io.to(games[gameId].player2).emit("gameStarted", {
-        opponentId: games[gameId].player1,
-      });
+    console.log(`${socket.id} attempting to join game ${gameId}`);
+
+    if (games[gameId]) {
+      if (!games[gameId].player2) {
+        games[gameId].player2 = socket.id;
+
+        socket.join(gameId);
+
+        const player1Socket = io.sockets.sockers.get(games[gameId].player1);
+
+        if (player1Socket) {
+          player1Socket.join(gameId);
+        }
+
+        io.to(gameId).emit("gameStarted", { gameId, players: [games[gameId].player1, games[gameId].player2] });
+
+        console.log(`Game ${gameId} started with players ${games[gameId].player1} and ${games[gameId].player2}`);
+      } else {
+        console.log(`Game ${gameId} is full. Cannot join.`);
+        socket.emit("gameFull", gameId);
+      }
     } else {
-      socket.emit("gameFull", gameId);
+      console.log(`Game ${gameId} not found.`);
+      socket.emit("gameNotFound", gameId);
     }
   });
 
   socket.on("submitAnswer", (gameId, questionIndex, answer) => {
     console.log(`Answer recieved from ${socket.id}: ${answer}`);
-    io.to(games[gameId].player1).emit("newAnswer", {
-      questionIndex,
-      answer,
-      playerId: socket.id,
-    });
-    io.to(games[gameId].player2).emit("newAnswer", {
+
+    io.to(gameId).emit("newAnswer", {
       questionIndex,
       answer,
       playerId: socket.id,
@@ -100,14 +115,19 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log(`Player disconnected: ${socket.id}`);
+
     for (let gameId in games) {
-      if (games[gameId].player1 === socket.id) {
-        io.to(games[gameId].player2).emit("opponentLeft");
+      if (games[gameId].player1 === socket.id || games[gameId].player2 === socket.id) {
+        const opponentId = games[gameId].player1 === socket.id ? games[gameId].player2 : games[gameId].player1;
+
+        if (opponentId) {
+          io.to(opponentId).emit("opponentLeft");
+        }
+
         delete games[gameId];
-      } else if (games[gameId].player2 === socket.id) {
-        io.to(games[gameId].player1).emit("opponentLeft");
-        delete games[gameId];
+
+        break;
       }
     }
-  });
+  })
 });
