@@ -135,7 +135,7 @@ const Quiz = () => {
           </div>
         </div>
         <button className="quizBtn" onClick={fetchQuestions} disabled={loading || questions.length > 0}>
-          { loading ? "Loading..." : "Start Quiz"}
+          { loading ? "Loading..." : "Create Game"}
         </button>
       </div>
 
