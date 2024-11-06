@@ -14,6 +14,7 @@ import Profile from './pages/Profile.jsx'
 import Avatars from './pages/Avatars.jsx';
 import Quiz from './components/Quiz/index.jsx';
 import CreateGame from './components/CreateGame/index.jsx'
+import JoinGame from './components/JoinGame/index.jsx';
 // import AvatarDisplay  from './components/Avatar/AvatarDisplay.jsx';
 
 
@@ -51,6 +52,9 @@ const router = createBrowserRouter([
       }, {
         path: '/create-game',
         element: <CreateGame />
+      }, {
+        path: '/join-game',
+        element: <JoinGame />
       }
       // {
       //   path: '/avatar/:src',
