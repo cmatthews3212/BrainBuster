@@ -124,18 +124,31 @@ const resolvers = {
         console.error('Please log in');
         throw new AuthenticationError('Please log in.');
       }
-      const user = await User.findById(userId);
 
-      if (!user) {
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { 'avatar.src' : avatar.src},
+        {new: true}
+      );
+
+      if (!updatedUser) {
         console.error('User not found');
-        throw new AuthenticationError('User not found.');
+        throw new AuthenticationError('User not found')
       }
 
-      if (avatar.src) user.avatar.src = avatar.src;
+      return updatedUser.avatar;
+      // const user = await User.findById(userId);
+
+      // if (!user) {
+      //   console.error('User not found');
+      //   throw new AuthenticationError('User not found.');
+      // }
+
+      // if (avatar.src) user.avatar.src = avatar.src;
   
 
-        await user.save();
-        return user.avatar;
+      //   await user.save();
+      //   return user.avatar;
     },
   },
   // User: {
