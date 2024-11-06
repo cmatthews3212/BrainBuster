@@ -57,6 +57,15 @@ export const CREATE_GAME = gql`
   }
 `;
 
+export const UPDATE_USER = gql`
+  mutation updateUser($userId: ID!) {
+    updateUser(userId: $userId) {
+      _id
+      friends
+    }
+  }
+`;
+
 export const ADD_AVATAR = gql`
   mutation addAvatar($userId: ID!, $avatar: AvatarInput!) {
     addAvatar(userId: $userId, avatar: $avatar){
@@ -68,11 +77,7 @@ export const ADD_AVATAR = gql`
 export const UPDATE_AVATAR = gql`
   mutation updateAvatar($userId: ID!, $avatar: AvatarInput!) {
     updateAvatar(userId: $userId, avatar: $avatar){
-      _id
-      email
-      avatar {
-        src
-      }
+      src
     }
   }
 `;

@@ -17,6 +17,8 @@ import CreateGame from './components/CreateGame/index.jsx'
 import JoinGame from './components/JoinGame/index.jsx';
 import Lobby from './components/Lobby/index.jsx';
 
+import FindFriends from './components/Friends/Find.jsx';
+import FriendProfile from './components/Friends/Friend.jsx';
 // import AvatarDisplay  from './components/Avatar/AvatarDisplay.jsx';
 
 
@@ -52,6 +54,12 @@ const router = createBrowserRouter([
         path: '/quiz',
         element: <Quiz />
       }, {
+        path: '/find',
+        element: <FindFriends />
+      }, {
+        path: '/friend',
+        element: <FriendProfile />
+      },{
         path: '/create-game',
         element: <CreateGame />
       }, {

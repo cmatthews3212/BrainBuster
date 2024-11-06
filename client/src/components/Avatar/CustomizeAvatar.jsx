@@ -1,12 +1,14 @@
 import AvatarsList from './Avatars'
 import { useEffect, useState, useMemo } from 'react';
 import AvatarDisplay from './AvatarDisplay';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { createAvatar } from '@dicebear/core';
 import { adventurer, glass } from '@dicebear/collection';
-import { useMutation } from '@apollo/client';
+import { useMutation, useApolloClient } from '@apollo/client';
 import { ADD_AVATAR } from '../../utils/mutations';
+import { UPDATE_AVATAR } from '../../utils/mutations';
 import Auth  from '../../utils/auth';
+import { GET_ME } from '../../utils/queries';
 
 
 
@@ -355,6 +357,7 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
         }
        
 
+        const navigate = useNavigate();
         
         const [addAvatar] = useMutation(ADD_AVATAR) 
         const handleCreateAvatar = async () => {
@@ -375,10 +378,46 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
                 });
 
                 console.log('Avatar added successfully')
+                navigate('/profile')
             } catch (err) {
                 console.error("error creating avatar", err)
             }
         }
+
+        const client = useApolloClient();
+
+        const [updateAvatar] = useMutation(UPDATE_AVATAR, {
+            refetchQueries: [{query: GET_ME}],
+            awaitRefetchQueries: true,
+            onCompleted: (data) => {
+                if (data.updateAvatar) {
+                    client.cache.modify({
+                        fields: {
+                            me(existingUser = {}) {
+                                return { ...existingUser,
+                                    avatar: {...existingUser.avatar, src: data.updateAvatar.src} }
+                            }
+                        }
+                    })
+                }
+            }
+        });
+        
+        const handleUpdateAvatar = async (newAvatarSrc) => {
+            // console.log(newAvatarSrc)
+            try {
+                await updateAvatar({ variables: 
+                    {userId: Auth.getProfile().data._id,
+                    avatar: {
+                        src: newAvatarSrc
+                    }
+                }
+                });
+                navigate('/profile')
+            } catch (err) {
+                console.error('error updating avatar', err)
+            }
+        };
     
    
 
@@ -389,8 +428,18 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
                 <h2>CUSTOMIZE YOUR AVATAR</h2>
                 <div className='changeBtns'>
                 <button className="changeBtn" onClick={onClear}>Change Avatar</button>
+                {
+                    currentSrc ? (
+                        <>
+                    <button onClick={() => handleUpdateAvatar(currentSrc)} className='changeBtn'>Update Avatar</button>
+                        </>
+                    ) : (
+                        <>
+                        <button onClick={() => handleCreateAvatar(currentSrc)} className='changeBtn'>Create Avatar</button>
 
-                <button onClick={handleCreateAvatar} className='changeBtn'>Create Avatar</button>
+                        </>
+                    )
+                }
                 </div>
                 <div>
 
