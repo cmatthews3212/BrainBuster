@@ -13,6 +13,8 @@ import About from './pages/About.jsx';
 import Profile from './pages/Profile.jsx'
 import Avatars from './pages/Avatars.jsx';
 import Quiz from './components/Quiz/index.jsx';
+import FindFriends from './components/Friends/Find.jsx';
+import FriendProfile from './components/Friends/Friend.jsx';
 // import AvatarDisplay  from './components/Avatar/AvatarDisplay.jsx';
 
 
@@ -47,6 +49,12 @@ const router = createBrowserRouter([
       }, {
         path: '/quiz',
         element: <Quiz />
+      }, {
+        path: '/find',
+        element: <FindFriends />
+      }, {
+        path: '/friend',
+        element: <FriendProfile />
       }
       // {
       //   path: '/avatar/:src',

@@ -19,7 +19,7 @@ const resolvers = {
       return user;
     },
     users: async () => {
-      return User.find({});
+      return await User.find({});
     },
     game: async (parent, { gameId }, context) => {
       if (context.user) {

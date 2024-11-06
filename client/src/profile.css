@@ -30,3 +30,45 @@
     border: 5px solid black;
     width: 35%;
 }
+
+/* Find Friends */
+
+.find-friends-container {
+    /* display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; */
+
+}
+
+.find-friends-container h2 {
+    background-color: #e8702a;
+    width: 50%;
+    text-align: center;
+    margin: 0 auto;
+    padding: 20px;
+    border: 5px solid #0c457d;
+    border-radius: 10px;
+    
+}
+
+
+
+.find-friends-container ul {
+    list-style-type: none;
+    /* margin: 0 auto; */
+    width: 80%;
+    margin-top: 50px;
+}
+
+.find-friends-container ul li {
+    background-color: #e8702a;
+    font-size: 30px;
+    padding: 15px;
+    text-align: center;
+    margin-top: 15px;
+    border: 5px solid #0c457d;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px -2px black;
+    
+}
