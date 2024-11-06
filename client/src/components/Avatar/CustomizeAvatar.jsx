@@ -379,7 +379,6 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
 
                 console.log('Avatar added successfully')
                 navigate('/profile')
-                window.location.reload();
             } catch (err) {
                 console.error("error creating avatar", err)
             }
@@ -429,8 +428,18 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
                 <h2>CUSTOMIZE YOUR AVATAR</h2>
                 <div className='changeBtns'>
                 <button className="changeBtn" onClick={onClear}>Change Avatar</button>
+                {
+                    currentSrc ? (
+                        <>
+                    <button onClick={() => handleUpdateAvatar(currentSrc)} className='changeBtn'>Update Avatar</button>
+                        </>
+                    ) : (
+                        <>
+                        <button onClick={() => handleCreateAvatar(currentSrc)} className='changeBtn'>Create Avatar</button>
 
-                <button onClick={() => handleUpdateAvatar(currentSrc)} className='changeBtn'>Create Avatar</button>
+                        </>
+                    )
+                }
                 </div>
                 <div>
 
