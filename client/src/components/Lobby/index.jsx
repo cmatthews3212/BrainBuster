@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom';
 import io from 'socket.io-client';
 
 const socket = io()
 
-const Lobby = ({ gameId, setGameStarted }) => {
+const Lobby = ({ setGameStarted }) => {
+    const location = useLocation();
+    const { gameId } = location.state || {};
     const [gameFull, setGameFull] = useState(false);
     const [waiting, setWaiting] = useState(false);
     const [opponent, setOpponent] = useState(null);
     const [error, setError] = useState('');
 
     useEffect(() => {
+        if (!gameId) return;
+
+        socket.emit('joinGameRoom', { gameId });
+        
         socket.on('gameStarted' , (data) => {
             setOpponent(data.opponentId);
             setGameStarted(true);
@@ -44,7 +51,7 @@ const Lobby = ({ gameId, setGameStarted }) => {
 
     return (
         <div className='Lobby'>
-            <h2>Welcome To BrainBuster</h2>
+            <h2>BrainBuster Lobby</h2>
             <div className="game-info">
         <p>Game ID: <strong>{gameId}</strong></p>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import socket from "../../socket";
@@ -51,7 +51,7 @@ const CreateGame = () => {
                     socket.emit('joinGameRoom', { gameId });
                   }
 
-                navigate(`/lobby/${gameId}`);
+                navigate(`/lobby`, { state: { gameId }});
             } else {
                 throw new Error('Failed to create game.');
             }
