@@ -13,6 +13,7 @@ import About from './pages/About.jsx';
 import Profile from './pages/Profile.jsx'
 import Avatars from './pages/Avatars.jsx';
 import Quiz from './components/Quiz/index.jsx';
+import CreateGame from './components/CreateGame/index.jsx'
 // import AvatarDisplay  from './components/Avatar/AvatarDisplay.jsx';
 
 
@@ -47,6 +48,9 @@ const router = createBrowserRouter([
       }, {
         path: '/quiz',
         element: <Quiz />
+      }, {
+        path: '/create-game',
+        element: <CreateGame />
       }
       // {
       //   path: '/avatar/:src',
