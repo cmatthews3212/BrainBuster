@@ -57,6 +57,15 @@ export const CREATE_GAME = gql`
   }
 `;
 
+export const UPDATE_USER = gql`
+  mutation updateUser($userId: ID!) {
+    updateUser(userId: $userId) {
+      _id
+      friends
+    }
+  }
+`;
+
 export const ADD_AVATAR = gql`
   mutation addAvatar($userId: ID!, $avatar: AvatarInput!) {
     addAvatar(userId: $userId, avatar: $avatar){

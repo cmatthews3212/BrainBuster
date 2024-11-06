@@ -21,6 +21,7 @@ const Profile = () => {
         
     }
 
+
   
         const { loading, data } = useQuery(GET_ME);
 
@@ -64,7 +65,7 @@ const Profile = () => {
 
             <div className='friends-container'>
                 <h2>Your Friends</h2>
-                <button>Find Friends!</button>
+                <button onClick={() => navigate('/find')}>Find Friends!</button>
                 
 
             </div>
