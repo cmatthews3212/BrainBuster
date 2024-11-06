@@ -8,6 +8,7 @@ import { useMutation, useApolloClient } from '@apollo/client';
 import { ADD_AVATAR } from '../../utils/mutations';
 import { UPDATE_AVATAR } from '../../utils/mutations';
 import Auth  from '../../utils/auth';
+import { GET_ME } from '../../utils/queries';
 
 
 
@@ -387,6 +388,8 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
         const client = useApolloClient();
 
         const [updateAvatar] = useMutation(UPDATE_AVATAR, {
+            refetchQueries: [{query: GET_ME}],
+            awaitRefetchQueries: true,
             onCompleted: (data) => {
                 if (data.updateAvatar) {
                     client.cache.modify({
