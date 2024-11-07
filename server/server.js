@@ -4,7 +4,7 @@ const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
 const path = require("path");
 const { authMiddleware } = require("./utils/auth");
-const { Game } = require("./models/Game")
+const { fetchTriviaQuestions } = require('./utils/requests');
 
 const { typeDefs, resolvers } = require("./schemas");
 const db = require("./config/connection");
@@ -13,8 +13,6 @@ const socketIo = require("socket.io");
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-const gameServer = http.createServer(app);
-const io = socketIo(gameServer);
 
 const server = new ApolloServer({
   typeDefs,
@@ -50,7 +48,7 @@ const startApolloServer = async () => {
   }
 
   db.once("open", () => {
-    app.listen(PORT, () => {
+    gameServer.listen(PORT, () => {
       console.log(`API server running on port ${PORT}!`);
       console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
     });
@@ -61,6 +59,15 @@ const startApolloServer = async () => {
 startApolloServer();
 
 let games = {};
+
+const gameServer = http.createServer(app);
+const io = socketIo(gameServer, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+});
 
 io.on("connection", (socket) => {
   console.log(`A player connected: ${socket.id}`);
@@ -83,8 +90,6 @@ io.on("connection", (socket) => {
     socket.emit("waitingForOpponent");
   });
 
-  const fetchTriviaQuestions = require('./utils/requests');
-
   socket.on("joinGame", ({ gameId }) => {
     console.log(`${socket.id} attempting to join game ${gameId}`);
 
@@ -96,6 +101,10 @@ io.on("connection", (socket) => {
         games[gameId].answers[socket.id] = {};
 
         socket.join(gameId);
+
+        socket.emit("gameJoined", { gameId });
+
+
 
         fetchTriviaQuestions(10, game.category, game.difficulty)
           .then((questions) => {

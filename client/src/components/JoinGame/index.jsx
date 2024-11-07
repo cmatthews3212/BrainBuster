@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import socket from '../../socket';
 
 const JoinGame = () => {
+    console.log('JoinGame component rendered');
+
     const [gameIdInput, setGameIdInput] = useState('');
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -17,7 +19,8 @@ const JoinGame = () => {
             setError('Game is full.');
         };
         
-        const handleGameStarted = () => {
+        const handleGameJoined = () => {
+            console.log('Received gameJoined event');
             navigate(`/lobby/${gameIdRef.current}`);
         };
         
@@ -27,18 +30,20 @@ const JoinGame = () => {
 
         socket.on('gameNotFound', handleGameNotFound);
         socket.on('gameFull', handleGameFull);
-        socket.on('gameStarted', handleGameStarted);
+        socket.on('gameJoined', handleGameJoined);
         socket.on('error', handleError);
 
         return () => {
             socket.off('gameNotFound', handleGameNotFound);
             socket.off('gameFull', handleGameFull);
-            socket.off('gameStarted', handleGameStarted);
+            socket.off('gameJoined', handleGameJoined);
             socket.off('error', handleError);
         };
     }, [navigate]);
 
     const handleJoinGame = () => {
+        console.log('handleJoinGame called');
+
         if (!gameIdInput.trim()) {
             setError('Please enter a valid Game ID.')
             return;
@@ -47,11 +52,14 @@ const JoinGame = () => {
         gameIdRef.current = gameIdInput;
         setError(null);
 
+
         if (!socket.connected) {
             socket.connect();
         }
+
+        console.log('Emitting joinGame with:', { gameId: gameIdInput });
     
-        socket.emit('joinGame', gameIdInput);
+        socket.emit('joinGame', { gameId: gameIdInput });
     };
 
     return (
