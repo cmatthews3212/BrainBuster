@@ -43,6 +43,72 @@ const resolvers = {
       }
       throw new AuthenticationError('Please log in.');
     },
+    sendFriendRequest: async (parent, { userId, friendId }, context) => {
+      if (!context.user) {
+        console.error('Please log in');
+        throw new AuthenticationError('Please log in.');
+      }
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        console.error('User not found');
+        throw new AuthenticationError('User not found.');
+      }
+
+      if (!user.friendRequests.includes(friendId)) {
+        user.friendRequests.push(friendId)
+      }
+
+      await user.save();
+      await user.populate({
+        path: 'friends',
+        select: 'firstName lastName email'
+      })
+      return user
+    },
+    addFriend: async (parent, { userId, friendId }, context) => {
+      if (!context.user) {
+        console.error('Please log in');
+        throw new AuthenticationError('Please log in.');
+      }
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        console.error('User not found');
+        throw new AuthenticationError('User not found.');
+      }
+
+      if (!user.friends.includes(friendId)) {
+        user.friends.push(friendId)
+      }
+
+      await user.save();
+      await user.populate({
+        path: 'friends',
+        select: 'firstName lastName email'
+      })
+      return user
+    },
+    removeFriend: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
+        if (!context.user) {
+          console.error('Please log in');
+          throw new AuthenticationError('Please log in.');
+        }
+        const user = await User.findById(userId);
+
+        if (!user) {
+          console.error('User not found');
+          throw new AuthenticationError('User not found.');
+        }
+
+        user.friends = user.friends.filter((id) => id.toString() !== friendId);
+
+        await user.save();
+        await user.populate('friends');
+        return user;
+    },
     login: async (parent, { email, password }) => {
       const user = await User.findOne({ email });
 

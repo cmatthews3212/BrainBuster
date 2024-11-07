@@ -3,18 +3,36 @@ import { useMutation, useQuery } from "@apollo/client";
 import { QUERY_USERS } from "../../utils/queries";
 import Profile from "../../pages/Profile";
 import { useNavigate } from "react-router-dom";
+import { ADD_FRIEND } from "../../utils/mutations";
+import { SEND_FRIEND_REQUEST } from "../../utils/mutations";
+import Auth from "../../utils/auth";
 
 const FriendProfile = ({ friend, onClear }) => {
-    // const { loading, data } = useQuery(QUERY_USERS);
-
-    // const friendsData = data?.users || {}
     console.log(friend)
+    const [sendFriendRequest] = useMutation(SEND_FRIEND_REQUEST)
+    const handleAddFriend = async () => {
+        const token = Auth.loggedIn() ? Auth.getToken() : null;
 
-    // for (const friend of friendsData) {
-    //     if (friend._id === dataSet._id) {
-    //         console.log(id)
-    //     }
-    // }
+        if (!token) {
+            return false;
+        }
+
+        try {
+            const { data } = await addFriend({
+                variables: {
+                    userId: Auth.getProfile().data._id,
+                    friendId: friend._id,
+                    firstName: friend.firstName,
+                    lastName: friend.lastName,
+                    email: friend.email
+                }
+            });
+            console.log('friend request sent')
+            console.log(data)
+        } catch (err) {
+            console.error(err)
+        }
+    }
 
     return (
         <div>
@@ -29,7 +47,7 @@ const FriendProfile = ({ friend, onClear }) => {
                 <h3>{friend.firstName}'s </h3>
             </div>
             <div>
-                <button>Send Friend Request to {friend.firstName}</button>
+                <button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
             </div>
         </div>
     )
