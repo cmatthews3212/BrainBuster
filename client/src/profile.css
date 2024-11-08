@@ -18,12 +18,22 @@
 }
 
 .profile-info {
-    display: flex;
+    /* display: flex; */
 }
 
 .friends-container {
     border: 5px solid black;
-    width: 65%;
+    /* width: 65%; */
+    display: flex;
+}
+
+.friends-container div {
+    width: 50%;
+    border: 2px solid black;
+}
+
+.friends-container div .friend-div {
+    width: 100%;
 }
 
 .stats-container {

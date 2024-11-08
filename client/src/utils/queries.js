@@ -19,6 +19,18 @@ export const GET_ME = gql`
       _id
       firstName
       lastName
+      friends {
+        _id
+        firstName
+        lastName
+        email
+      }
+      friendRequests {
+        _id
+        firstName
+        lastName
+        email
+      }
       avatar {
         src
       }
