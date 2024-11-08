@@ -58,7 +58,7 @@ const resolvers = {
       }
 
       if (!user.friendRequests.includes(userId)) {
-        user.friendRequests.push({userId, firstName, lastName, email})
+        user.friendRequests.push(userId, firstName, lastName, email)
       }
 
       await user.save();

@@ -20,7 +20,7 @@ const Profile = () => {
 }
 
    
-const { loading, data } = useQuery(GET_ME);
+const { loading, error, data } = useQuery(GET_ME);
 
 
 
@@ -95,7 +95,7 @@ const handleDecline = async (request) => {
 
 
 console.log(userData)
-console.log(Auth.getProfile().data.lastName)
+console.log(Auth.getProfile().data)
 
 const handleAddFriend = async (friend) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -131,6 +131,10 @@ const handleAddFriend = async (friend) => {
 
 if (loading) {
     return <p>Loading Profile...</p>
+}
+
+if (error) {
+    console.log(error)
 }
                 
 return (

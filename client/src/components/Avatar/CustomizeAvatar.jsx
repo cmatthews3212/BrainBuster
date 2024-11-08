@@ -25,11 +25,11 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
     if (!src) return null;
 
     const [currentSrc, setCurrentSrc] = useState(src)
-    const [selectedHair, setSelectedHair] = useState(src);
-    const [selectedHairColor, setSelectedHairColor] = useState(src)
-    const [selectedMouth, setSelectedMouth] = useState(src)
-    const [selectedEyes, setSelectedEyes] = useState(src)
-    const [selectedEyebrows, setSelectedEyebrows] = useState(src)
+    const [selectedHair, setSelectedHair] = useState("long01");
+    const [selectedHairColor, setSelectedHairColor] = useState("black")
+    const [selectedMouth, setSelectedMouth] = useState("variant02")
+    const [selectedEyes, setSelectedEyes] = useState("variant02")
+    const [selectedEyebrows, setSelectedEyebrows] = useState("variant09")
     const [selectedEarrings, setSelectedEarrings] = useState(src)
     const [earringsProb, setEarringsProb] = useState(100)
     const [selectedFeatures, setSelectedFeatures] = useState(src)

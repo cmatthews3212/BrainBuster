@@ -23,11 +23,14 @@ const AvatarsList = () => {
             src: createAvatar(adventurer, {
                 seed,
                 size: 120,
-                hairProbability: 0,
+                hairProbability: 100,
                 glassesProbability: 0,
-                mouth: [],
-                eyes: [],
-                eyebrows: []
+                mouth: ["variant02"],
+                eyes: ["variant02"],
+                eyebrows: ["variant09"],
+                hair: ["long01"],
+                hairColor: ["black"]
+
             
 
                 
