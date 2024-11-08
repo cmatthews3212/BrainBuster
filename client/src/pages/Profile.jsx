@@ -7,6 +7,7 @@ import { UPDATE_AVATAR } from '../utils/mutations';
 import { QUERY_USERS } from '../utils/queries';
 import { REMOVE_FRIEND } from '../utils/mutations';
 import { DECLINE_FRIEND_REQUEST } from '../utils/mutations';
+import { ADD_FRIEND } from '../utils/mutations';
 import Auth from '../utils/auth'
 // this should have the "friends", "settings", and "rankings" as components
 
@@ -28,6 +29,9 @@ const userData = data?.me || {}
 
 console.log(userData)
 
+const [addFriend] = useMutation(ADD_FRIEND);
+
+
 
         
         
@@ -35,6 +39,7 @@ console.log(userData)
 
 
 const [removeFriend] = useMutation(REMOVE_FRIEND);
+const [declineFriendRequest] = useMutation(DECLINE_FRIEND_REQUEST);
 
 const handleRemoveFriend = async (friend) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -48,6 +53,7 @@ const handleRemoveFriend = async (friend) => {
             variables: {
                 userId: Auth.getProfile().data._id,
                 friendId: friend._id,
+               
             }
         });
         console.log('friend removed')
@@ -57,7 +63,6 @@ const handleRemoveFriend = async (friend) => {
     }
 }
 
-const [declineFriendRequest] = useMutation(DECLINE_FRIEND_REQUEST);
 
 const handleDecline = async (request) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -71,6 +76,7 @@ const handleDecline = async (request) => {
             variables: {
                 userId: Auth.getProfile().data._id,
                 friendId: request._id,
+            
             }
         });
         console.log('friend removed')
@@ -83,6 +89,33 @@ const handleDecline = async (request) => {
 
 console.log(userData)
 console.log(Auth.getProfile().data.lastName)
+
+const handleAddFriend = async (friend) => {
+    const token = Auth.loggedIn() ? Auth.getToken() : null;
+
+    if (!token) {
+        return false;
+    }
+
+    try {
+        const { data } = await addFriend({
+            variables: {
+                userId: Auth.getProfile().data._id,
+                friendId: friend._id,
+                firstName: friend.firstName,
+                lastName: friend.lastName,
+                email: friend.email
+
+            }
+        });
+        console.log('friend request sent')
+        console.log(data)
+    } catch (err) {
+        console.error(err)
+    }
+
+    handleDecline(friend);
+}
 
 
 
@@ -139,7 +172,7 @@ return (
                 {userData.friendRequests ? ( userData.friendRequests.map((request) => (
                     <div>
                         <p>{request.firstName} {request.lastName}</p>
-                        <button>Accept Friend Request</button>
+                        <button onClick={() => handleAddFriend(request)}>Accept Friend Request</button>
                         <button onClick={() => handleDecline(request)}>Decline Friend Request</button>
                     </div>
 

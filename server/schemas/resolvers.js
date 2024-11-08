@@ -101,6 +101,7 @@ const resolvers = {
 
       if (!user.friends.includes(friendId)) {
         user.friends.push(friendId)
+
       }
 
       await user.save();

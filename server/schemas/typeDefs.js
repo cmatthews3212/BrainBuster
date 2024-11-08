@@ -74,6 +74,7 @@ const typeDefs = gql`
     updateAvatar(userId: ID!, avatar: AvatarInput): Avatar
     addFriend(userId: ID!, friendId: ID!, firstName: String!, lastName: String!, email: String!): User
     sendFriendRequest(userId: ID!, friendId: ID!): User
+    acceptFriendRequest(userId: ID!, friendId: ID!): User
     declineFriendRequest(userId: ID!, friendId: ID!): User
     removeFriend(userId: ID!, friendId: ID!): User
     login(email: String!, password: String!): Auth
