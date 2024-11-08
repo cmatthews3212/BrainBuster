@@ -131,7 +131,7 @@ export const REMOVE_FRIEND = gql`
 `;
 
 export const ADD_AVATAR = gql`
-  mutation addAvatar($userId: ID!, $avatar: AvatarInput!) {
+  mutation addAvatar($userId: ID!, $avatar: AvatarInput) {
     addAvatar(userId: $userId, avatar: $avatar){
       src
     }
@@ -139,7 +139,7 @@ export const ADD_AVATAR = gql`
 `;
 
 export const UPDATE_AVATAR = gql`
-  mutation updateAvatar($userId: ID!, $avatar: AvatarInput!) {
+  mutation updateAvatar($userId: ID!, $avatar: AvatarInput) {
     updateAvatar(userId: $userId, avatar: $avatar){
       src
     }

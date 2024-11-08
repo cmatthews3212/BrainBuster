@@ -57,9 +57,17 @@ const resolvers = {
         throw new AuthenticationError('User not found.');
       }
 
-      if (!user.friendRequests.includes(userId)) {
-        user.friendRequests.push(userId, firstName, lastName, email)
+      if (!user.friendRequests.some(request => request.userId.toString() === userId)) {
+        
       }
+
+      // if (!user.friendRequests.includes(userId)) {
+      //   user.friendRequests.push(userId)
+      //   // user.friendRequests.push({firstName: firstName, lastName: lastName, email: email})
+      //   // user.friendRequests.push(firstName)
+      //   // user.friendRequests.push(lastName)
+      //   // user.friendRequests.push(email)
+      // }
 
       await user.save();
       const populatedUser = await user.populate({
