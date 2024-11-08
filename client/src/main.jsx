@@ -51,7 +51,7 @@ const router = createBrowserRouter([
         path: '/avatars',
         element: <Avatars />
       }, {
-        path: '/quiz',
+        path: '/quiz/:gameId',
         element: <Quiz />
       }, {
         path: '/find',
@@ -66,7 +66,7 @@ const router = createBrowserRouter([
         path: '/join-game',
         element: <JoinGame />
       }, {
-        path: '/lobby',
+        path: '/lobby/:gameId',
         element: <Lobby />
       },
       // {
