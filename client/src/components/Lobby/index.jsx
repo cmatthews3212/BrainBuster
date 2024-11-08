@@ -19,11 +19,13 @@ const Lobby = () => {
 
     const handleGameStarted = (data) => {
       console.log('Received gameStarted event with data:', data);
+
       setWaiting(false);
       setOpponent(data.opponentId);
+
       navigate(`/quiz/${gameId}`,{ 
         state: { 
-          questions: data.questions, 
+          questions: [], 
           opponentId: data.opponentId,
           playerId: data.playerId
         } 
@@ -32,8 +34,10 @@ const Lobby = () => {
 
     const handleOpponentLeft = () => {
       setOpponent(null);
-      alert('Your opponent left the game.');
+      console.log('Opponent left game.')
     };
+
+    
 
     const handleGameInviteRecieved = (data) => {
       console.log('Game invite recieved:', data);

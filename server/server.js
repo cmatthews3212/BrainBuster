@@ -13,10 +13,19 @@ const socketIo = require("socket.io");
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+});
+
+const gameServer = http.createServer(app);
+
+const io = socketIo(gameServer, {
+  cors: {
+    origin: 'http://localhost:3000', 
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
 });
 
 // Create a new instance of an Apollo server with the GraphQL schema
@@ -26,7 +35,6 @@ const startApolloServer = async () => {
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
 
-  // Serve up static assets
   app.use(
     "/images",
     express.static(path.join(__dirname, "../client/public/images"))
@@ -60,37 +68,41 @@ startApolloServer();
 
 let games = {};
 
-const gameServer = http.createServer(app);
-const io = socketIo(gameServer, {
-  cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
-});
-
 io.on("connection", (socket) => {
   console.log(`A player connected: ${socket.id}`);
 
   socket.on("createGame", ({ gameId, category, difficulty }) => {
     console.log(`${socket.id} created a game with ID: ${gameId}`);
 
+    if (games[gameId]) {
+      console.log(`Game ID ${gameId} already exists.`);
+
+      socket.emit('error', { message: 'ID already exists.'});
+
+      return;
+    }
+
     games[gameId] = {
       player1: socket.id,
       player2: null,
       category,
       difficulty,
-      answers: {}
+      questions: [],
+      currentQuestionIndex: 0,
+      answers: {},
+      scores: {},
+      questionTimer: null,
+      resultTimer: null,
     };
 
     games[gameId].answers[socket.id] = {};
+    games[gameId].scores[socket.id] = 0;
 
     socket.join(gameId);
-
     socket.emit("waitingForOpponent");
   });
 
-  socket.on("joinGame", ({ gameId }) => {
+  socket.on("joinGame", async ({ gameId }) => {
     console.log(`${socket.id} attempting to join game ${gameId}`);
 
     const game = games[gameId];
@@ -98,125 +110,241 @@ io.on("connection", (socket) => {
     if (game) {
       if (!game.player2) {
         game.player2 = socket.id;
+
         games[gameId].answers[socket.id] = {};
+        games[gameId].scores[socket.id] = 0;
 
         socket.join(gameId);
-
         socket.emit("gameJoined", { gameId });
 
 
+        try {
+          const questions = await fetchTriviaQuestions(10, game.category, game.difficulty);
+          
+          game.questions = questions;
 
-        fetchTriviaQuestions(10, game.category, game.difficulty)
-          .then((questions) => {
-            game.questions = questions;
+          console.log(`Fetched questions for game ${gameId}.`);
     
-            io.to(game.player1).emit('gameStarted', {
-              gameId,
-              questions,
-              opponentId: game.player2,
-              playerId: game.player1,
-            });
+          io.to(game.player1).emit('gameStarted', {
+            gameId,
+            playerId: game.player1,
+            opponentId: game.player2,
+          });
             
-        
-            io.to(game.player2).emit('gameStarted', {
-              gameId,
-              questions,
-              opponentId: game.player1,
-              playerId: game
-            });
-            console.log(`Game ${gameId} started with players ${game.player1} and ${game.player2}`);
-          })
-          .catch((error) => {
-            console.error('Error fetching questions:', error);
-            io.to(gameId).emit('error', { message: 'Failed to fetch questions.' });
-            });
-          } else {
-            console.log(`Game ${gameId} is full.`);
-            socket.emit('gameFull');
-          }
-      } else {
-        console.log(`Game ${gameId} not found.`);
-        socket.emit('gameNotFound');
-    }
-  });
+          io.to(game.player2).emit('gameStarted', {
+            gameId,
+            playerId: game.player2,
+            opponentId: game.player1,
+          });
 
-  function bothPlayerFinished(gameId) {
-    const game = games[gameId];
-    const totalQuestions = game.questions.length;
+          startQuestion(gameId);
 
-    return (
-      Object.keys(game.answers[game.player1]).length === totalQuestions &&
-      Object.keys(game.answers[game.player2]).length === totalQuestions
-    );
-  }
+        } catch (error)  {
+          console.error('Error fetching questions:', error);
 
-  function calculateScores(gameId) {
-    const game = games[gameId];
-    const scores = {};
+          io.to(gameId).emit('error', { message: 'Failed to fetch questions.' });
 
-    [game.player1, game.player2].forEach((playerId) => {
-      const playerAnswers = game.answers[playerId];
-
-      let score = 0;
-
-      game.questions.forEach((question, index) => {
-        if (playerAnswers[index] === question.correctAnswer) {
-          score += 1;
+          delete games[gameId];
         }
-      });
-      scores[playerId] = score;
-    });
-    return scores;
-  }
-
-  socket.on('startGame', async (gameId) => {
-    const game = games[gameId];
-    
-    if (!game) {
-      socket.emit('gameNotFound', gameId);
-      return;
+      } else {
+        console.log(`Game ${gameId} is full.`);
+        socket.emit('gameFull');
+      }
+    } else {
+      console.log(`Game ${gameId} not found.`);
+      socket.emit('gameNotFound');
     }
-
-    const questions = await fetchTriviaQuestions(10, game.category, game.difficulty);
-
-    game.questions = questions;
-
-    io.to(gameId).emit('gameStarted', { questions });
   });
 
   socket.on("submitAnswer", (gameId, questionIndex, answer) => {
-    games[gameId].answers[socket.id][questionIndex] = answer;
+    console.log(`Received submitAnswer from ${socket.id} for game ${gameId}, question ${questionIndex}: ${answer}`);
 
-    if (bothPlayerFinished(gameId)) {
-      const scores = calculateScores(gameId);
+    const game = games[gameId];
 
-      io.to(gameId).emit('gameOver', { scores });
-    } else {
-      socket.to(gameId).emit('opponentAnswer', { questionIndex, playerId: socket.id });
+    if (!game) {
+      socket.emit('error', { message: 'Game not found.'});
+
+      return;
     }
+
+    if (questionIndex !== game.currentQuestionIndex) {
+      socket.emit('error', { message: 'Invalid question index.' });
+
+      return;
+    }
+
+    if (!game.answers[socket.id]) {
+      socket.emit('error', { message: 'Player not part of the game.' });
+
+      return;
+    }
+
+    game.answers[socket.id][questionIndex] = answer;
+
+    if (game.answers[game.player1][questionIndex] !== undefined &&
+      game.answers[game.player2][questionIndex] !== undefined) {
+
+      if (game.questionTimer) {
+        clearTimeout(game.questionTimer);
+
+        game.questionTimer = null;
+      }
+
+      processAnswers(gameId);
+    };
   });
 
   socket.on('timeUp', ({ gameId }) => {
-    const scores = calculateScores(gameId);
+    console.log(`Time up for game ${gameId}. Processing answers.`);
 
-    io.to(gameId).emit('gameOver', { scores });
+    const game = games[gameId];
+
+    if (!game) {
+      socket.emit('error', { message: 'Game not found.' });
+      return;
+    }
+
+    processAnswers(gameId);
   })
 
   socket.on("disconnect", () => {
     console.log(`Player disconnected: ${socket.id}`);
 
     for (let gameId in games) {
-      if (games[gameId].player1 === socket.id || games[gameId].player2 === socket.id) {
-        const opponentId = games[gameId].player1 === socket.id ? games[gameId].player2 : games[gameId].player1;
+      const game = games[gameId];
+
+      if (game.player1 === socket.id || game.player2 === socket.id) {
+        const opponentId = game.player1 === socket.id ? game.player2 : game.player1;
+
 
         if (opponentId) {
           io.to(opponentId).emit("opponentLeft");
         }
 
-        delete games[gameId];
+        if (game.questionTimer) {
+          clearTimeout(game.questionTimer);
+        }
 
+        if (game.resultTimer) {
+          clearTimeout(game.resultTimer);
+        }
+
+        delete games[gameId];
+        console.log(`Deleted game ${gameId} due to player disconnection.`);
         break;
       }
     }
-  })
+  });
 });
+
+function startQuestion(gameId) {
+  const game = games[gameId];
+
+  if (!game) return;
+
+  const questionIndex = game.currentQuestionIndex;
+  const question = game.questions[questionIndex];
+
+  if (!question) {
+    endGame(gameId);
+    return;
+  }
+
+  console.log(`Starting question ${questionIndex} for game ${gameId}.`);
+
+  const shuffledAnswers = shuffleAnswers([
+    ...question.incorrectAnswers,
+    question.correctAnswer,
+  ]);
+
+  io.to(game.player1).emit('newQuestion', {
+    gameId,
+    questionIndex,
+    question: question.question,
+    answers: shuffledAnswers,
+  });
+
+  io.to(game.player2).emit('newQuestion', {
+    gameId,
+    questionIndex,
+    question: question.question,
+    answers: shuffledAnswers,
+  });
+
+  game.questionTimer = setTimeout(() => {
+    console.log(`Question ${questionIndex} time up for game ${gameId}.`);
+
+    processAnswers(gameId);
+  }, 20000);
+}
+
+function processAnswers(gameId) {
+  const game = games[gameId]; 
+
+  if (!game) return;
+
+  const questionIndex = game.currentQuestionIndex;
+  const question = game.questions[questionIndex];
+
+  if (!question) return;
+
+  const player1Answer = game.answers[game.player1][questionIndex];
+  const player2Answer = game.answers[game.player2][questionIndex];
+  const player1Correct = player1Answer === question.correctAnswer;
+  const player2Correct = player2Answer === question.correctAnswer;
+
+  if (player1Correct) {
+    game.scores[game.player1] += 1;
+  }
+  if (player2Correct) {
+    game.scores[game.player2] += 1;
+  }
+
+  const results = {
+    gameId,
+    questionIndex,
+    correctAnswer: question.correctAnswer,
+    scores: game.scores,
+    player1Correct,
+    player2Correct,
+  };
+
+  io.to(game.player1).emit('questionResult', results);
+  io.to(game.player2).emit('questionResult', results);
+
+  console.log(`Emitted questionResult for game ${gameId}, question ${questionIndex}.`);
+
+  if (game.questionTimer) {
+    clearTimeout(game.questionTimer);
+    game.questionTimer = null;
+  }
+
+  game.resultTimer = setTimeout(() => {
+    game.currentQuestionIndex += 1;
+
+    startQuestion(gameId);
+  }, 10000); 
+}
+
+function endGame(gameId) {
+  const game = games[gameId];
+
+  if (!game) return;
+
+  console.log(`Ending game ${gameId}.`);
+
+  io.to(game.player1).emit('gameOver', { scores: game.scores });
+  io.to(game.player2).emit('gameOver', { scores: game.scores });
+
+  delete games[gameId];
+}
+
+function shuffleAnswers(answers) {
+  let shuffled = [...answers];
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
