@@ -1,167 +1,183 @@
 import { useState, useEffect } from "react";
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import socket from '../../socket';
 
 
 const Quiz = () => {
-  const location = useLocation();
-  const { questions, opponentId, playerId } = location.state || {};
   const { gameId } = useParams();
   const navigate = useNavigate();
 
-  const [processedQuestions, setProcessedQuestions] = useState([]);
-  const [userAnswers, setUserAnswers] = useState({});
+  const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [phase, setPhase] = useState('waiting');
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [finalScores, setFinalScores] = useState({});
+  const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [opponentProgress, setOpponentProgress] = useState(0);
+  const [correctAnswer, setCorrectAnswer] = useState(null);
 
   useEffect(() => {
-    console.log('Quiz component received location.state:', location.state);
-    console.log('Quiz component playerId:', playerId);
-    console.log('Quiz component opponentId:', opponentId);
-    console.log('Quiz component gameId:', gameId);
-
-    if (!gameId || !playerId || !opponentId) {
-      console.error('Quiz: Missing gameId, playerId, or opponentId');
-      setError('Missing game or player information.');
+    if (!gameId) {
+      setError('Missing game ID.');
       return;
     }
 
-    if (questions && questions.length > 0) {
-      const shuffled = questions.map((question) => {
-        const shuffledAnswers = shuffleAnswers([
-          ...question.incorrectAnswers,
-          question.correctAnswer,
-        ]);
+    socket.on('newQuestion', handleNewQuestion);
+    socket.on('showAnswer', handleShowAnswer);
+    socket.on('gameOver', handleGameOver);
 
-        return {
-          ...question,
-          shuffledAnswers,
-        };
-      });
-      setProcessedQuestions(shuffled);
-    }
-  }, [questions, gameId, playerId, opponentId, location.state]);
-
-  useEffect(() => {
-    socket.on('opponentAnswer', ({ questionIndex, playerId: answeringPlayerId }) => {
-      console.log("Received opponentAnswer:", { questionIndex, answeringPlayerId });
-      setOpponentProgress((prev) => prev + 1);
+    socket.on('opponentLeft', () => {
+      setError('Opponent has left the game.');
+      navigate('/');
     });
 
-    socket.on('gameOver', ({ scores }) => {
-      console.log("Received gameOver with scores:", scores);
-      setGameOver(true);
-      setFinalScores(scores);
+    socket.on('error', (data) => {
+      setError(data.message);
+      navigate('/');
     });
 
     return () => {
-      socket.off('opponentAnswer');
-      socket.off('gameOver');
+      socket.off('newQuestion', handleNewQuestion);
+      socket.off('showAnswer', handleShowAnswer);
+      socket.off('gameOver', handleGameOver);
+      socket.off('opponentLeft');
+      socket.off('error');
     };
-  }, []);
-  
-  const handleAnswerSelect = (questionIndex, answer) => {
-    if (userAnswers[questionIndex] !== undefined) return;
-    
-    setUserAnswers((prev) => ({
-      ...prev,
-      [questionIndex]: answer,
-    }));
-    
-    socket.emit('submitAnswer', gameId, questionIndex, answer );
-    console.log(`Emitted submitAnswer for gameId ${gameId}, questionIndex ${questionIndex}, answer "${answer}"`);
-    
-    if (answer === questions[questionIndex].correctAnswer) {
-      setScore((prevScore) => prevScore + 1);
-    }
+  }, [gameId, navigate]);
+
+  const handleNewQuestion = (data) => {
+    const { questionIndex, question, answers } = data;
+
+    setCurrentQuestion({
+      question,
+      answers,
+    });
+    setCurrentQuestionIndex(questionIndex);
+    setSelectedAnswer(null);
+    setCorrectAnswer(null);
+    setPhase('answering');
+    setTimeLeft(20); 
   };
   
-  const [timeLeft, setTimeLeft] = useState(120);
-  
-  useEffect(() => {
-    if (timeLeft <= 0) {
-      socket.emit('timeUp', { gameId });
-    } else {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
+  const handleShowAnswer = (data) => {
+    const { questionIndex, correctAnswer, players } = data;
+
+    setCorrectAnswer(correctAnswer);
+
+    const userAnswer = players[socket.id];
+    if (userAnswer === correctAnswer) {
+      setScore((prev) => prev + 1);
     }
-  }, [timeLeft, gameId]);
+
+    setSelectedAnswer(userAnswer);
+    setPhase('feedback');
+    setTimeLeft(10); 
+  };
+  
+  const handleGameOver = (data) => {
+    const { scores, result } = data;
+    setFinalScores(scores);
+    setResult(result);
+    setGameOver(true);
+  };
+
+  useEffect(() => {
+    if (timeLeft > 0) {
+      const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timerId);
+    }
+  }, [timeLeft]);
   
   if (gameOver) {
-    const myScore = finalScores[socket.id];
-    const opponentScore = finalScores[opponentId];
-    
-    const result = 
-      myScore > opponentScore
-        ? 'You Win!'
-        : myScore < opponentScore
-        ? 'You Lose!'
-        : "It's a Tie!";
-    
+    const myScore = finalScores[socket.id] || 0;
+    const opponentId = Object.keys(finalScores).find(id => id !== socket.id);
+    const opponentScore = finalScores[opponentId] || 0;
+
+    let resultText;
+    if (result.winner === socket.id) {
+      resultText = 'You Win!';
+    } else if (result.winner === null) {
+      resultText = "It's a Tie!";
+    } else {
+      resultText = 'You Lose!';
+    }
+
     return (
-      <div>
+      <div className="game-over-container">
         <h2>Game Over</h2>
         <p>Your Score: {myScore}</p>
         <p>Opponent's Score: {opponentScore}</p>
-        <h3>{result}</h3>
+        <h3>{resultText}</h3>
+        <button onClick={() => navigate('/')}>Return to Home</button>
       </div>
     );
   }
   
-  const isQuizComplete = Object.keys(userAnswers).length === questions.length;
-  
   return (
-    <>
-      <p>Time Left: {timeLeft} seconds</p>
-      <p>Your Progress: {Object.keys(userAnswers).length}/{questions.length}</p>
-      <p>Opponent's Progress: {opponentProgress}/{questions.length}</p>
-
+    <div className="quiz-container">
       {error && <p className="error-text">Error: {error}</p>}
 
-      {processedQuestions.length > 0 && (
+      {phase === 'answering' && currentQuestion && (
         <div>
-          {!isQuizComplete &&
-            processedQuestions.map((question, index) => (
-              <div key={index}>
-                <h3>{decodeHtml(question.question)}</h3>
-                <ul>
-                {question.shuffledAnswers.map((answer, idx) => (
-                    <li key={idx}>
-                      <button onClick={() => handleAnswerSelect(index, answer)} disabled={userAnswers[index] !== undefined}>
-                        {decodeHtml(answer)}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                {userAnswers[index] !== undefined && (
-                  <p>
-                    {userAnswers[index] === question.correctAnswer
-                      ? "Correct!"
-                      : `Incorrect! The correct answer is ${decodeHtml(
-                        question.correctAnswer
-                      )}`
-                    }
-                  </p>
-                )}
-              </div>
+          <h3>Question {currentQuestionIndex + 1}</h3>
+          <p>{decodeHtml(currentQuestion.question)}</p>
+          <ul>
+            {currentQuestion.answers.map((answer, idx) => (
+              <li key={idx}>
+                <button
+                  onClick={() => handleAnswerClick(answer)}
+                  disabled={selectedAnswer !== null}
+                  className={selectedAnswer === answer ? 'selected' : ''}
+                >
+                  {decodeHtml(answer)}
+                </button>
+              </li>
             ))}
-          </div>
-        )}
-     </>
-    );
-  };
+          </ul>
+          <p>Time Left: {timeLeft} seconds</p>
+        </div>
+      )}
 
-const decodeHtml = (html) => {
-  const txt = document.createElement("textarea");
-  txt.innerHTML = html;
-  return txt.value;
-};
+      {phase === 'feedback' && currentQuestion && (
+        <div>
+          <h3>Question {currentQuestionIndex + 1} Results</h3>
+          {selectedAnswer ? (
+            selectedAnswer === currentQuestion.answers.find(
+              (ans) => decodeHtml(ans) === selectedAnswer
+            ) ? (
+              <p className="correct">Correct!</p>
+            ) : (
+              <p className="incorrect">
+                Incorrect! The correct answer is: {decodeHtml(correctAnswer)}
+              </p>
+            )
+          ) : (
+            <p className="incorrect">
+              Time's up! The correct answer is: {decodeHtml(correctAnswer)}
+            </p>
+          )}
+          <p>Next question in: {timeLeft} seconds</p>
+        </div>
+      )}
+    </div>
+  );
 
-const shuffleAnswers = (answers) => {
-  return answers.sort(() => Math.random() - 0.5);
+  function handleAnswerClick(answer) {
+    if (phase !== 'answering') return;
+
+    setSelectedAnswer(answer);
+    socket.emit('submitAnswer', { gameId, questionIndex: currentQuestionIndex, answer });
+  }
+  
+  function decodeHtml(html) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
+
 };
 
 export default Quiz;
