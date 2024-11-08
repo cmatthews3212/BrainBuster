@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Typography, Box, Paper } from '@mui/material';
+// import { Container, Typography, Box, Paper } from '@mui/material';
 import LeaderboardCard from './LeaderboardCard';
 import './Leaderboard.css';
 import { useMutation, useQuery } from '@apollo/client';

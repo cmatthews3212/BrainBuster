@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Avatar, Typography, Box } from '@mui/material';
+// import { Paper, Avatar, Typography, Box } from '@mui/material';
 import './LeaderboardCard.css';
 import Dashboard from '../../pages/Dashboard';
 
