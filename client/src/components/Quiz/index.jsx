@@ -144,10 +144,9 @@ const Quiz = () => {
       {phase === 'feedback' && currentQuestion && (
         <div>
           <h3>Question {currentQuestionIndex + 1} Results</h3>
+
           {selectedAnswer ? (
-            selectedAnswer === currentQuestion.answers.find(
-              (ans) => decodeHtml(ans) === selectedAnswer
-            ) ? (
+            selectedAnswer === decodeHtml(correctAnswer) ? (
               <p className="correct">Correct!</p>
             ) : (
               <p className="incorrect">
