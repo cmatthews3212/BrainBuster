@@ -1,9 +1,10 @@
-import { io } from 'socket.io-client';
+import { io } from "socket.io-client";
 
-const socket = io('http://localhost:3001');
+const SOCKET_IO_URL = "http://localhost:3001"; 
 
-socket.on("connect", () => {
-    console.log(`Connected to Socket.IO server with ID: ${socket.id}`);
-  });
+const socket = io(SOCKET_IO_URL, {
+  autoConnect: false, 
+  transports: ["websocket"], 
+});
 
 export default socket;

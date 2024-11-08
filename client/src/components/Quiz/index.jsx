@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import socket from '../../socket';
 
-
 const Quiz = () => {
   const location = useLocation();
   const { opponentId, playerId } = location.state || {};
@@ -16,12 +15,11 @@ const Quiz = () => {
   const [finalScores, setFinalScores] = useState({});
   const [error, setError] = useState(null);
   const [opponentProgress, setOpponentProgress] = useState(0);
-  const [phase, setPhase] = useState('idle');
+  const [phase, setPhase] = useState('idle'); // 'answering', 'showingResults', 'idle'
   const [timeLeft, setTimeLeft] = useState(0);
   const [correctAnswer, setCorrectAnswer] = useState('');
   const [questionTimer, setQuestionTimer] = useState(null);
   const [resultTimer, setResultTimer] = useState(null);
-
 
   useEffect(() => {
     if (!gameId || !playerId || !opponentId) {
@@ -30,123 +28,136 @@ const Quiz = () => {
       return;
     }
 
+    // Define event handlers
+    const handleGameStarted = (data) => {
+      console.log('Game has started!', data);
+      // Emit 'ready' after receiving 'gameStarted'
+      socket.emit('ready', { gameId });
+      console.log('Emitted ready to server.');
+    };
+
+    const handleOpponentLeft = () => {
+      alert('Your opponent has left the game.');
+      navigate('/'); 
+    };
+
+    const handleNewQuestion = (data) => {
+      const { gameId: receivedGameId, questionIndex, question, answers } = data;
+
+      if (receivedGameId !== gameId) return;
+
+      console.log(`Received newQuestion for gameId ${gameId}, questionIndex ${questionIndex + 1}: ${question}`);
+      console.log('Received answers:', answers);
+
+      setCurrentQuestion({
+        questionIndex,
+        question,
+        answers,
+      });
+      setCurrentQuestionIndex(questionIndex);
+    
+      setCorrectAnswer('');
+
+      setUserAnswers(prev => ({ ...prev, [questionIndex]: undefined }));
+
+      setPhase('answering');
+      setTimeLeft(20);
+
+      if (questionTimer) {
+        clearInterval(questionTimer);
+      }
+
+      if (resultTimer) {
+        clearInterval(resultTimer);
+      }
+
+      const timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setPhase('showingResults');
+            
+            socket.emit('timeUp', { gameId });
+
+            console.log(`Emitted timeUp for gameId ${gameId}`);
+
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      setQuestionTimer(timer);
+    };
+
+    const handleQuestionResult = (data) => {
+      const { gameId: receivedGameId, questionIndex, correctAnswer, scores, player1Correct, player2Correct } = data;
+
+      if (receivedGameId !== gameId) return;
+      if (questionIndex !== currentQuestionIndex) return;
+
+      console.log(`Received questionResult for gameId ${gameId}, questionIndex ${questionIndex + 1}: ${correctAnswer}`);
+      console.log('Scores:', scores);
+
+      if (questionTimer) {
+        clearInterval(questionTimer);
+        setQuestionTimer(null);
+      }
+
+      setCorrectAnswer(correctAnswer);
+      setFinalScores(scores);
+
+      setOpponentProgress((prev) => prev + 1);
+
+      setPhase('showingResults');
+      setTimeLeft(10);
+
+      const timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setPhase('idle');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      setResultTimer(timer);
+    };
+
+    const handleGameOver = (data) => {
+      const { scores } = data;
+      console.log('Received gameOver with scores:', scores);
+
+      setGameOver(true);
+      setFinalScores(scores);
+    };
+
+    const handleError = ({ message }) => {
+      setError(message);
+      console.error('Received error:', message);
+    };
+    
+    // Set up Socket.IO event listeners
+    socket.on('gameStarted', handleGameStarted);
     socket.on('newQuestion', handleNewQuestion);
     socket.on('questionResult', handleQuestionResult);
     socket.on('gameOver', handleGameOver);
     socket.on('error', handleError);
     socket.on('opponentLeft', handleOpponentLeft);
 
+    // Cleanup event listeners on component unmount
     return () => {
+      socket.off('gameStarted', handleGameStarted);
       socket.off('newQuestion', handleNewQuestion);
       socket.off('questionResult', handleQuestionResult);
       socket.off('gameOver', handleGameOver);
       socket.off('error', handleError);
       socket.off('opponentLeft', handleOpponentLeft);
     };
-  }, [gameId, playerId, opponentId]);
+  }, [gameId, playerId, opponentId, navigate, questionTimer, resultTimer]);
 
-  const handleOpponentLeft = () => {
-    alert('Your opponent has left the game.');
-    navigate('/'); 
-  };
-
-  const handleNewQuestion = (data) => {
-    const { gameId: receivedGameId, questionIndex, question, answers } = data;
-
-    if (receivedGameId !== gameId) return;
-
-    console.log(`Received newQuestion for gameId ${gameId}, questionIndex ${questionIndex}: ${question}`);
-
-    setCurrentQuestion({
-      questionIndex,
-      question,
-      answers,
-    });
-    setCurrentQuestionIndex(questionIndex);
-  
-    setCorrectAnswer('');
-
-    setUserAnswers(prev => ({ ...prev, [questionIndex]: undefined }));
-
-    setPhase('answering');
-    setTimeLeft(20);
-
-    if (questionTimer) {
-      clearInterval(questionTimer);
-    }
-
-    if (resultTimer) {
-      clearInterval(resultTimer);
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setPhase('showingResults');
-          
-          socket.emit('timeUp', { gameId });
-
-          console.log(`Emitted timeUp for gameId ${gameId}`);
-
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    setQuestionTimer(timer);
-  }
-
-  const handleQuestionResult = (data) => {
-    const { gameId: receivedGameId, questionIndex, correctAnswer, scores, player1Correct, player2Correct } = data;
-
-    if (receivedGameId !== gameId) return;
-    if (questionIndex !== currentQuestionIndex) return;
-
-    console.log(`Received questionResult for gameId ${gameId}, questionIndex ${questionIndex}: ${correctAnswer}`);
-
-    if (questionTimer) {
-      clearInterval(questionTimer);
-      setQuestionTimer(null);
-    }
-
-    setCorrectAnswer(correctAnswer);
-    setFinalScores(scores);
-
-
-    setOpponentProgress((prev) => prev + 1);
-
-    setPhase('showingResults');
-    setTimeLeft(10);
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setPhase('idle');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    setResultTimer(timer);
-  };
-
-  const handleGameOver = (data) => {
-    const { scores } = data;
-    console.log('Received gameOver with scores:', scores);
-
-    setGameOver(true);
-    setFinalScores(scores);
-  };
-
-  const handleError = ({ message }) => {
-    setError(message);
-  };
-  
-  
   const handleAnswerSelect = (questionIndex, answer) => {
     if (userAnswers[questionIndex] !== undefined || phase !== 'answering') return;
     
@@ -156,7 +167,7 @@ const Quiz = () => {
     }));
     
     socket.emit('submitAnswer', gameId, questionIndex, answer );
-    console.log(`Emitted submitAnswer for gameId ${gameId}, questionIndex ${questionIndex}, answer "${answer}"`);
+    console.log(`Emitted submitAnswer for gameId ${gameId}, questionIndex ${questionIndex + 1}, answer "${answer}"`);
   };
 
   const decodeHtml = (html) => {
@@ -166,8 +177,8 @@ const Quiz = () => {
   };
 
   if (gameOver) {
-    const myScore = finalScores[playerId];
-    const opponentScore = finalScores[opponentId];
+    const myScore = finalScores[playerId] || 0;
+    const opponentScore = finalScores[opponentId] || 0;
 
     console.log('Final Scores:', finalScores);
     console.log('My Score:', myScore);
@@ -179,7 +190,7 @@ const Quiz = () => {
         : myScore < opponentScore
         ? 'You Lose!'
         : "It's a Tie!";
-    
+
     return (
       <div>
         <h2>Game Over</h2>
@@ -224,7 +235,7 @@ const Quiz = () => {
           <p>Correct Answer: {decodeHtml(correctAnswer)}</p>
           <p>Your Answer: {userAnswers[currentQuestionIndex] !== undefined ? decodeHtml(userAnswers[currentQuestionIndex]) : 'No Answer'}</p>
           {userAnswers[currentQuestionIndex] === correctAnswer ? <p>Correct!</p> : <p>Incorrect!</p>}
-          <p>Current Score: You - {finalScores[playerId]} | Opponent - {finalScores[opponentId]}</p>
+          <p>Current Score: You - {finalScores[playerId] || 0} | Opponent - {finalScores[opponentId] || 0}</p>
         </div>
       )}
 
@@ -235,7 +246,12 @@ const Quiz = () => {
         </div>
       )}
 
-      {error && <p className="error-text">Error: {error}</p>}
+      {error && (
+        <div className="error-container">
+          <p className="error-text">Error: {error}</p>
+          <button onClick={() => navigate('/')}>Return to Home</button>
+        </div>
+      )}
     </div>
   );
 };
