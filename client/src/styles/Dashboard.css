@@ -86,11 +86,6 @@
     }
   }
   
-  .nav-item {
-    align-self: stretch;
-    margin: auto 0;
-  }
-  
   .hero-section {
     background-color: rgba(0, 0, 0, 0.6);
     position: relative;

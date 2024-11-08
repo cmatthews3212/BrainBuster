@@ -17,6 +17,9 @@ import CreateGame from './components/CreateGame/index.jsx'
 import JoinGame from './components/JoinGame/index.jsx';
 import Lobby from './components/Lobby/index.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import Leaderboard from './components/Leaderboard/Leaderboard.jsx';
+
+
 
 
 import FindFriends from './components/Friends/Find.jsx';
@@ -70,10 +73,15 @@ const router = createBrowserRouter([
       }, {
         path: '/lobby/:gameId',
         element: <Lobby />
-      },
-       {
+      },  {
        path: '/dashboard',
       element: <Dashboard />
+       }, {
+        path: '/home',
+        element: <Home />
+       }, {
+        path: '/leaderboard',
+        element: <Leaderboard />
        },
     ],
   },

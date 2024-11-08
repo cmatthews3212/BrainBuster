@@ -111,13 +111,20 @@ io.on("connection", (socket) => {
           .then((questions) => {
             game.questions = questions;
     
-            io.to(gameId).emit('gameStarted', {
+            io.to(game.player1).emit('gameStarted', {
               gameId,
               questions,
-              opponentId: socket.id === game.player1 ? game.player2 : game.player1,
-              players: [game.player1, game.player2],
+              opponentId: game.player2,
+              playerId: game.player1,
             });
-    
+            
+        
+            io.to(game.player2).emit('gameStarted', {
+              gameId,
+              questions,
+              opponentId: game.player1,
+              playerId: game
+            });
             console.log(`Game ${gameId} started with players ${game.player1} and ${game.player2}`);
           })
           .catch((error) => {
