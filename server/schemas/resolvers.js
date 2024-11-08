@@ -36,6 +36,19 @@ const resolvers = {
 
       return { token, user };
     },
+    deleteUser: async (parent, {userId}) => {
+        const user = await User.findByIdAndDelete(userId);
+
+        if (!user) {
+          throw new Error('user not found')
+        }
+       
+      
+      console.log('user deleted')
+      return {sucess: true, message: "Deleted Sucessfully"}
+
+    
+    },
     updateUser: async (parent, args, context) => {
       if (context.user) {
         return await User.findByIdAndUpdate(context.user._id, args, {

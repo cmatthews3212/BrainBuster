@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import JoinGame from '../components/Game/JoinGame';
 import { useMutation, useQuery } from '@apollo/client';
-import { GET_ME } from '../utils/queries';
+import { GET_ME, QUERY_USERS } from '../utils/queries';
 import Auth from '../utils/auth'
 
 function Dashboard() {
@@ -13,10 +13,23 @@ function Dashboard() {
     navigate('/create-game');
   };
 
-  const { loading, error, data } = useQuery(GET_ME);
-  console.log(data)
+ 
+    const { loading, error, data } = useQuery(GET_ME);
+    console.log(data)
+    const userData = data?.me || {}
 
-const userData = data?.me || {}
+
+
+
+  if (loading) {
+    return <p>Loading...</p>
+  }
+
+  if (error ) {
+    console.error(error)
+  }
+
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Main content - adjusted to account for navbar */}

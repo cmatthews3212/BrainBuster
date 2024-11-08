@@ -17,6 +17,8 @@ const LeaderboardCard = ({ rank, username, score, avatar }) => {
     }
   };
 
+  console.log({avatar})
+
   return (
     <Paper
       elevation={0}
@@ -64,10 +66,11 @@ const LeaderboardCard = ({ rank, username, score, avatar }) => {
       </Box>
 
       <Avatar
-        src={avatar || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='}
+        src={avatar}
         alt={username}
         sx={{ width: 60, height: 60 }}
       />
+   
 
       <Typography
         variant="body1"
