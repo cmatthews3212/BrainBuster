@@ -20,11 +20,11 @@ const FriendProfile = ({ friend, onClear }) => {
         try {
             const { data } = await sendFriendRequest({
                 variables: {
-                    userId: Auth.getProfile().data._id,
-                    friendId: friend._id,
-                    firstName: friend.firstName,
-                    lastName: friend.lastName,
-                    email: friend.email
+                    userId: Auth.getProfile().data._id, // The person sending the request
+                    friendId: friend._id, // The person receiving the request
+                    firstName: Auth.getProfile().data.firstName, // The requester's first name
+                    lastName: Auth.getProfile().data.lastName, // The requester's last name
+                    email: Auth.getProfile().data.email 
                 }
             });
             console.log('friend request sent')

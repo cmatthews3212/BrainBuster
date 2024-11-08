@@ -7,49 +7,57 @@ const LeaderboardCard = ({ rank, username, score, avatar }) => {
   const getRankColor = (rank) => {
     switch (rank) {
       case 1:
-        return '#FFD700'; // Gold
+        return 'linear-gradient(45deg, #FFD700, #FFA500)'; // Gold gradient
       case 2:
-        return '#C0C0C0'; // Silver
+        return 'linear-gradient(45deg, #C0C0C0, #A9A9A9)'; // Silver gradient
       case 3:
-        return '#CD7F32'; // Bronze
+        return 'linear-gradient(45deg, #CD7F32, #B87333)'; // Bronze gradient
       default:
-        return '#2c3e50'; // Default color
+        return 'linear-gradient(45deg, #2c3e50, #3498db)'; // Default gradient
     }
   };
+
+  console.log({avatar})
 
   return (
     <Paper
       elevation={0}
       sx={{
-        p: 2,
+        p: 3,
         display: 'flex',
         alignItems: 'center',
-        gap: 2,
-        borderRadius: 2,
+        gap: 3,
+        borderRadius: 4,
         bgcolor: 'background.paper',
+        background: 'linear-gradient(145deg, #ffffff, #f5f5f5)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+        border: '1px solid rgba(255, 255, 255, 0.18)',
         '&:hover': {
-          transform: 'translateY(-2px)',
-          transition: 'transform 0.2s ease-in-out',
-          boxShadow: 1,
+          transform: 'translateY(-3px)',
+          transition: 'all 0.3s ease',
+          boxShadow: '0 8px 25px rgba(0, 0, 0, 0.12)',
         },
-        borderLeft: rank <= 3 ? `4px solid ${getRankColor(rank)}` : 'none',
+        mb: 2,
       }}
     >
       <Box
         sx={{
-          width: 40,
-          height: 40,
+          width: 60,
+          height: 60,
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          bgcolor: 'grey.100',
+          background: 'linear-gradient(145deg, #f9f9f9, #e9ecef)',
+          boxShadow: 'inset 2px 2px 5px rgba(0, 0, 0, 0.05)',
         }}
       >
         <Typography
-          variant="h6"
+          variant="h5"
           sx={{
-            color: getRankColor(rank),
+            background: getRankColor(rank),
+            backgroundClip: 'text',
+            color: 'transparent',
             fontWeight: 'bold',
           }}
         >
@@ -58,10 +66,11 @@ const LeaderboardCard = ({ rank, username, score, avatar }) => {
       </Box>
 
       <Avatar
-        src={avatar || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='}
+        src={avatar}
         alt={username}
-        sx={{ width: 40, height: 40 }}
+        sx={{ width: 60, height: 60 }}
       />
+   
 
       <Typography
         variant="body1"

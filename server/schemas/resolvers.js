@@ -36,6 +36,19 @@ const resolvers = {
 
       return { token, user };
     },
+    deleteUser: async (parent, {userId}) => {
+        const user = await User.findByIdAndDelete(userId);
+
+        if (!user) {
+          throw new Error('user not found')
+        }
+       
+      
+      console.log('user deleted')
+      return {sucess: true, message: "Deleted Sucessfully"}
+
+    
+    },
     updateUser: async (parent, args, context) => {
       if (context.user) {
         return await User.findByIdAndUpdate(context.user._id, args, {
@@ -50,27 +63,33 @@ const resolvers = {
         throw new AuthenticationError('Please log in.');
       }
 
-      const user = await User.findById(friendId);
+      const user = await User.findById(userId);
+      const friend = await User.findById(friendId);
 
-      if (!user) {
+      if (!user || !friend) {
         console.error('User not found');
         throw new AuthenticationError('User not found.');
       }
 
-      if (!user.friendRequests.some(request => request.userId.toString() === userId)) {
-        
-      }
-
-      // if (!user.friendRequests.includes(userId)) {
-      //   user.friendRequests.push(userId)
-      //   // user.friendRequests.push({firstName: firstName, lastName: lastName, email: email})
-      //   // user.friendRequests.push(firstName)
-      //   // user.friendRequests.push(lastName)
-      //   // user.friendRequests.push(email)
+      // if (!user.friendRequests.some(request => request.friendId.toString() === friendId)) {
+      //   user.friendRequests.push({
+      //     friendId,
+      //     firstName,
+      //     lastName,
+      //     email
+      //   })
       // }
 
-      await user.save();
-      const populatedUser = await user.populate({
+      if (!friend.friendRequests.includes(userId)) {
+        friend.friendRequests.push({userId, firstName, lastName, email})
+        // user.friendRequests.push({firstName: firstName, lastName: lastName, email: email})
+        // user.friendRequests.push(firstName)
+        // user.friendRequests.push(lastName)
+        // user.friendRequests.push(email)
+      }
+
+      await friend.save();
+      const populatedUser = await friend.populate({
         path: 'friendRequests',
         select: 'firstName lastName email'
       })
@@ -88,7 +107,7 @@ const resolvers = {
         throw new AuthenticationError('User not found.');
       }
 
-      user.friendRequests = user.friendRequests.filter((id) => id.toString() !== friendId);
+      user.friendRequests = user.friendRequests.filter((request) => request._id.toString() !== friendId);
 
       await user.save();
       await user.populate('friendRequests');
@@ -144,7 +163,7 @@ const resolvers = {
           throw new AuthenticationError('User not found.');
         }
 
-        user.friends = user.friends.filter((id, fName, lName, mail) => id.toString() !== friendId);
+        user.friends = user.friends.filter((friend) => friend._id.toString() !== friendId);
 
         await user.save();
         await user.populate('friends');

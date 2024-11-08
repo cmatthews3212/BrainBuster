@@ -51,8 +51,13 @@ const userSchema = new Schema({
     email: String
   }],
   friendRequests: [{
-    type: Schema.Types.ObjectId, 
+    userId: {
+      type: Schema.Types.ObjectId, 
     ref: 'User'
+  },
+    firstName: String,
+    lastName: String,
+    email: String
   }]
 });
 

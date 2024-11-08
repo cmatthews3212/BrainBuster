@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import JoinGame from '../components/Game/JoinGame';
+import { useMutation, useQuery } from '@apollo/client';
+import { GET_ME, QUERY_USERS } from '../utils/queries';
+import Auth from '../utils/auth'
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -9,6 +12,23 @@ function Dashboard() {
   const handleCreateGame = () => {
     navigate('/create-game');
   };
+
+ 
+    const { loading, error, data } = useQuery(GET_ME);
+    console.log(data)
+    const userData = data?.me || {}
+
+
+
+
+  if (loading) {
+    return <p>Loading...</p>
+  }
+
+  if (error ) {
+    console.error(error)
+  }
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -42,9 +62,9 @@ function Dashboard() {
               justifyContent: 'center',
               fontSize: '2rem'
             }}>
-              🧑
+              <img src={data.me.avatar.src}></img>
             </div>
-            <h3 style={{ color: '#7E57C2', marginBottom: '0.5rem' }}>Player Name</h3>
+            <h3 style={{ color: '#7E57C2', marginBottom: '0.5rem' }}>{data.me.firstName} {data.me.lastName}</h3>
             <p style={{ color: '#616161' }}>Rank: #1</p>
           </div>
 
