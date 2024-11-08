@@ -81,10 +81,24 @@ export const ADD_FRIEND = gql`
 `;
 
 export const SEND_FRIEND_REQUEST = gql`
-  mutation sendFriendRequest($userId: ID!, $friendId: ID!, $firstName: String!, $lastName: String!, $email: String!) {
-    sendFriendRequest(userId: $userId, friendId: $friendId, firstName: $firstName, lastName: $lastName, email: $email) {
+  mutation sendFriendRequest($userId: ID!, $friendId: ID!) {
+    sendFriendRequest(userId: $userId, friendId: $friendId) {
       _id
-      friends {
+      friendRequests {
+        _id
+        firstName
+        lastName
+        email
+      }
+    }
+  }
+`;
+
+export const DECLINE_FRIEND_REQUEST = gql`
+  mutation declineFriendRequest($userId: ID!, $friendId: ID!) {
+    declineFriendRequest(userId: $userId, friendId: $friendId) {
+      _id
+      friendRequests {
         _id
         firstName
         lastName

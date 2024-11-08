@@ -6,6 +6,7 @@ import { GET_ME } from '../utils/queries';
 import { UPDATE_AVATAR } from '../utils/mutations';
 import { QUERY_USERS } from '../utils/queries';
 import { REMOVE_FRIEND } from '../utils/mutations';
+import { DECLINE_FRIEND_REQUEST } from '../utils/mutations';
 import Auth from '../utils/auth'
 // this should have the "friends", "settings", and "rankings" as components
 
@@ -24,8 +25,8 @@ const { loading, data } = useQuery(GET_ME);
 
 
 const userData = data?.me || {}
-console.log(userData.friends)
 
+console.log(userData)
 
 
         
@@ -56,6 +57,32 @@ const handleRemoveFriend = async (friend) => {
     }
 }
 
+const [declineFriendRequest] = useMutation(DECLINE_FRIEND_REQUEST);
+
+const handleDecline = async (request) => {
+    const token = Auth.loggedIn() ? Auth.getToken() : null;
+    
+    if (!token) {
+        return false;
+    }
+    
+    try {
+        const { data } = await declineFriendRequest({
+            variables: {
+                userId: Auth.getProfile().data._id,
+                friendId: request._id,
+            }
+        });
+        console.log('friend removed')
+        console.log(data)
+    } catch (err) {
+        console.error(err)
+    }
+}
+
+
+console.log(userData)
+console.log(Auth.getProfile().data.lastName)
 
 
 
@@ -109,6 +136,20 @@ return (
             </div>
             <div>
                 <h2>Friend Requests</h2>
+                {userData.friendRequests ? ( userData.friendRequests.map((request) => (
+                    <div>
+                        <p>{request.firstName} {request.lastName}</p>
+                        <button>Accept Friend Request</button>
+                        <button onClick={() => handleDecline(request)}>Decline Friend Request</button>
+                    </div>
+
+                ))  
+                  
+                ) : (
+                    <div>
+                    <p>No friend requests yet...</p>
+                    </div>
+                )}
             </div>
 
 

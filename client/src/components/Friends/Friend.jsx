@@ -8,7 +8,7 @@ import { SEND_FRIEND_REQUEST } from "../../utils/mutations";
 import Auth from "../../utils/auth";
 
 const FriendProfile = ({ friend, onClear }) => {
-    console.log(friend)
+    
     const [sendFriendRequest] = useMutation(SEND_FRIEND_REQUEST)
     const handleAddFriend = async () => {
         const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -18,13 +18,10 @@ const FriendProfile = ({ friend, onClear }) => {
         }
 
         try {
-            const { data } = await addFriend({
+            const { data } = await sendFriendRequest({
                 variables: {
                     userId: Auth.getProfile().data._id,
                     friendId: friend._id,
-                    firstName: friend.firstName,
-                    lastName: friend.lastName,
-                    email: friend.email
                 }
             });
             console.log('friend request sent')

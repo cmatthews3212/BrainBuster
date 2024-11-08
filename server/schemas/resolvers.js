@@ -3,6 +3,7 @@ const { signToken } = require('../utils/auth');
 const { AuthenticationError } =require('apollo-server-express');
 const { fetchTriviaQuestions } = require('../utils/requests');
 
+
 const resolvers = {
   Query: {
     me: async (parent, args, context) => {
@@ -49,6 +50,29 @@ const resolvers = {
         throw new AuthenticationError('Please log in.');
       }
 
+      const user = await User.findById(friendId);
+
+      if (!user) {
+        console.error('User not found');
+        throw new AuthenticationError('User not found.');
+      }
+
+      if (!user.friendRequests.includes(userId)) {
+        user.friendRequests.push(userId)
+      }
+
+      await user.save();
+      const populatedUser = await user.populate({
+        path: 'friendRequests',
+        select: 'firstName lastName email'
+      })
+      return populatedUser;
+    },
+    declineFriendRequest: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
+      if (!context.user) {
+        console.error('Please log in');
+        throw new AuthenticationError('Please log in.');
+      }
       const user = await User.findById(userId);
 
       if (!user) {
@@ -56,17 +80,12 @@ const resolvers = {
         throw new AuthenticationError('User not found.');
       }
 
-      if (!user.friendRequests.includes(friendId)) {
-        user.friendRequests.push(friendId)
-      }
+      user.friendRequests = user.friendRequests.filter((id) => id.toString() !== friendId);
 
       await user.save();
-      await user.populate({
-        path: 'friends',
-        select: 'firstName lastName email'
-      })
-      return user
-    },
+      await user.populate('friendRequests');
+      return user;
+  },
     addFriend: async (parent, { userId, friendId }, context) => {
       if (!context.user) {
         console.error('Please log in');

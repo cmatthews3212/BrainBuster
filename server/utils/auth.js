@@ -28,8 +28,8 @@ module.exports = {
       return { user: null };
     }
   },
-  signToken: function ({ firstName, email, _id }) {
-    const payload = { firstName, email, _id };
+  signToken: function ({ firstName, lastName, email, _id }) {
+    const payload = { firstName, lastName, email, _id };
 
     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
   },
