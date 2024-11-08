@@ -73,7 +73,7 @@ io.on("connection", (socket) => {
   console.log(`A player connected: ${socket.id}`);
 
   socket.on("createGame", ({ gameId, category, difficulty }) => {
-    console.log(`${socket.id} created a game with ID: ${gameId}`);
+   
 
     games[gameId] = {
       player1: socket.id,
@@ -92,6 +92,7 @@ io.on("connection", (socket) => {
 
   socket.on("joinGame", ({ gameId }) => {
     console.log(`${socket.id} attempting to join game ${gameId}`);
+    console.log(gameId)
 
     const game = games[gameId];
 
@@ -178,6 +179,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("submitAnswer", (gameId, questionIndex, answer) => {
+
     games[gameId].answers[socket.id][questionIndex] = answer;
 
     if (bothPlayerFinished(gameId)) {

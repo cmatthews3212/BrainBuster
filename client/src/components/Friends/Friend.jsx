@@ -22,6 +22,9 @@ const FriendProfile = ({ friend, onClear }) => {
                 variables: {
                     userId: Auth.getProfile().data._id,
                     friendId: friend._id,
+                    firstName: friend.firstName,
+                    lastName: friend.lastName,
+                    email: friend.email
                 }
             });
             console.log('friend request sent')

@@ -44,7 +44,7 @@ const resolvers = {
       }
       throw new AuthenticationError('Please log in.');
     },
-    sendFriendRequest: async (parent, { userId, friendId }, context) => {
+    sendFriendRequest: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
       if (!context.user) {
         console.error('Please log in');
         throw new AuthenticationError('Please log in.');
@@ -57,16 +57,25 @@ const resolvers = {
         throw new AuthenticationError('User not found.');
       }
 
-      if (!user.friendRequests.includes(userId)) {
-        user.friendRequests.push(userId)
-      }
+      const friendRequest = user.friendRequests.some((request) => request.userId.toString() === userId);
 
+      if (!friendRequest) {
+        user.friendRequests.push({ friendId, firstName, lastName, email })
+      }
       await user.save();
-      const populatedUser = await user.populate({
-        path: 'friendRequests',
-        select: 'firstName lastName email'
-      })
-      return populatedUser;
+
+      return user.populate('friendRequests')
+
+    //   if (!user.friendRequests.includes(userId)) {
+    //     user.friendRequests.push(userId)
+    //   }
+
+    //   await user.save();
+    //   const populatedUser = await User.findById(friendId).populate({
+    //     path: 'friendRequests',
+    //     select: 'firstName lastName email'
+    // });
+    //   return populatedUser;
     },
     declineFriendRequest: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
       if (!context.user) {
