@@ -27,7 +27,7 @@ const { loading, data } = useQuery(GET_ME);
 
 const userData = data?.me || {}
 
-console.log(userData)
+// console.log(userData)
 
 const [addFriend] = useMutation(ADD_FRIEND);
 
@@ -50,10 +50,17 @@ const handleRemoveFriend = async (friend) => {
     
     try {
         const { data } = await removeFriend({
-            variables: {
-                userId: Auth.getProfile().data._id,
-                friendId: friend._id,
-               
+            variables: {userId: Auth.getProfile().data._id, friendId: friend._id},
+             update: (cache) => {
+                    cache.modify({
+                        fields: {
+                            friends(existingFriends = []) {
+                                return existingFriends.filter(f => f._id !== friend._id)
+                            }
+                        }
+                    })
+            
+                
             }
         });
         console.log('friend removed')

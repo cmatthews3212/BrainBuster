@@ -33,7 +33,6 @@ const FriendProfile = ({ friend, onClear }) => {
             console.error(err)
         }
     }
-
     return (
         <div>
             <div>

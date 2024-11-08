@@ -1,18 +1,24 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthService from '../utils/auth';
+import { useMutation } from '@apollo/client';
+import { LOGIN } from '../utils/mutations';
+import Auth from '../utils/auth';
 
 const Login = () => {
+  const [login, { error }] = useMutation(LOGIN);
   const navigate = useNavigate();
   const [formState, setFormState] = useState({ email: '', password: '' });
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await AuthService.login(formState.email, formState.password);
-      if (response.ok) {
-        navigate('/');
-      }
+      const mutationResponse = await login({
+        variables: { email: formState.email, password: formState.password },
+      });
+      const token = mutationResponse.data.login.token;
+      Auth.login(token);
+      navigate('/')
     } catch (e) {
       console.error('Error logging in:', e);
     }
