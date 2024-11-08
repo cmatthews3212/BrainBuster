@@ -9,6 +9,8 @@ const Lobby = () => {
   const [waiting, setWaiting] = useState(true);
   const [opponent, setOpponent] = useState(null);
   const [error, setError] = useState('');
+  const [inviteReceived, setInviteReceived] = useState(false);
+  const [invitingPlayer, setInvitingPlayer] = useState(null);
 
   useEffect(() => {
     if (!gameId) return;
@@ -33,14 +35,35 @@ const Lobby = () => {
       alert('Your opponent left the game.');
     };
 
+    const handleGameInviteRecieved = (data) => {
+      console.log('Game invite recieved:', data);
+      setInviteReceived(true)
+      setInvitingPlayer(data.senderName)
+    }
+
+    socket.on('gameInviteReceived', handleGameInviteRecieved);
     socket.on('gameStarted', handleGameStarted);
     socket.on('opponentLeft', handleOpponentLeft);
 
     return () => {
+      socket.off('gameInviteReceived', handleGameInviteRecieved);
       socket.off('gameStarted', handleGameStarted);
       socket.off('opponentLeft', handleOpponentLeft);
     };
   }, [gameId, navigate]);
+
+  const handleAcceptInvite = () => {
+    console.log(`Accepting invite from ${invitingPlayer}`);
+    socket.emit('acceptGameInvite', {
+      gameId,
+      opponentId: invitingPlayer,
+    })
+  }
+
+  const handleDeclineInvite = () => {
+    console.log(`Declining invite from ${invitingPlayer}`) 
+      setInviteReceived(false);
+  }
 
   return (
     <div className='Lobby'>
@@ -57,6 +80,12 @@ const Lobby = () => {
         )}
 
         {gameFull && <p className='error'>{error}</p>}
+      </div>
+
+      <div>
+        <h3>{invitingPlayer} has invited you to join their quiz!</h3>
+        <button onClick={handleAcceptInvite}>Accept</button>
+        <button onClick={handleDeclineInvite}>Decline</button>
       </div>
     </div>
   );
