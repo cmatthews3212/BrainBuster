@@ -16,6 +16,8 @@ import Quiz from './components/Quiz/index.jsx';
 import CreateGame from './components/CreateGame/index.jsx'
 import JoinGame from './components/JoinGame/index.jsx';
 import Lobby from './components/Lobby/index.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+
 
 import FindFriends from './components/Friends/Find.jsx';
 import FriendProfile from './components/Friends/Friend.jsx';
@@ -69,14 +71,10 @@ const router = createBrowserRouter([
         path: '/lobby',
         element: <Lobby />
       },
-      // {
-      //   path: '/avatar/:src',
-      //   element: <AvatarDisplay />
-      // }, 
-      // {
-      //   path: '/dashboard',
-      //   element: <Dashboard />
-      // },
+       {
+       path: '/dashboard',
+      element: <Dashboard />
+       },
     ],
   },
 ]);
