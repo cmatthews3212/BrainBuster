@@ -2,71 +2,83 @@
     display: flex;
     align-items: center;
     padding: 1.5rem;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: linear-gradient(145deg, #ffffff, #f5f5f5);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    margin: 1rem 0;
+    border: 1px solid rgba(255, 255, 255, 0.18);
   }
   
   .leaderboard-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
   }
   
   .rank-container {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8f9fa;
+    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
     border-radius: 50%;
     margin-right: 1.5rem;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.05);
   }
   
   .rank {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #2c3e50;
-  }
-  
-  .user-info {
-    display: flex;
-    align-items: center;
-    flex: 1;
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
   
   .avatar {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
-    margin-right: 1rem;
+    margin-right: 1.5rem;
     object-fit: cover;
-    border: 2px solid #f8f9fa;
+    border: 3px solid #fff;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .avatar:hover {
+    transform: scale(1.05);
   }
   
   .username {
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 1.2rem;
+    font-weight: 600;
     color: #2c3e50;
+    margin-bottom: 0.25rem;
   }
   
   .score-container {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    background: rgba(248, 249, 250, 0.7);
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
   }
   
   .score {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #2c3e50;
+    font-size: 1.4rem;
+    font-weight: 800;
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
   
   .points {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     color: #6c757d;
     margin-top: 0.25rem;
+    font-weight: 500;
   }
   
   .leaderboard-card:nth-child(1) .rank {
