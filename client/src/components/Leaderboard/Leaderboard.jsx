@@ -7,7 +7,7 @@ import { GET_ME, QUERY_USERS } from '../../utils/queries';
 
 const Leaderboard = () => {
   const { loading, error, data } = useQuery(QUERY_USERS);
-  console.log(data)
+  // console.log(data)
   const leaderboardData = [
     { rank: 1, username: "Player1", score: 1000, avatar: null },
     { rank: 2, username: "Player2", score: 900, avatar: null },

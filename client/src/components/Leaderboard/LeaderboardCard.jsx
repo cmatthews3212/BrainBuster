@@ -1,6 +1,7 @@
 import React from 'react';
 import { Paper, Avatar, Typography, Box } from '@mui/material';
 import './LeaderboardCard.css';
+import Dashboard from '../../pages/Dashboard';
 
 
 const LeaderboardCard = ({ rank, username, score, avatar }) => {

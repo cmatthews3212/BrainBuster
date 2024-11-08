@@ -29,6 +29,8 @@ function Dashboard() {
     console.error(error)
   }
 
+  
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
