@@ -50,9 +50,10 @@ const resolvers = {
         throw new AuthenticationError('Please log in.');
       }
 
-      const user = await User.findById(friendId);
+      const user = await User.findById(userId);
+      const friend = await User.findById(friendId);
 
-      if (!user) {
+      if (!user || !friend) {
         console.error('User not found');
         throw new AuthenticationError('User not found.');
       }
@@ -66,16 +67,16 @@ const resolvers = {
       //   })
       // }
 
-      if (!user.friendRequests.includes(userId)) {
-        user.friendRequests.push({userId, firstName, lastName, email})
+      if (!friend.friendRequests.includes(userId)) {
+        friend.friendRequests.push({userId, firstName, lastName, email})
         // user.friendRequests.push({firstName: firstName, lastName: lastName, email: email})
         // user.friendRequests.push(firstName)
         // user.friendRequests.push(lastName)
         // user.friendRequests.push(email)
       }
 
-      await user.save();
-      const populatedUser = await user.populate({
+      await friend.save();
+      const populatedUser = await friend.populate({
         path: 'friendRequests',
         select: 'firstName lastName email'
       })
