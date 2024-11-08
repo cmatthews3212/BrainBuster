@@ -84,9 +84,18 @@ const handleDecline = async (request) => {
                 userId: Auth.getProfile().data._id,
                 friendId: request._id,
             
+            },
+            update: (cache) => {
+                cache.modify({
+                    fields: {
+                        friendRequests(existingRequests = []) {
+                            return existingRequests.filter((req) => req._id !== request._id)
+                        },
+                    },
+                });
             }
         });
-        console.log('friend removed')
+        console.log('friend request declined')
         console.log(data)
     } catch (err) {
         console.error(err)

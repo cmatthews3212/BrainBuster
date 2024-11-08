@@ -57,17 +57,22 @@ const resolvers = {
         throw new AuthenticationError('User not found.');
       }
 
-      if (!user.friendRequests.some(request => request.userId.toString() === userId)) {
-        
-      }
-
-      // if (!user.friendRequests.includes(userId)) {
-      //   user.friendRequests.push(userId)
-      //   // user.friendRequests.push({firstName: firstName, lastName: lastName, email: email})
-      //   // user.friendRequests.push(firstName)
-      //   // user.friendRequests.push(lastName)
-      //   // user.friendRequests.push(email)
+      // if (!user.friendRequests.some(request => request.friendId.toString() === friendId)) {
+      //   user.friendRequests.push({
+      //     friendId,
+      //     firstName,
+      //     lastName,
+      //     email
+      //   })
       // }
+
+      if (!user.friendRequests.includes(userId)) {
+        user.friendRequests.push({userId, firstName, lastName, email})
+        // user.friendRequests.push({firstName: firstName, lastName: lastName, email: email})
+        // user.friendRequests.push(firstName)
+        // user.friendRequests.push(lastName)
+        // user.friendRequests.push(email)
+      }
 
       await user.save();
       const populatedUser = await user.populate({
@@ -88,7 +93,7 @@ const resolvers = {
         throw new AuthenticationError('User not found.');
       }
 
-      user.friendRequests = user.friendRequests.filter((id) => id.toString() !== friendId);
+      user.friendRequests = user.friendRequests.filter((request) => request._id.toString() !== friendId);
 
       await user.save();
       await user.populate('friendRequests');
@@ -144,7 +149,7 @@ const resolvers = {
           throw new AuthenticationError('User not found.');
         }
 
-        user.friends = user.friends.filter((id, fName, lName, mail) => id.toString() !== friendId);
+        user.friends = user.friends.filter((friend) => friend._id.toString() !== friendId);
 
         await user.save();
         await user.populate('friends');
