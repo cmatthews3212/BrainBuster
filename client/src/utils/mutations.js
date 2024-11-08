@@ -66,6 +66,70 @@ export const UPDATE_USER = gql`
   }
 `;
 
+export const ADD_FRIEND = gql`
+  mutation addFriend($userId: ID!, $friendId: ID!, $firstName: String!, $lastName: String!, $email: String!) {
+    addFriend(userId: $userId, friendId: $friendId, firstName: $firstName, lastName: $lastName, email: $email) {
+      _id
+      friendRequests {
+        _id
+        firstName
+        lastName
+        email
+      }
+      friends {
+        _id
+        firstName
+        lastName
+        email
+      }
+    }
+  }
+`;
+
+export const SEND_FRIEND_REQUEST = gql`
+  mutation sendFriendRequest($userId: ID!, $friendId: ID!) {
+    sendFriendRequest(userId: $userId, friendId: $friendId) {
+      _id
+      friendRequests {
+        _id
+        firstName
+        lastName
+        email
+      }
+    }
+  }
+`;
+
+
+
+export const DECLINE_FRIEND_REQUEST = gql`
+  mutation declineFriendRequest($userId: ID!, $friendId: ID!) {
+    declineFriendRequest(userId: $userId, friendId: $friendId) {
+      _id
+      friendRequests {
+        _id
+        firstName
+        lastName
+        email
+      }
+    }
+  }
+`;
+
+export const REMOVE_FRIEND = gql`
+  mutation removeFriend($userId: ID!, $friendId: ID!) {
+    removeFriend(userId: $userId, friendId: $friendId) {
+      _id
+      friends {
+        _id
+        firstName
+        lastName
+        email
+      }
+    }
+  }
+`;
+
 export const ADD_AVATAR = gql`
   mutation addAvatar($userId: ID!, $avatar: AvatarInput!) {
     addAvatar(userId: $userId, avatar: $avatar){

@@ -12,6 +12,7 @@ const typeDefs = gql`
     stats: UserStats
     preferences: Preferences
     friends: [User]
+    friendRequests: [User]
   }
 
   type UserStats {
@@ -71,6 +72,11 @@ const typeDefs = gql`
     addAvatar(userId: ID!, avatar: AvatarInput!): Avatar
     updateUser(firstName: String, lastName: String, email: String, password: String): User
     updateAvatar(userId: ID!, avatar: AvatarInput): Avatar
+    addFriend(userId: ID!, friendId: ID!, firstName: String!, lastName: String!, email: String!): User
+    sendFriendRequest(userId: ID!, friendId: ID!): User
+    acceptFriendRequest(userId: ID!, friendId: ID!): User
+    declineFriendRequest(userId: ID!, friendId: ID!): User
+    removeFriend(userId: ID!, friendId: ID!): User
     login(email: String!, password: String!): Auth
     createGame(amount: Int!, category: String!, difficulty: String!): Game
     joinGame(gameId: ID!): Game

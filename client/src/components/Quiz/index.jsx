@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import socket from '../../socket';
 
 
 const Quiz = () => {
   const location = useLocation();
-  const { questions, gameId, opponentId } = location.state || {};
+  const { questions, opponentId, playerId } = location.state || {};
+  const { gameId } = useParams();
   const [userAnswers, setUserAnswers] = useState({});
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
@@ -41,7 +42,7 @@ const Quiz = () => {
     }));
     
     if (mySocketId) {
-      socket.emit('submitAnswer', { gameId, questionIndex, answer });
+      socket.emit('submitAnswer', gameId, questionIndex, answer );
     };
     
     if (answer === questions[questionIndex].correctAnswer) {
@@ -65,11 +66,11 @@ const Quiz = () => {
     const opponentScore = finalScores[opponentId];
     
     const result = 
-    myScore > opponentScore
-      ? 'You Win!'
-      : myScore < opponentScore
-      ? 'You Lose!'
-      : "It's a Tie!";
+      myScore > opponentScore
+        ? 'You Win!'
+        : myScore < opponentScore
+        ? 'You Lose!'
+        : "It's a Tie!";
     
     return (
       <div>
