@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import socket from '../../socket';
 
+// comment
+
 const JoinGame = () => {
     console.log('JoinGame component rendered');
 
