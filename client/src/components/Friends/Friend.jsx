@@ -5,9 +5,15 @@ import Profile from "../../pages/Profile";
 import { useNavigate } from "react-router-dom";
 import { ADD_FRIEND } from "../../utils/mutations";
 import { SEND_FRIEND_REQUEST } from "../../utils/mutations";
+import { GET_ME } from "../../utils/queries";
 import Auth from "../../utils/auth";
 
-const FriendProfile = ({ friend, onClear }) => {
+const FriendProfile = ({ friend, onClear, gameId }) => {
+    
+
+    const { loading, error, data } = useQuery(GET_ME)
+    console.log(data)
+    const myData = data?.me || {}
     
     const [sendFriendRequest] = useMutation(SEND_FRIEND_REQUEST)
     const handleAddFriend = async () => {
@@ -18,21 +24,37 @@ const FriendProfile = ({ friend, onClear }) => {
         }
 
         try {
+            console.log('FRIEND ID', friend.firstName, friend.lastName, friend._id, 'USER ID', Auth.getProfile().data.firstName, Auth.getProfile().data.lastName, Auth.getProfile().data._id)
             const { data } = await sendFriendRequest({
                 variables: {
                     userId: Auth.getProfile().data._id, // The person sending the request
                     friendId: friend._id, // The person receiving the request
                     firstName: Auth.getProfile().data.firstName, // The requester's first name
                     lastName: Auth.getProfile().data.lastName, // The requester's last name
-                    email: Auth.getProfile().data.email 
+                    email: Auth.getProfile().data.email,
                 }
+
             });
+         
             console.log('friend request sent')
             console.log(data)
         } catch (err) {
             console.error(err)
+            
         }
     }
+
+    if (loading) {
+        return (
+            <p>Loading...</p>
+        )
+    }
+
+    if (error) {
+    console.error(error)
+    }
+
+    
     return (
         <div>
             <div>
@@ -46,6 +68,15 @@ const FriendProfile = ({ friend, onClear }) => {
                 <h3>{friend.firstName}'s </h3>
             </div>
             <div>
+                {/* {data.me.friends ? (
+                   data.me.friends.map((meFriend) => (
+                    meFriend._id === friend._id ? <button>Invite {friend.firstName} to a Game!</button> : <p>You have to be friends to invite someone to a game</p>
+                   ))
+                ) : (
+                    <>
+                    <div>You have no friends</div>
+                    </>
+                )} */}
                 <button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
             </div>
         </div>

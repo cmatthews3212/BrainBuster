@@ -1,6 +1,7 @@
 import Avatar from '../components/Avatar/Avatars';
 import CustomizeAvatar from '../components/Avatar/CustomizeAvatar';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_ME } from '../utils/queries';
 import { UPDATE_AVATAR } from '../utils/mutations';
@@ -9,9 +10,11 @@ import { REMOVE_FRIEND } from '../utils/mutations';
 import { DECLINE_FRIEND_REQUEST } from '../utils/mutations';
 import { ADD_FRIEND } from '../utils/mutations';
 import Auth from '../utils/auth'
+import FriendProfile from '../components/Friends/Friend';
 // this should have the "friends", "settings", and "rankings" as components
 
 const Profile = () => {
+    const [selectedFriend, setSelectedFriend] = useState('')
 
     const navigate = useNavigate();
     
@@ -114,6 +117,7 @@ const handleAddFriend = async (friend) => {
     }
 
     try {
+        console.log('FRIEND ID', friend.firstName, friend.lastName, friend._id, 'USER ID', Auth.getProfile().data.firstName, Auth.getProfile().data.lastName, Auth.getProfile().data._id)
         const { data } = await addFriend({
             variables: {
                 userId: Auth.getProfile().data._id,
@@ -124,7 +128,7 @@ const handleAddFriend = async (friend) => {
 
             }
         });
-        console.log('friend request sent')
+        console.log('friend added')
         console.log(data)
     } catch (err) {
         console.error(err)
@@ -134,8 +138,23 @@ const handleAddFriend = async (friend) => {
 }
 
 
+const handleFriendSelect = async (friend) => {
+    setSelectedFriend(friend)
+    if (selectedFriend == friend) {
+        navigate('/friend')
+    }
+
+}
+
+const clearSelection = () => {
+    setSelectedFriend(null)
+
+}
 
 
+if (selectedFriend) {
+    return <FriendProfile gameId={"gameId"} friend={selectedFriend} onClear={clearSelection} />
+}
 
 
 if (loading) {
@@ -179,6 +198,7 @@ return (
                     <div className='friend-div'>
                     <p>{friend.firstName} {friend.lastName}</p>
                     <button onClick={() => handleRemoveFriend(friend)}>Remove Friend</button>
+                    <button onClick={() => handleFriendSelect(friend)}>View Friend</button>
                     </div>
                 )) ) : (
                     <div>
@@ -190,12 +210,13 @@ return (
             <div>
                 <h2>Friend Requests</h2>
                 {userData.friendRequests ? ( userData.friendRequests.map((request) => (
+    
                     <div>
-                        <p>{request.firstName} {request.lastName}</p>
+                        <p>{request.firstName} {request.lastName} {request._id}</p>
                         <button onClick={() => handleAddFriend(request)}>Accept Friend Request</button>
                         <button onClick={() => handleDecline(request)}>Decline Friend Request</button>
                     </div>
-
+                   
                 ))  
                   
                 ) : (

@@ -44,7 +44,7 @@ const userSchema = new Schema({
   friends: [{
     userId: {
       type: Schema.Types.ObjectId, 
-    ref: 'User'
+      ref: 'User'
   },
     firstName: String,
     lastName: String,
@@ -53,12 +53,13 @@ const userSchema = new Schema({
   friendRequests: [{
     userId: {
       type: Schema.Types.ObjectId, 
-    ref: 'User'
+      ref: 'User'
   },
     firstName: String,
     lastName: String,
     email: String
-  }]
+  }],
+  
 });
 
 // set up pre-save middleware to create password

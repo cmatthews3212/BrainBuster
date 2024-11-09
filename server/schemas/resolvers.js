@@ -58,42 +58,40 @@ const resolvers = {
       throw new AuthenticationError('Please log in.');
     },
     sendFriendRequest: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
+   
+    
+    
       if (!context.user) {
         console.error('Please log in');
         throw new AuthenticationError('Please log in.');
-      }
+    }
 
-      const user = await User.findById(userId);
-      const friend = await User.findById(friendId);
+    const user = await User.findById(userId);
+    const friend = await User.findById(friendId);
 
-      if (!user || !friend) {
-        console.error('User not found');
-        throw new AuthenticationError('User not found.');
-      }
+    if (!user || !friend) {
+        console.error('User or friend not found');
+        throw new AuthenticationError('User or friend not found.');
+    }
 
-      // if (!user.friendRequests.some(request => request.friendId.toString() === friendId)) {
-      //   user.friendRequests.push({
-      //     friendId,
-      //     firstName,
-      //     lastName,
-      //     email
-      //   })
-      // }
+    // Avoid duplicate requests
+    if (!friend.friendRequests.some(request => request.userId.toString() === userId)) {
+        friend.friendRequests.push({
+            userId,
+            firstName,
+            lastName,
+            email
+        });
+        console.log(user.friendRequests)
+    }
 
-      if (!friend.friendRequests.includes(userId)) {
-        friend.friendRequests.push({userId, firstName, lastName, email})
-        // user.friendRequests.push({firstName: firstName, lastName: lastName, email: email})
-        // user.friendRequests.push(firstName)
-        // user.friendRequests.push(lastName)
-        // user.friendRequests.push(email)
-      }
+    await friend.save();
 
-      await friend.save();
-      const populatedUser = await friend.populate({
+    await friend.populate({
         path: 'friendRequests',
-        select: 'firstName lastName email'
-      })
-      return populatedUser;
+        select: 'userId firstName lastName email'
+    });
+    return friend;
     },
     declineFriendRequest: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
       if (!context.user) {
@@ -113,44 +111,53 @@ const resolvers = {
       await user.populate('friendRequests');
       return user;
   },
-    addFriend: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
-      if (!context.user) {
-        console.error('Please log in');
-        throw new AuthenticationError('Please log in.');
-      }
+  addFriend: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
+    if (!context.user) {
+      console.error('Please log in');
+      throw new AuthenticationError('Please log in.');
+  }
 
-      const user = await User.findById(userId);
+  const user = await User.findById(userId);
+  if (!user) {
+      console.error('User not found');
+      throw new AuthenticationError('User not found.');
+  }
 
-      if (!user) {
-        console.error('User not found');
-        throw new AuthenticationError('User not found.');
-      }
+  const friend = await User.findById(friendId);
+  if (!friend) {
+      console.error('Friend not found');
+      throw new AuthenticationError('Friend not found.');
+  }
 
-      const friend = user.friends.some((friend) => friend.userId.toString() === userId);
+  const isFriend = user.friends.some((f) => f.userId.toString() === friendId);
+  if (!isFriend) {
+      user.friends.push({friendId, firstName, lastName, email });
+  }
+  await user.save();
 
-      if (!friend) {
-        user.friends.push({ friendId, firstName, lastName, email })
-      }
-      await user.save();
+  const isUserFriend = friend.friends.some((f) => f.userId.toString() === userId);
+  if (!isUserFriend) {
+      friend.friends.push({ userId, firstName: context.user.firstName, lastName: context.user.lastName, email: context.user.email });
+  }
+  await friend.save();
 
-      return user.populate({
-        path: 'friends',
-        select: 'firstName, lastName, email'
-      })
+  // Populate friends for both user and friend
+  await user.populate({
+      path: 'friends',
+      select: 'firstName lastName email'
+  });
 
+  await friend.populate({
+      path: 'friends',
+      select: 'firstName lastName email'
+  });
 
-      // if (!user.friends.includes(friendId)) {
-      //   user.friends.push({friendId,firstName, lastName, email })
-
-      // }
-
-      // await user.save();
-      // await user.populate({
-      //   path: 'friends',
-      //   select: 'firstName lastName email'
-      // })
-      // return user
-    },
+  // Return both user and friend objects, or just user if that's your preference
+  return {
+      user,
+      friend
+  }
+  },
     removeFriend: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
         if (!context.user) {
           console.error('Please log in');
