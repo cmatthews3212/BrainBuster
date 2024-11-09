@@ -286,37 +286,45 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
         
         const handleHairClick = (hair) => {
             setSelectedHair(hair)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
       
         }
        
         const handleHairColorClick = (color) => {
             setSelectedHairColor(color)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
            
         }
 
         const handleMouthClick = (mouth) => {
             setSelectedMouth(mouth)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
         }
 
         const handleEyesClick = (eyes) => {
             setSelectedEyes(eyes)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
         }
 
         const handleEyebrowsClick = (eyebrows) => {
             setSelectedEyebrows(eyebrows)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
         }
 
         const handleEarringsClick = (earrings) => {
             setSelectedEarrings(earrings)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
            
         }
 
         const handleFeaturesClick = (features) => {
             setSelectedFeatures(features)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
         }
 
         const handleGlassesClick = (glasses) => {
             setSelectedGlasses(glasses)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
         }
 
         const handleToggleHair = () => {
@@ -476,7 +484,6 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
     
    
 
-
     return (
         <div className='customize-container'
         style={{
@@ -530,25 +537,28 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
             width: '50%',
             height: 'auto',
             padding: '10px',
-            border: '2px solid white'
+            border: '2px solid white',
+
+          
+
             
         }}>
             <div className='customizations'>
-                <button className='customizeBtn' onClick={handleToggleHair}>{hairStyle ? 'Select' : 'Choose'} Hair Style</button>
+                <button className='customizeBtn' onClick={handleToggleHair}>{hairStyle ? 'Select' : ''} Hair Style</button>
                
-                <button className='customizeBtn' onClick={hanldeToggleColor}>{hairColor ? 'Select' : 'Choose'} Hair Color</button>
+                <button className='customizeBtn' onClick={hanldeToggleColor}>{hairColor ? 'Select' : ''} Hair Color</button>
                 
-                 <button className='customizeBtn' onClick={handleToggleMouth}>{mouth ? 'Select' : 'Choose'} Mouth </button>
+                 <button className='customizeBtn' onClick={handleToggleMouth}>{mouth ? 'Select' : ''} Mouth </button>
              
-                  <button className='customizeBtn' onClick={hanldeToggleEyes}>{eyes ? 'Select' : 'Choose'} Eyes </button>
+                  <button className='customizeBtn' onClick={hanldeToggleEyes}>{eyes ? 'Select' : ''} Eyes </button>
                
-                    <button className='customizeBtn' onClick={handleToggleEyebrows}>{eyebrows ? 'Select' : 'Choose'} Eyebrows </button>
+                    <button className='customizeBtn' onClick={handleToggleEyebrows}>{eyebrows ? 'Select' : ''} Eyebrows </button>
              
-                   <button className='customizeBtn' onClick={handleToggleEarrings}>{earrings ? 'Select' : 'Choose'} Earrings </button>
+                   <button className='customizeBtn' onClick={handleToggleEarrings}>{earrings ? 'Select' : ''} Earrings </button>
              
-                   <button className='customizeBtn' onClick={handleToggleFeatures}>{features ? 'Select' : 'Choose'} Features </button>
+                   <button className='customizeBtn' onClick={handleToggleFeatures}>{features ? 'Select' : ''} Features </button>
              
-                   <button className='customizeBtn' onClick={handleToggleGlasses}>{glasses ? 'Select' : 'Choose'} Glasses </button>
+                   <button className='customizeBtn' onClick={handleToggleGlasses}>{glasses ? 'Select' : ''} Glasses </button>
             
                 
             </div>

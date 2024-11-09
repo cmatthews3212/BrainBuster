@@ -112,6 +112,7 @@
 
 .changeBtns .changeBtn:hover {
     cursor: pointer;
+    opacity: 70%;
 }
 
 .customizations .customizeBtn {
@@ -122,12 +123,22 @@
     width: 150px;
     height: 50px;
     margin: 10px;
+    font-size: 15px;
+    font-weight: bold;
 
 }
 
 .customizations .customizeBtn:hover {
+    opacity: 70%;
+}
+
+.customizations .customizeBtn:active {
+   opacity: 50%;
+}
+
+.customizations .customizeBtn:hover {
     cursor: pointer;
-    
+
 }
 .selections-container {
     width: 50%;
@@ -140,6 +151,10 @@
     flex-wrap: wrap;
   
 
+}
+
+.scroll-container  {
+    scrollbar-color: rgb(255, 64, 129);
 }
 
 .selections img {
