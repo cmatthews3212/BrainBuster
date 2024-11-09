@@ -5,10 +5,10 @@ import Profile from "../../pages/Profile";
 import { useNavigate } from "react-router-dom";
 import { ADD_FRIEND } from "../../utils/mutations";
 import { SEND_FRIEND_REQUEST } from "../../utils/mutations";
-import { GET_ME } from "../../utils/queries";
+import { GET_ME, QUERY_USER } from "../../utils/queries";
 import Auth from "../../utils/auth";
 
-const FriendProfile = ({ friend, onClear, gameId }) => {
+const FriendSelect = ({ friend, onClear, gameId }) => {
     
 
     const { loading, error, data } = useQuery(GET_ME)
@@ -58,9 +58,13 @@ const FriendProfile = ({ friend, onClear, gameId }) => {
     console.error(error)
     }
 
+    console.log(friend)
     
     return (
         <div>
+            <div>
+             <img src={friend.avatar}></img>
+            </div>
             <div>
             <h2>{friend.firstName} {friend.lastName}</h2>
             <button onClick={onClear}>Go back to find friends</button>
@@ -74,17 +78,22 @@ const FriendProfile = ({ friend, onClear, gameId }) => {
             <div>
                 {data.me.friends ? (
                    data.me.friends.map((meFriend) => (
-                    meFriend._id === friend._id ? <button>Invite {friend.firstName} to a Game!</button> : <button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
+                    meFriend._id === friend._id ? <button>Invite {friend.firstName} to a Game!</button> : <p>You need to be friends to invite someone to a game</p>
                    ))
                 ) : (
                     <>
-                    <div>You have no friends</div>
+                   
                     </>
                 )}
+
                 
+
+                <button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
+
+               
             </div>
         </div>
     )
 }
 
-export default FriendProfile;
+export default FriendSelect;

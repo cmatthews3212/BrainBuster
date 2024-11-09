@@ -86,11 +86,17 @@ export const ADD_FRIEND = gql`
         firstName
         lastName
         email
+        avatar {
+          src
+        }
         friends {
           _id
           firstName
           lastName
           email
+          avatar {
+            src
+          }
         }
       }
       friend {
@@ -98,11 +104,17 @@ export const ADD_FRIEND = gql`
         firstName
         lastName
         email
+        avatar {
+          src
+        }
         friends {
           _id
           firstName
           lastName
           email
+          avatar {
+            src
+          }
         }
       }
     }

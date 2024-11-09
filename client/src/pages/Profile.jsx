@@ -12,6 +12,7 @@ import { ADD_FRIEND } from '../utils/mutations';
 import Auth from '../utils/auth'
 import FriendProfile from '../components/Friends/Friend';
 import { gql } from '@apollo/client';
+import { Link } from 'react-router-dom';
 // this should have the "friends", "settings", and "rankings" as components
 
 const Profile = () => {
@@ -149,10 +150,15 @@ const handleAddFriend = async (request) => {
 }
 
 
+
+console.log(selectedFriend)
+
+
 const handleFriendSelect = async (friend) => {
     setSelectedFriend(friend)
+   
     if (selectedFriend == friend) {
-        navigate('/friend')
+       return
     }
 
 }
@@ -163,9 +169,6 @@ const clearSelection = () => {
 }
 
 
-if (selectedFriend) {
-    return <FriendProfile gameId={"gameId"} friend={selectedFriend} onClear={clearSelection} />
-}
 
 
 if (loading) {
@@ -209,7 +212,7 @@ return (
                     <div className='friend-div'>
                     <p>{friend.firstName} {friend.lastName} {friend._id}</p>
                     <button onClick={() => handleRemoveFriend(friend)}>Remove Friend</button>
-                    <button onClick={() => handleFriendSelect(friend)}>View Friend</button>
+                    <Link to={`/profile/${friend._id}`}>View Friend</Link>
                     </div>
                 )) ) : (
                     <div>

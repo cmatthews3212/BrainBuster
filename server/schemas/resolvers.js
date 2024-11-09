@@ -11,8 +11,8 @@ const resolvers = {
     me: async (parent, args, context) => {
       if (context.user) {
         const user = await User.findById(context.user._id);
-        await user.populate('friendRequests', 'firstName lastName email')
-        await user.populate('friends', 'firstName lastName email')
+        await user.populate('friendRequests', 'firstName lastName email avatar')
+        await user.populate('friends', 'firstName lastName email avatar')
 
         return user;
       }
@@ -21,8 +21,9 @@ const resolvers = {
     user: async (parent, args, context) => {
       const user = await User.findById(args._id)
 
-     await user.populate('friendRequests', 'firstName lastName email')
-     await user.populate('friends', 'firstName lastName email')
+     await user.populate('friendRequests', 'firstName lastName email avatar')
+     await user.populate('friends', 'firstName lastName email avatar')
+     await user.populate('avatar', 'src')
 
       return user;
     },
@@ -89,8 +90,8 @@ const resolvers = {
       
         )
   
-        await user.populate('friends', 'firstName lastName email')
-        await friend.populate('friends', 'firstName lastName email')
+        await user.populate('friends', 'firstName lastName email avatar')
+        await friend.populate('friends', 'firstName lastName email avatar')
         return {
           user,
           friend
@@ -114,8 +115,8 @@ const resolvers = {
         { new: true }
       )
 
-      await user.populate('friends', 'firstName lastName email')
-      await friend.populate('friends', 'firstName lastName email')
+      await user.populate('friends', 'firstName lastName email avatar')
+      await friend.populate('friends', 'firstName lastName email avatar')
       return {
         success: true,
         user,
@@ -139,8 +140,8 @@ const resolvers = {
       
         )
   
-        await user.populate('friends', 'firstName lastName email')
-        await friend.populate('friends', 'firstName lastName email')
+        await user.populate('friends', 'firstName lastName email avatar')
+        await friend.populate('friends', 'firstName lastName email avatar')
         return {
           user,
           friend

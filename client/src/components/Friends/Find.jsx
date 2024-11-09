@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { QUERY_USERS } from "../../utils/queries";
 import Profile from "../../pages/Profile";
-import FriendProfile from "./Friend";
+import FriendSelect from "./Friend";
 import { useNavigate } from "react-router-dom";
 
 const FindFriends = () => {
@@ -26,12 +26,13 @@ const FindFriends = () => {
 
     }
 
+    console.log(selectedFriend)
     if (loading) {
         return <p>Loading Users...</p>
     }
 
     if (selectedFriend) {
-        return <FriendProfile friend={selectedFriend} onClear={clearSelection} />
+        return <FriendSelect friend={selectedFriend} onClear={clearSelection} />
     }
 
     return (

@@ -23,7 +23,7 @@ import Leaderboard from './components/Leaderboard/Leaderboard.jsx';
 
 
 import FindFriends from './components/Friends/Find.jsx';
-import FriendProfile from './components/Friends/Friend.jsx';
+import FriendProfile from './pages/FriendProfile.jsx';
 // import AvatarDisplay  from './components/Avatar/AvatarDisplay.jsx';
 
 
@@ -82,7 +82,10 @@ const router = createBrowserRouter([
        }, {
         path: '/leaderboard',
         element: <Leaderboard />
-       },
+       }, {
+        path: '/profile/:id',
+        element: <FriendProfile />
+       }
     ],
   },
 ]);
