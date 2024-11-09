@@ -59,16 +59,45 @@ const AvatarsList = () => {
    
   
     return (
-        <div className='avatar-container'>
+        <div className='avatar-container'
+        style={{ 
+            backgroundColor: 'white',
+            flex: 1,
+            padding: '2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gridTemplateColumns: '250px 1fr',
+            borderRadius: '10px',
+            boxShadow: "rgba(0, 0, 0, 0.1) 0px 4px 10px",
+            width: '75%',
+            gap: '2rem',
+            margin: '0 auto',
+            marginTop: '64px'}}>
+
+            <h2>Create your Avatar!</h2>
+            <div>
             {selectedAvatar ? (
                 <CustomizeAvatar name={selectedAvatar.seed} id={selectedAvatar.id} src={selectedAvatar.src} onClear={clearSelection} />
             ) : (
-            
+              
+               
                 avatarsArray.map((avatar) => (
-                    <img name={avatar.seed} className='avatar'  key={avatar.id} src={avatar.src} alt={`Avatar ${avatar.id}`} onClick={() => handleAvatarSelect(avatar)}></img>
+                    <img  name={avatar.seed} className='avatar base'  key={avatar.id} src={avatar.src} alt={`Avatar ${avatar.id}`} onClick={() => handleAvatarSelect(avatar)}
+                    style={{
+                        width: '100px',
+                        height: '100px',
+              
+                    }}
+                    
+                    ></img>
                 ))
+
+            
                
             )}
+            </div>
            
         </div>
     )

@@ -321,36 +321,91 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
 
         const handleToggleHair = () => {
             setHairStyle(!hairStyle);
-        }
-
-        const hanldeToggleColor = () => {
-            setHairColor(!hairColor)
-        }
-
-        const handleToggleMouth = () => {
-            setMouth(!mouth)
-        }
-
-        const hanldeToggleEyes = () => {
-            setEyes(!eyes)
-        }
-
-        const handleToggleEyebrows =() => {
-            setEyebrows(!eyebrows)
-        }
-
+            if (hairColor) setHairColor(false);
+            if (mouth) setMouth(false);
+            if (eyes) setEyes(false);
+            if (eyebrows) setEyebrows(false);
+            if (earrings) setEarrings(false);
+            if (features) setFeatures(false);
+            if (glasses) setGlasses(false);
+        };
         
-        const handleToggleEarrings =() => {
-            setEarrings(!earrings)
-        }
-
+        const hanldeToggleColor = () => {
+            setHairColor(!hairColor);
+            if (hairStyle) setHairStyle(false);
+            if (mouth) setMouth(false);
+            if (eyes) setEyes(false);
+            if (eyebrows) setEyebrows(false);
+            if (earrings) setEarrings(false);
+            if (features) setFeatures(false);
+            if (glasses) setGlasses(false);
+        };
+        
+        const handleToggleMouth = () => {
+            setMouth(!mouth);
+            if (hairColor) setHairColor(false);
+            if (hairStyle) setHairStyle(false);
+            if (eyes) setEyes(false);
+            if (eyebrows) setEyebrows(false);
+            if (earrings) setEarrings(false);
+            if (features) setFeatures(false);
+            if (glasses) setGlasses(false);
+        };
+        
+        const hanldeToggleEyes = () => {
+            setEyes(!eyes);
+            if (hairColor) setHairColor(false);
+            if (hairStyle) setHairStyle(false);
+            if (mouth) setMouth(false);
+            if (eyebrows) setEyebrows(false);
+            if (earrings) setEarrings(false);
+            if (features) setFeatures(false);
+            if (glasses) setGlasses(false);
+        };
+        
+        const handleToggleEyebrows = () => {
+            setEyebrows(!eyebrows);
+            if (hairColor) setHairColor(false);
+            if (hairStyle) setHairStyle(false);
+            if (mouth) setMouth(false);
+            if (eyes) setEyes(false);
+            if (earrings) setEarrings(false);
+            if (features) setFeatures(false);
+            if (glasses) setGlasses(false);
+        };
+        
+        const handleToggleEarrings = () => {
+            setEarrings(!earrings);
+            if (hairColor) setHairColor(false);
+            if (hairStyle) setHairStyle(false);
+            if (mouth) setMouth(false);
+            if (eyes) setEyes(false);
+            if (eyebrows) setEyebrows(false);
+            if (features) setFeatures(false);
+            if (glasses) setGlasses(false);
+        };
+        
         const handleToggleFeatures = () => {
-            setFeatures(!features)
-        }
-
+            setFeatures(!features);
+            if (hairColor) setHairColor(false);
+            if (hairStyle) setHairStyle(false);
+            if (mouth) setMouth(false);
+            if (eyes) setEyes(false);
+            if (eyebrows) setEyebrows(false);
+            if (earrings) setEarrings(false);
+            if (glasses) setGlasses(false);
+        };
+        
         const handleToggleGlasses = () => {
-            setGlasses(!glasses)
-        }
+            setGlasses(!glasses);
+            if (hairColor) setHairColor(false);
+            if (hairStyle) setHairStyle(false);
+            if (mouth) setMouth(false);
+            if (eyes) setEyes(false);
+            if (eyebrows) setEyebrows(false);
+            if (earrings) setEarrings(false);
+            if (features) setFeatures(false);
+        };
 
         const handleNoEarrings = () => {
             setEarringsProb(0)
@@ -423,15 +478,27 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
 
 
     return (
-        <div className='customize-container'>
+        <div className='customize-container'
+        style={{
+            width: '75%',
+            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+        }}>
+       
            <div className='cust-top'>
-                <h2>CUSTOMIZE YOUR AVATAR</h2>
-                <div className='changeBtns'>
-                <button className="changeBtn" onClick={onClear}>Change Avatar</button>
+                <div className='changeBtns'
+                style={{
+                   
+                    display: 'flex',
+                    justifyContent: 'space-around'
+                }}>
+                <button className="changeBtn" onClick={onClear}>Change Avatar Base</button>
                 {
                     currentSrc ? (
                         <>
-                    <button onClick={() => handleUpdateAvatar(currentSrc)} className='changeBtn'>Update Avatar</button>
+                    <button onClick={() => handleUpdateAvatar(currentSrc)} className='changeBtn'>Create Avatar</button>
                         </>
                     ) : (
                         <>
@@ -441,15 +508,53 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
                     )
                 }
                 </div>
-                <div>
+                <div className='avatar-select-container'
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
 
-                    <img id='avatar-select' key={currentSrc} name={name} src={currentSrc}></img>
+                    <img id='avatar-select' key={currentSrc} name={name} src={currentSrc}
+                    style={{
+                        width: '30%'
+                    }}
+                    ></img>
                 </div>
            </div>
         
+        <div className='scroll-container'
+        style={{
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            width: '50%',
+            height: 'auto',
+            padding: '10px',
+            border: '2px solid white'
+            
+        }}>
             <div className='customizations'>
                 <button className='customizeBtn' onClick={handleToggleHair}>{hairStyle ? 'Select' : 'Choose'} Hair Style</button>
-                {hairStyle && (
+               
+                <button className='customizeBtn' onClick={hanldeToggleColor}>{hairColor ? 'Select' : 'Choose'} Hair Color</button>
+                
+                 <button className='customizeBtn' onClick={handleToggleMouth}>{mouth ? 'Select' : 'Choose'} Mouth </button>
+             
+                  <button className='customizeBtn' onClick={hanldeToggleEyes}>{eyes ? 'Select' : 'Choose'} Eyes </button>
+               
+                    <button className='customizeBtn' onClick={handleToggleEyebrows}>{eyebrows ? 'Select' : 'Choose'} Eyebrows </button>
+             
+                   <button className='customizeBtn' onClick={handleToggleEarrings}>{earrings ? 'Select' : 'Choose'} Earrings </button>
+             
+                   <button className='customizeBtn' onClick={handleToggleFeatures}>{features ? 'Select' : 'Choose'} Features </button>
+             
+                   <button className='customizeBtn' onClick={handleToggleGlasses}>{glasses ? 'Select' : 'Choose'} Glasses </button>
+            
+                
+            </div>
+        </div>
+            <div className='selections-container'>
+            {hairStyle && (
                 <div className='selections'>
                     {/* <h2>Hair Style</h2> */}
                 {hairArray.map((hair) => (
@@ -459,7 +564,6 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
 
                 </div>
                 )}
-                <button className='customizeBtn' onClick={hanldeToggleColor}>{hairColor ? 'Select' : 'Choose'} Hair Color</button>
                 {hairColor && (
                 <div className='selections'>
                     {/* <h2>Hair Color</h2> */}
@@ -469,8 +573,7 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
 
                 </div>
                 )}
-                 <button className='customizeBtn' onClick={handleToggleMouth}>{mouth ? 'Select' : 'Choose'} Mouth </button>
-                 {mouth && (
+                    {mouth && (
                 <div className='selections'>
                     {/* <h2>Hair Style</h2> */}
                 {mouthArray.map((mouth) => (
@@ -479,8 +582,7 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
 
                 </div>
                 )}
-                  <button className='customizeBtn' onClick={hanldeToggleEyes}>{eyes ? 'Select' : 'Choose'} Eyes </button>
-                 {eyes && (
+                  {eyes && (
                 <div className='selections'>
                     {/* <h2>Hair Style</h2> */}
                 {eyesArray.map((eyes) => (
@@ -489,8 +591,7 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
 
                 </div>
                 )}
-                    <button className='customizeBtn' onClick={handleToggleEyebrows}>{eyebrows ? 'Select' : 'Choose'} Eyebrows </button>
-                 {eyebrows && (
+                    {eyebrows && (
                 <div className='selections'>
                     {/* <h2>Hair Style</h2> */}
                 {eyebrowsArray.map((eyebrows) => (
@@ -499,8 +600,7 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
 
                 </div>
                 )}
-                   <button className='customizeBtn' onClick={handleToggleEarrings}>{earrings ? 'Select' : 'Choose'} Earrings </button>
-                 {earrings && (
+                    {earrings && (
                 <div className='selections'>
                     {/* <h2>Hair Style</h2> */}
                 {earringsArray.map((earrings) => (
@@ -509,8 +609,7 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
                   
                 </div>
                 )}
-                   <button className='customizeBtn' onClick={handleToggleFeatures}>{features ? 'Select' : 'Choose'} Features </button>
-                 {features && (
+                    {features && (
                 <div className='selections'>
                     {/* <h2>Hair Style</h2> */}
                 {featuresArray.map((features) => (
@@ -519,8 +618,7 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
 
                 </div>
                 )}
-                   <button className='customizeBtn' onClick={handleToggleGlasses}>{glasses ? 'Select' : 'Choose'} Glasses </button>
-                 {glasses && (
+                     {glasses && (
                 <div className='selections'>
                     {/* <h2>Hair Style</h2> */}
                 {glassesArray.map((glasses) => (
@@ -529,7 +627,6 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
 
                 </div>
                 )}
-                
             </div>
 
            </div>
