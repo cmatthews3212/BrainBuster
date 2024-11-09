@@ -42,22 +42,20 @@ const userSchema = new Schema({
     },
   },
   friends: [{
-    userId: {
+ 
       type: Schema.Types.ObjectId, 
       ref: 'User'
-  },
-    firstName: String,
-    lastName: String,
-    email: String
+
+  
   }],
   friendRequests: [{
-    userId: {
+  
       type: Schema.Types.ObjectId, 
       ref: 'User'
-  },
-    firstName: String,
-    lastName: String,
-    email: String
+
+    // firstName: String,
+    // lastName: String,
+    // email: String
   }],
   
 });

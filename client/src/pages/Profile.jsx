@@ -11,6 +11,7 @@ import { DECLINE_FRIEND_REQUEST } from '../utils/mutations';
 import { ADD_FRIEND } from '../utils/mutations';
 import Auth from '../utils/auth'
 import FriendProfile from '../components/Friends/Friend';
+import { gql } from '@apollo/client';
 // this should have the "friends", "settings", and "rankings" as components
 
 const Profile = () => {
@@ -50,21 +51,13 @@ const handleRemoveFriend = async (friend) => {
     if (!token) {
         return false;
     }
-    
+   
     try {
         const { data } = await removeFriend({
-            variables: {userId: Auth.getProfile().data._id, friendId: friend._id},
-             update: (cache) => {
-                    cache.modify({
-                        fields: {
-                            friends(existingFriends = []) {
-                                return existingFriends.filter(f => f._id !== friend._id)
-                            }
-                        }
-                    })
-            
-                
-            }
+            variables: {
+                userId: Auth.getProfile().data._id, 
+                friendId: friend._id
+            },
         });
         console.log('friend removed')
         console.log(data)
@@ -88,15 +81,6 @@ const handleDecline = async (request) => {
                 friendId: request._id,
             
             },
-            update: (cache) => {
-                cache.modify({
-                    fields: {
-                        friendRequests(existingRequests = []) {
-                            return existingRequests.filter((req) => req._id !== request._id)
-                        },
-                    },
-                });
-            }
         });
         console.log('friend request declined')
         console.log(data)
@@ -109,7 +93,7 @@ const handleDecline = async (request) => {
 console.log(userData)
 console.log(Auth.getProfile().data)
 
-const handleAddFriend = async (friend) => {
+const handleAddFriend = async (request) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
     if (!token) {
@@ -117,24 +101,51 @@ const handleAddFriend = async (friend) => {
     }
 
     try {
-        console.log('FRIEND ID', friend.firstName, friend.lastName, friend._id, 'USER ID', Auth.getProfile().data.firstName, Auth.getProfile().data.lastName, Auth.getProfile().data._id)
+       
+        console.log("userId", Auth.getProfile().data._id, 'friendId', request._id)
         const { data } = await addFriend({
-            variables: {
-                userId: Auth.getProfile().data._id,
-                friendId: friend._id,
-                firstName: friend.firstName,
-                lastName: friend.lastName,
-                email: friend.email
-
-            }
+            variables: { 
+                userId: Auth.getProfile().data._id, 
+                friendId: request._id 
+            },
+            update: (cache, { data: { addFriend } }) => {
+                // Add friend to the cache for the current user
+                cache.modify({
+                  fields: {
+                    me(existingUserData = {}) {
+                      const newFriend = addFriend.friend; // friend object from the response
+                      return {
+                        ...existingUserData,
+                        friends: [...existingUserData.friends, newFriend]
+                      };
+                    }
+                  }
+                });
+        
+                // Add current user to the friend's cache
+                cache.modify({
+                  id: cache.identify(addFriend.friend),
+                  fields: {
+                    friends(existingFriends = []) {
+                      return [...existingFriends, addFriend.user]; // current user added to friend's list
+                    }
+                  }
+                });
+              }
+                
+           
         });
+
+        if (data.addFriend.success) {
+            console.log("friends added successfully", data.addFriend)
+        }
         console.log('friend added')
         console.log(data)
     } catch (err) {
         console.error(err)
     }
 
-    handleDecline(friend);
+    handleDecline(request);
 }
 
 
@@ -196,7 +207,7 @@ return (
              
                 {userData?.friends ? (userData.friends.map((friend) => (
                     <div className='friend-div'>
-                    <p>{friend.firstName} {friend.lastName}</p>
+                    <p>{friend.firstName} {friend.lastName} {friend._id}</p>
                     <button onClick={() => handleRemoveFriend(friend)}>Remove Friend</button>
                     <button onClick={() => handleFriendSelect(friend)}>View Friend</button>
                     </div>

@@ -78,28 +78,40 @@ export const UPDATE_USER = gql`
 `;
 
 export const ADD_FRIEND = gql`
-  mutation addFriend($userId: ID!, $friendId: ID!, $firstName: String!, $lastName: String!, $email: String!) {
-    addFriend(userId: $userId, friendId: $friendId, firstName: $firstName, lastName: $lastName, email: $email) {
-      _id
-      friendRequests {
+  mutation addFriend($userId: ID!, $friendId: ID!) {
+    addFriend(userId: $userId, friendId: $friendId) {
+      success
+      user {
         _id
         firstName
         lastName
         email
+        friends {
+          _id
+          firstName
+          lastName
+          email
+        }
       }
-      friends {
+      friend {
         _id
         firstName
         lastName
         email
+        friends {
+          _id
+          firstName
+          lastName
+          email
+        }
       }
     }
   }
 `;
 
 export const SEND_FRIEND_REQUEST = gql`
-  mutation sendFriendRequest($userId: ID!, $friendId: ID!, $firstName: String!, $lastName: String!, $email: String!) {
-    sendFriendRequest(userId: $userId, friendId: $friendId, firstName: $firstName, lastName: $lastName, email: $email) {
+  mutation sendFriendRequest($userId: ID!, $friendId: ID!) {
+    sendFriendRequest(userId: $userId, friendId: $friendId) {
       _id
       friendRequests {
         _id

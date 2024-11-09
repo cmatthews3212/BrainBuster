@@ -67,14 +67,20 @@ const typeDefs = gql`
     src: String
   }
 
+  type AddFriendResponse {
+  success: Boolean!
+  user: User
+  friend: User
+}
+
   type Mutation {
     addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
     addAvatar(userId: ID!, avatar: AvatarInput): Avatar
     deleteUser(userId: ID!): User
     updateUser(firstName: String, lastName: String, email: String, password: String): User
     updateAvatar(userId: ID!, avatar: AvatarInput): Avatar
-    addFriend(userId: ID!, friendId: ID!, firstName: String!, lastName: String!, email: String!): User
-    sendFriendRequest(userId: ID!, friendId: ID!, firstName: String, lastName: String, email: String): User
+    addFriend(userId: ID!, friendId: ID!): AddFriendResponse
+    sendFriendRequest(userId: ID!, friendId: ID!): User
     acceptFriendRequest(userId: ID!, friendId: ID!): User
     declineFriendRequest(userId: ID!, friendId: ID!): User
     removeFriend(userId: ID!, friendId: ID!): User
