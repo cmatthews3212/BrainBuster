@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { GET_ME } from '../../utils/queries';
 import Auth from '../../utils/auth';
 import socket from '../../socket';
@@ -14,21 +14,22 @@ const Lobby = () => {
   const [error, setError] = useState('');
   const [inviteReceived, setInviteReceived] = useState(false);
   const [invitingPlayer, setInvitingPlayer] = useState(null);
-  // const {loading, data} = useMutation(GET_ME)
-  // const me = data?.me || {}
-  // console.log(data)
+  const {loading, data} = useQuery(GET_ME)
+  const me = data?.me || {}
+  
+  console.log(me)
   useEffect(() => {
-
+    
     if (!gameId) return;
-
+    
     console.log('Lobby useEffect triggered with gameId:', gameId);
-
+    
     const handleGameStarted = (gameData) => {
       console.log('Received gameStarted event with data:', gameData);
-
+      
       setWaiting(false);
       setOpponent(gameData.opponentId);
-
+      
       navigate(`/quiz/${gameId}`,{ 
         state: { 
           questions: [], 
@@ -37,24 +38,24 @@ const Lobby = () => {
         } 
       });
     };
-
+    
     const handleOpponentLeft = () => {
       setOpponent(null);
       console.log('Opponent left game.')
     };
-
     
-
+    
+    
     const handleGameInviteRecieved = (gameData) => {
       console.log('Game invite recieved:', gameData);
       setInviteReceived(true)
       setInvitingPlayer(gameData.senderName)
     }
-
+    
     socket.on('gameInviteReceived', handleGameInviteRecieved);
     socket.on('gameStarted', handleGameStarted);
     socket.on('opponentLeft', handleOpponentLeft);
-
+    
     return () => {
       socket.off('gameInviteReceived', handleGameInviteRecieved);
       socket.off('gameStarted', handleGameStarted);
@@ -69,15 +70,18 @@ const Lobby = () => {
       opponentId: invitingPlayer,
     })
   }
-
+  
   const handleDeclineInvite = () => {
     console.log(`Declining invite from ${invitingPlayer}`) 
-      setInviteReceived(false);
+    setInviteReceived(false);
   }
-
-  console.log(me)
-
-
+  
+  // console.log(me)
+  
+  if (loading){
+    return <p>loading...</p>
+  }
+  
   return (
     <div className='Lobby'>
       <h2>BrainBuster Lobby</h2>
@@ -102,13 +106,26 @@ const Lobby = () => {
       </div>
       <div>
         <h3>Your Friends</h3>
+        <div  style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '50%',
+          // margin: '0 auto'
+        }}>
         {me.friends ? (
             me.friends.map((friend) =>(
-              <li>{friend.firstName} {friend.lastName}</li>
+              <>
+              {/* <li>{friend.firstName} {friend.lastName}</li> */}
+              <button id={friend._id} style={{
+                margin: '10px'
+              }}>Invite {friend.firstName} {friend.lastName} to this game!</button>
+              </>
+            
             ))
         ) : (
           <p>You have no friends to invite</p>
         )}
+        </div>
       </div>
     </div>
   );
