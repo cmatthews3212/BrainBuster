@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import socket from "../../socket";
 import { CREATE_GAME } from '../../utils/mutations';
+import './CreateGame.css';
 
 const categories = [
     { label: 'Music', value: 'music'},
@@ -70,43 +71,104 @@ const CreateGame = () => {
     }
 
     return (
-    <div className="create-game-container">
-        <h2>Create a New Game!</h2>
-        <div className='selection-group'>
-            <h3>Category:</h3>
-            <hr />
-            <div className="category-selection">
-              {categories.map((cat) => (
-                <button
-                  key={cat.value}
-                  onClick={() => setSelectedCategory(cat.value)}
-                  className={selectedCategory === cat.value ? 'selected' : ''}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div> 
-        </div>
-        <div>
-        <h3>DIFFICULTY</h3>
-          <hr />
-          <div className="difficulty-selection">
-            {difficulties.map((diff) => (
-              <button
-                key={diff}
-                onClick={() => setSelectedDifficulty(diff)}
-                className={selectedDifficulty === diff ? 'selected' : ''}
-              >
-                {diff.charAt(0).toUpperCase() + diff.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
+        <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            minHeight: '100vh' 
+        }}>
+            <div style={{ 
+                backgroundColor: '#A7FFEB',
+                flex: 1,
+                padding: '2rem',
+                marginTop: '64px'
+            }}>
+                <div style={{ 
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: '12px',
+                    padding: '2rem',
+                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                    maxWidth: '1200px',
+                    margin: '0 auto'
+                }}>
+                    <h2 style={{ color: '#7E57C2', marginBottom: '1.5rem' }}>Create a New Game!</h2>
+                    
+                    <div className='selection-group' style={{ marginBottom: '2rem' }}>
+                        <h3 style={{ color: '#7E57C2', marginBottom: '1rem' }}>Category:</h3>
+                        <div style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                            gap: '1rem'
+                        }}>
+                            {categories.map((cat) => (
+                                <button
+                                    key={cat.value}
+                                    onClick={() => setSelectedCategory(cat.value)}
+                                    style={{ 
+                                        backgroundColor: selectedCategory === cat.value ? '#FF4081' : '#F5F5F5',
+                                        color: selectedCategory === cat.value ? '#FFFFFF' : '#7E57C2',
+                                        padding: '1rem',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {cat.label}
+                                </button>
+                            ))}
+                        </div> 
+                    </div>
 
-        <button className="createGameBtn" onClick={handleCreateGame} disabled={loading}>
-          { loading ? "Loading..." : "Start Quiz"}
-        </button>
-    </div>
-  );
+                    <div className='selection-group' style={{ marginBottom: '2rem' }}>
+                        <h3 style={{ color: '#7E57C2', marginBottom: '1rem' }}>Difficulty:</h3>
+                        <div style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                            gap: '1rem'
+                        }}>
+                            {difficulties.map((diff) => (
+                                <button
+                                    key={diff}
+                                    onClick={() => setSelectedDifficulty(diff)}
+                                    style={{ 
+                                        backgroundColor: selectedDifficulty === diff ? '#FF4081' : '#F5F5F5',
+                                        color: selectedDifficulty === diff ? '#FFFFFF' : '#7E57C2',
+                                        padding: '1rem',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {diff.charAt(0).toUpperCase() + diff.slice(1)}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <button 
+                        onClick={handleCreateGame} 
+                        disabled={loading}
+                        style={{ 
+                            backgroundColor: loading ? '#cccccc' : '#FF4081',
+                            color: '#FFFFFF',
+                            padding: '1rem 2rem',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                            fontSize: '1.1rem',
+                            fontWeight: '500',
+                            width: '100%',
+                            maxWidth: '200px',
+                            transition: 'transform 0.2s'
+                        }}
+                    >
+                        {loading ? "Loading..." : "Start Quiz"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
 };
-  export default CreateGame;
+
+export default CreateGame;
