@@ -56,7 +56,7 @@ const startApolloServer = async () => {
   }
 
   db.once("open", () => {
-    httpServer.listen(PORT, () => {
+    gameServer.listen(PORT, () => {
       console.log(`API server running on port ${PORT}!`);
       console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
     });
@@ -191,11 +191,12 @@ io.on("connection", (socket) => {
       answers: {},
       scores: {},
       timers: {},
+      ready: {},
     };
 
     games[gameId].answers[socket.id] = {};
     games[gameId].scores[socket.id] = 0;
-    games[gameId].ready[socket.id] = false; // Initialize readiness for Player1
+    games[gameId].ready[socket.id] = false; 
 
     socket.join(gameId);
     socket.emit("waitingForOpponent");
