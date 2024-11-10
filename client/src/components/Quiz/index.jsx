@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
 import socket from '../../socket';
 
-
 const Quiz = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
