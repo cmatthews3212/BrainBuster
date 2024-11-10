@@ -251,6 +251,15 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on('gameInvite', ({ gameId, friendId, inviterId, senderName }) => {
+    io.to(friendId).emit('gameInviteReceived', {
+      gameId,
+      inviterId,
+      friendId,
+      senderName,
+    })
+  })
+
   socket.on("submitAnswer", ({ gameId, questionIndex, answer }) => {
     const game = games[gameId];
     if (!game) {

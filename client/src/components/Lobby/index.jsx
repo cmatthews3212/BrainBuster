@@ -14,6 +14,7 @@ const Lobby = () => {
   const [error, setError] = useState('');
   const [inviteReceived, setInviteReceived] = useState(false);
   const [invitingPlayer, setInvitingPlayer] = useState(null);
+  const [inviteSent, setInviteSent] = useState(false)
   const {loading, data} = useQuery(GET_ME)
   const me = data?.me || {}
   
@@ -62,6 +63,18 @@ const Lobby = () => {
       socket.off('opponentLeft', handleOpponentLeft);
     };
   }, [gameId, navigate]);
+
+  const handleInvite = (friendId) => {
+    const inviterId = me._id;
+    socket.emit('gameInvite', {
+      gameId,
+      friendId,
+      inviterId,
+      senderName: `${me.firstName} ${me.lastName}`
+    })
+
+    setInviteSent(true)
+  }
 
   const handleAcceptInvite = () => {
     console.log(`Accepting invite from ${invitingPlayer}`);
@@ -116,7 +129,7 @@ const Lobby = () => {
             me.friends.map((friend) =>(
               <>
               {/* <li>{friend.firstName} {friend.lastName}</li> */}
-              <button id={friend._id} style={{
+              <button onClick={handleInvite(friend._id)} key={friend._id} style={{
                 margin: '10px'
               }}>Invite {friend.firstName} {friend.lastName} to this game!</button>
               </>
