@@ -4,6 +4,7 @@ import './index.css';
 import './avatar.css'
 import './profile.css';
 
+
 import App from './App.jsx';
 import Home from './pages/Home';
 import NoMatch from './pages/NoMatch';
@@ -24,11 +25,15 @@ import Leaderboard from './components/Leaderboard/Leaderboard.jsx';
 
 import FindFriends from './components/Friends/Find.jsx';
 import FriendProfile from './pages/FriendProfile.jsx';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Auth from './utils/auth.js';
 // import AvatarDisplay  from './components/Avatar/AvatarDisplay.jsx';
 
 
 //additional pages for the trivia game 
 // import Dashboard from './pages/Dashboard.jsx';
+
 
 
 const router = createBrowserRouter([
@@ -74,9 +79,6 @@ const router = createBrowserRouter([
         path: '/lobby/:gameId',
         element: <Lobby />
       },  {
-       path: '/dashboard',
-      element: <Dashboard />
-       }, {
         path: '/home',
         element: <Home />
        }, {
@@ -85,6 +87,9 @@ const router = createBrowserRouter([
        }, {
         path: '/profile/:id',
         element: <FriendProfile />
+       }, {
+        path: '/dashboard',
+        element: <Dashboard />
        }
     ],
   },

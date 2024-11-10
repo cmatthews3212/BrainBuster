@@ -26,7 +26,7 @@ function Nav() {
       padding: '0 2rem'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-        <Link to="/home" style={{ textDecoration: 'none', color: '#7E57C2' }}>
+        <Link to="/dashboard" style={{ textDecoration: 'none', color: '#7E57C2' }}>
           <h1>BrainBuster</h1>
         </Link>
 

@@ -29,7 +29,11 @@ function Dashboard() {
     console.error(error)
   }
 
-  
+  if (!userData.avatar) {
+    navigate('/avatars')
+  }
+
+
 
 
   return (
