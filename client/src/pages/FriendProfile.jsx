@@ -27,7 +27,9 @@ const FriendSelect = ({ friend, onClear, gameId }) => {
         for (const user of data.users) {
             if (user._id === id) {
                 return (
-                    <div className="user-profile">
+                    <div className="user-profile" style={{
+                        marginTop: '100px'
+                    }}>
                         <img src={user.avatar.src}></img>
                         <h2>{user.firstName} {user.lastName}</h2>
                         <h3>You are friends!</h3>

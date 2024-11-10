@@ -1,4 +1,4 @@
-.profile, .user-profile {
+/* .profile, .user-profile {
     margin-top: 100px;
 }
 .profile .profile-head{
@@ -20,15 +20,15 @@
     border-radius: 5px;
 }
 
-.profile-info {
+.profile-info { */
     /* display: flex; */
-}
+/* }
 
 .friends-container {
-    border: 5px solid black;
+    border: 5px solid black; */
     /* width: 65%; */
-    display: flex;
-}
+    /* display: flex; */
+/* }
 
 .friends-container div {
     width: 50%;
@@ -42,17 +42,17 @@
 .stats-container {
     border: 5px solid black;
     width: 35%;
-}
+} */
 
 /* Find Friends */
 
-.find-friends-container {
+/* .find-friends-container { */
     /* display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center; */
 
-}
+/* }
 
 .find-friends-container h2 {
     background-color: #e8702a;
@@ -70,7 +70,7 @@
 .find-friends-container ul {
     list-style-type: none;
     /* margin: 0 auto; */
-    width: 80%;
+    /* width: 80%;
     margin-top: 50px;
 }
 
@@ -84,4 +84,34 @@
     border-radius: 10px;
     box-shadow: 0 4px 12px -2px black;
     
+}  */
+
+.removeFriend:hover {
+    cursor: pointer;
+}
+
+button:hover {
+    cursor: pointer;
+    opacity: 75%;
+}
+
+button:active {
+    opacity: 50%;
+}
+
+ .viewFriend:hover {
+    opacity: 75%;
+}
+
+.viewFriend:active {
+    opacity: 50%;
+}
+
+.findFriendBtn:hover {
+    opacity: 75%;
+    cursor: pointer;
+}
+
+.findFriendBtn:active {
+    opacity: 50%;
 }
