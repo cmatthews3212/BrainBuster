@@ -94,6 +94,10 @@
 
 }  */
 
+.avatar-container {
+    overflow-x: hidden;
+}
+
 .avatar-container .base:hover {
     cursor: pointer;
 

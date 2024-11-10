@@ -492,6 +492,7 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+           
         }}>
        
            <div className='cust-top'>
@@ -520,11 +521,12 @@ const CustomizeAvatar = ({ src, name, onClear }) => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
+                   
                 }}>
 
                     <img id='avatar-select' key={currentSrc} name={name} src={currentSrc}
                     style={{
-                        width: '30%'
+                        width: '35%'
                     }}
                     ></img>
                 </div>
