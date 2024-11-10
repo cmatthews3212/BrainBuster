@@ -34,6 +34,17 @@ export const ADD_USER = gql`
   }
 `;
 
+export const DELETE_USER = gql`
+  mutation deleteUser($userId: ID!) {
+    deleteUser(userId: $userId){
+      user{
+        _id
+        }
+      
+    }
+  }
+`
+
 
 
 export const CREATE_GAME = gql`
@@ -67,20 +78,44 @@ export const UPDATE_USER = gql`
 `;
 
 export const ADD_FRIEND = gql`
-  mutation addFriend($userId: ID!, $friendId: ID!, $firstName: String!, $lastName: String!, $email: String!) {
-    addFriend(userId: $userId, friendId: $friendId, firstName: $firstName, lastName: $lastName, email: $email) {
-      _id
-      friendRequests {
+  mutation addFriend($userId: ID!, $friendId: ID!) {
+    addFriend(userId: $userId, friendId: $friendId) {
+      success
+      user {
         _id
         firstName
         lastName
         email
+        avatar {
+          src
+        }
+        friends {
+          _id
+          firstName
+          lastName
+          email
+          avatar {
+            src
+          }
+        }
       }
-      friends {
+      friend {
         _id
         firstName
         lastName
         email
+        avatar {
+          src
+        }
+        friends {
+          _id
+          firstName
+          lastName
+          email
+          avatar {
+            src
+          }
+        }
       }
     }
   }
@@ -131,7 +166,7 @@ export const REMOVE_FRIEND = gql`
 `;
 
 export const ADD_AVATAR = gql`
-  mutation addAvatar($userId: ID!, $avatar: AvatarInput!) {
+  mutation addAvatar($userId: ID!, $avatar: AvatarInput) {
     addAvatar(userId: $userId, avatar: $avatar){
       src
     }
@@ -139,7 +174,7 @@ export const ADD_AVATAR = gql`
 `;
 
 export const UPDATE_AVATAR = gql`
-  mutation updateAvatar($userId: ID!, $avatar: AvatarInput!) {
+  mutation updateAvatar($userId: ID!, $avatar: AvatarInput) {
     updateAvatar(userId: $userId, avatar: $avatar){
       src
     }

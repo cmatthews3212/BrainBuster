@@ -2,6 +2,8 @@ const { User, Game } = require('../models');
 const { signToken } = require('../utils/auth');
 const { AuthenticationError } =require('apollo-server-express');
 const { fetchTriviaQuestions } = require('../utils/requests');
+const mongoose = require('mongoose')
+const {Schema} = mongoose;
 
 
 const resolvers = {
@@ -9,13 +11,19 @@ const resolvers = {
     me: async (parent, args, context) => {
       if (context.user) {
         const user = await User.findById(context.user._id);
+        await user.populate('friendRequests', 'firstName lastName email avatar')
+        await user.populate('friends', 'firstName lastName email avatar')
 
         return user;
       }
       throw new AuthenticationError('Please log in.');
     },
     user: async (parent, args, context) => {
-      const user = await User.findById(args._id);
+      const user = await User.findById(args._id)
+
+     await user.populate('friendRequests', 'firstName lastName email avatar')
+     await user.populate('friends', 'firstName lastName email avatar')
+     await user.populate('avatar', 'src')
 
       return user;
     },
@@ -36,6 +44,19 @@ const resolvers = {
 
       return { token, user };
     },
+    deleteUser: async (parent, {userId}) => {
+        const user = await User.findByIdAndDelete(userId);
+
+        if (!user) {
+          throw new Error('user not found')
+        }
+       
+      
+      console.log('user deleted')
+      return {sucess: true, message: "Deleted Sucessfully"}
+
+    
+    },
     updateUser: async (parent, args, context) => {
       if (context.user) {
         return await User.findByIdAndUpdate(context.user._id, args, {
@@ -44,90 +65,91 @@ const resolvers = {
       }
       throw new AuthenticationError('Please log in.');
     },
-    sendFriendRequest: async (parent, { userId, friendId }, context) => {
-      if (!context.user) {
-        console.error('Please log in');
-        throw new AuthenticationError('Please log in.');
-      }
-
-      const user = await User.findById(friendId);
-
-      if (!user) {
-        console.error('User not found');
-        throw new AuthenticationError('User not found.');
-      }
-
-      if (!user.friendRequests.includes(userId)) {
-        user.friendRequests.push(userId)
-      }
-
-      await user.save();
-      const populatedUser = await user.populate({
-        path: 'friendRequests',
-        select: 'firstName lastName email'
-      })
-      return populatedUser;
+    sendFriendRequest: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
+      try {
+        await User.findByIdAndUpdate(
+            friendId, 
+            { $addToSet: { friendRequests: userId } } // Only add userId, no additional details
+        );
+        return { success: true };
+    } catch (err) {
+        console.error(err);
+        throw new Error('Error sending friend request');
+    }
     },
     declineFriendRequest: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
-      if (!context.user) {
-        console.error('Please log in');
-        throw new AuthenticationError('Please log in.');
-      }
-      const user = await User.findById(userId);
-
-      if (!user) {
-        console.error('User not found');
-        throw new AuthenticationError('User not found.');
-      }
-
-      user.friendRequests = user.friendRequests.filter((id) => id.toString() !== friendId);
-
-      await user.save();
-      await user.populate('friendRequests');
-      return user;
+      try {
+        const user = await User.findByIdAndUpdate(
+            friendId, 
+            { $pull: { friendRequests: userId } },
+       
+        );
+        const friend = await User.findByIdAndUpdate(
+          userId,
+          { $pull: { friendRequests: friendId }},
+      
+        )
+  
+        await user.populate('friends', 'firstName lastName email avatar')
+        await friend.populate('friends', 'firstName lastName email avatar')
+        return {
+          user,
+          friend
+        };
+    } catch (err) {
+        console.error(err);
+        throw new Error('Error sending friend request');
+    }
   },
-    addFriend: async (parent, { userId, friendId }, context) => {
-      if (!context.user) {
-        console.error('Please log in');
-        throw new AuthenticationError('Please log in.');
-      }
+  addFriend: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
+    
+    try {
+      const user = await User.findByIdAndUpdate(
+          friendId, 
+          { $addToSet: { friends: userId } },
+          { new: true }// Only add userId, no additional details
+      );
+      const friend = await User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { friends: friendId }},
+        { new: true }
+      )
 
-      const user = await User.findById(userId);
-
-      if (!user) {
-        console.error('User not found');
-        throw new AuthenticationError('User not found.');
-      }
-
-      if (!user.friends.includes(friendId)) {
-        user.friends.push(friendId)
-
-      }
-
-      await user.save();
-      await user.populate({
-        path: 'friends',
-        select: 'firstName lastName email'
-      })
-      return user
-    },
+      await user.populate('friends', 'firstName lastName email avatar')
+      await friend.populate('friends', 'firstName lastName email avatar')
+      return {
+        success: true,
+        user,
+        friend
+      };
+  } catch (err) {
+      console.error(err);
+      throw new Error('Error sending friend request');
+  }
+  },
     removeFriend: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
-        if (!context.user) {
-          console.error('Please log in');
-          throw new AuthenticationError('Please log in.');
-        }
-        const user = await User.findById(userId);
-
-        if (!user) {
-          console.error('User not found');
-          throw new AuthenticationError('User not found.');
-        }
-
-        user.friends = user.friends.filter((id) => id.toString() !== friendId);
-
-        await user.save();
-        await user.populate('friends');
-        return user;
+      try {
+        const user = await User.findByIdAndUpdate(
+            friendId, 
+            { $pull: { friends: userId } },
+       
+        );
+        const friend = await User.findByIdAndUpdate(
+          userId,
+          { $pull: { friends: friendId }},
+      
+        )
+  
+        await user.populate('friends', 'firstName lastName email avatar')
+        await friend.populate('friends', 'firstName lastName email avatar')
+        return {
+          user,
+          friend
+        };
+    } catch (err) {
+        console.error(err);
+        throw new Error('Error sending friend request');
+    }
     },
     login: async (parent, { email, password }) => {
       const user = await User.findOne({ email });

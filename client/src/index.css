@@ -1,4 +1,4 @@
-body {
+/* body {
   margin: 0;
   background-color: 	#0ea7b5;
 }
@@ -36,7 +36,7 @@ header h1 .h1 {
 
 /* Home */
 
-.join {
+/* .join {
   display: flex;
   justify-content: center;
 }
@@ -50,7 +50,7 @@ header h1 .h1 {
 .join-game button {
   background-color: 	#e8702a;
   /* width: 200px; */
-  font-size: 40px;
+  /* font-size: 40px;
   font-weight: 500;
   padding: 10px;
   margin: 10px;
@@ -60,7 +60,7 @@ header h1 .h1 {
 }
 
 /* Quiz */
-
+/* 
 .quiz-container h2 {
   font-size: 40px;
   text-align: center;
@@ -94,7 +94,7 @@ header h1 .h1 {
   background-color: #e8702a;
   width: 120px;
   height: 50px; /* Adjust as needed */
-  display: flex;
+  /* display: flex;
   justify-content: center;
   align-items: center;
   font-size: 16px;
@@ -121,8 +121,8 @@ header h1 .h1 {
 
 .category-selection button:disabled,
 .difficulty-selection button:disabled,
-.quizBtn:disabled {
-  background-color: #ddd;
+.quizBtn:disabled { */
+  /* background-color: #ddd;
   border-color: #ccc;
   cursor: not-allowed;
 }
@@ -139,6 +139,10 @@ header h1 .h1 {
 
 .quizBtn:hover:not(:disabled) {
   background-color: #218838;
-}
+}    */
 
+
+body {
+  background-color:aliceblue;
+}
 

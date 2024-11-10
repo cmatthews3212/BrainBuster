@@ -19,6 +19,7 @@ export const GET_ME = gql`
       _id
       firstName
       lastName
+      email
       friends {
         _id
         firstName
@@ -45,6 +46,9 @@ export const QUERY_USERS = gql`
         firstName
         lastName
         email
+        avatar {
+          src
+        }
     }
 }
 `;

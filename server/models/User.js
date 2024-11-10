@@ -42,13 +42,22 @@ const userSchema = new Schema({
     },
   },
   friends: [{
-    type: Schema.Types.ObjectId, 
-    ref: 'User'
+ 
+      type: Schema.Types.ObjectId, 
+      ref: 'User'
+
+  
   }],
   friendRequests: [{
-    type: Schema.Types.ObjectId, 
-    ref: 'User'
-  }]
+  
+      type: Schema.Types.ObjectId, 
+      ref: 'User'
+
+    // firstName: String,
+    // lastName: String,
+    // email: String
+  }],
+  
 });
 
 // set up pre-save middleware to create password
