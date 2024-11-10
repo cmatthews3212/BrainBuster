@@ -15,24 +15,25 @@ const Lobby = () => {
   const [inviteReceived, setInviteReceived] = useState(false);
   const [invitingPlayer, setInvitingPlayer] = useState(null);
   // const {loading, data} = useMutation(GET_ME)
-  const me = Auth.getProfile().data
+  // const me = data?.me || {}
+  // console.log(data)
   useEffect(() => {
 
     if (!gameId) return;
 
     console.log('Lobby useEffect triggered with gameId:', gameId);
 
-    const handleGameStarted = (data) => {
-      console.log('Received gameStarted event with data:', data);
+    const handleGameStarted = (gameData) => {
+      console.log('Received gameStarted event with data:', gameData);
 
       setWaiting(false);
-      setOpponent(data.opponentId);
+      setOpponent(gameData.opponentId);
 
       navigate(`/quiz/${gameId}`,{ 
         state: { 
           questions: [], 
-          opponentId: data.opponentId,
-          playerId: data.playerId
+          opponentId: gameData.opponentId,
+          playerId: gameData.playerId
         } 
       });
     };
@@ -44,10 +45,10 @@ const Lobby = () => {
 
     
 
-    const handleGameInviteRecieved = (data) => {
-      console.log('Game invite recieved:', data);
+    const handleGameInviteRecieved = (gameData) => {
+      console.log('Game invite recieved:', gameData);
       setInviteReceived(true)
-      setInvitingPlayer(data.senderName)
+      setInvitingPlayer(gameData.senderName)
     }
 
     socket.on('gameInviteReceived', handleGameInviteRecieved);
