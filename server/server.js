@@ -69,10 +69,6 @@ startApolloServer();
 // Game state management
 let games = {};
 
-const shuffleAnswers = (answers) => {
-  return answers.sort(() => Math.random() - 0.5);
-};
-
 const startGameLoop = (gameId) => {
   const game = games[gameId];
 
@@ -195,11 +191,12 @@ io.on("connection", (socket) => {
       answers: {},
       scores: {},
       timers: {},
+      ready: {},
     };
 
     games[gameId].answers[socket.id] = {};
     games[gameId].scores[socket.id] = 0;
-    games[gameId].ready[socket.id] = false; // Initialize readiness for Player1
+    games[gameId].ready[socket.id] = false; 
 
     socket.join(gameId);
     socket.emit("waitingForOpponent");
