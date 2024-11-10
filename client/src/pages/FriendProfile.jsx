@@ -33,6 +33,7 @@ const FriendSelect = ({ friend, onClear, gameId }) => {
                         <img src={user.avatar.src}></img>
                         <h2>{user.firstName} {user.lastName}</h2>
                         <h3>You are friends!</h3>
+                        
                     </div>
                 )
             }

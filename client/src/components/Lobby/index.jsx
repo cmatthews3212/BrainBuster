@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
+import { useMutation } from '@apollo/client';
+import { GET_ME } from '../../utils/queries';
+import Auth from '../../utils/auth';
 import socket from '../../socket';
 
 const Lobby = () => {
@@ -11,8 +14,10 @@ const Lobby = () => {
   const [error, setError] = useState('');
   const [inviteReceived, setInviteReceived] = useState(false);
   const [invitingPlayer, setInvitingPlayer] = useState(null);
-
+  // const {loading, data} = useMutation(GET_ME)
+  const me = Auth.getProfile().data
   useEffect(() => {
+
     if (!gameId) return;
 
     console.log('Lobby useEffect triggered with gameId:', gameId);
@@ -65,6 +70,9 @@ const Lobby = () => {
       setInviteReceived(false);
   }
 
+  console.log(me)
+
+
   return (
     <div className='Lobby'>
       <h2>BrainBuster Lobby</h2>
@@ -83,9 +91,19 @@ const Lobby = () => {
       </div>
 
       <div>
-        <h3>{invitingPlayer} has invited you to join their quiz!</h3>
+        {/* <h3>{invitingPlayer} has invited you to join their quiz!</h3>
         <button onClick={handleAcceptInvite}>Accept</button>
-        <button onClick={handleDeclineInvite}>Decline</button>
+        <button onClick={handleDeclineInvite}>Decline</button> */}
+      </div>
+      <div>
+        <h3>Your Friends</h3>
+        {me.friends ? (
+            me.friends.map((friend) =>(
+              <li>{friend.firstName} {friend.lastName}</li>
+            ))
+        ) : (
+          <p>You have no friends to invite</p>
+        )}
       </div>
     </div>
   );
