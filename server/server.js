@@ -69,10 +69,6 @@ startApolloServer();
 // Game state management
 let games = {};
 
-const shuffleAnswers = (answers) => {
-  return answers.sort(() => Math.random() - 0.5);
-};
-
 const startGameLoop = (gameId) => {
   const game = games[gameId];
 
