@@ -56,7 +56,7 @@ const startApolloServer = async () => {
   }
 
   db.once("open", () => {
-    httpServer.listen(PORT, () => {
+    gameServer.listen(PORT, () => {
       console.log(`API server running on port ${PORT}!`);
       console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
     });
@@ -317,7 +317,7 @@ function startQuestion(gameId) {
 
   console.log(`Starting question ${questionIndex + 1} of ${game.questions.length} for game ${gameId}.`);
 
-  const shuffledAnswers = shuffleAnswers([
+  const shuffledAnswers = shuffleAnswers1([
     ...question.incorrectAnswers,
     question.correctAnswer,
   ]);
@@ -428,7 +428,7 @@ function endGame(gameId) {
 }
 
 // Utility function to shuffle answers
-function shuffleAnswers(answers) {
+function shuffleAnswers2(answers) {
   let shuffled = [...answers];
 
   for (let i = shuffled.length - 1; i > 0; i--) {
