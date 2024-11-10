@@ -4,10 +4,12 @@ import JoinGame from '../components/Game/JoinGame';
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_ME, QUERY_USERS } from '../utils/queries';
 import Auth from '../utils/auth'
+import { useTheme } from './ThemeContext.jsx';
 
 function Dashboard() {
   const navigate = useNavigate();
   const [showGameOptions, setShowGameOptions] = useState(false);
+  const { theme } = useTheme();
 
   const handleCreateGame = () => {
     navigate('/create-game');
@@ -40,7 +42,7 @@ function Dashboard() {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Main content - adjusted to account for navbar */}
       <div className="dashboard-container" style={{ 
-        backgroundColor: '#A7FFEB',
+        backgroundColor: theme.colors.background,
         flex: 1,
         padding: '2rem',
         display: 'grid',
@@ -50,7 +52,7 @@ function Dashboard() {
       }}>
         {/* Sidebar */}
         <div className="sidebar" style={{ 
-          backgroundColor: '#FFFFFF',
+          backgroundColor: theme.colors.card,
           borderRadius: '12px',
           padding: '2rem',
           boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
@@ -88,16 +90,19 @@ function Dashboard() {
               <span>🧑</span>
               <span>Customize Avatar</span>
             </Link>
-            <Link to="/themes" style={{ 
-              color: '#7E57C2',
-              textDecoration: 'none',
-              padding: '1rem',
-              borderRadius: '8px',
-              backgroundColor: '#F5F5F5',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}>
+            <Link 
+              to="/themes" 
+              style={{ 
+                color: '#7E57C2',
+                textDecoration: 'none',
+                padding: '1rem',
+                borderRadius: '8px',
+                backgroundColor: '#F5F5F5',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem'
+              }}
+            >
               <span>🎨</span>
               <span>Themes</span>
             </Link>
@@ -161,7 +166,6 @@ function Dashboard() {
                 >
                   Create New Game
                 </button>
-                <JoinGame />
               </div>
             )}
           </div>
