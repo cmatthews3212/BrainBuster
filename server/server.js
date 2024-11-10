@@ -13,7 +13,6 @@ const socketIo = require("socket.io");
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-// Initialize Apollo Server
 const server = new ApolloServer({
   typeDefs,
   resolvers,
@@ -66,40 +65,45 @@ const startApolloServer = async () => {
 // Start the server
 startApolloServer();
 
-// Game state management
 let games = {};
 
 const startGameLoop = (gameId) => {
   const game = games[gameId];
 
-  if (!game) return;
+  if (!game) {
+    console.error(`startGameLoop: Game ${gameId} not found.`);
+    return;
+  }
 
-  let currentQuestionIndex = 0;
-  const totalQuestions = game.questions.length;
+  game.currentQuestionIndex = 0;
+  game.totalQuestions = game.questions.length;
 
   const sendQuestion = () => {
-    if (currentQuestionIndex >= totalQuestions) {
+    if (game.currentQuestionIndex >= game.totalQuestions) {
       endGame(gameId);
       return;
     }
 
-    const question = game.questions[currentQuestionIndex];
+    const question = game.questions[game.currentQuestionIndex];
 
 
     const shuffledAnswers = shuffleAnswers([
       ...question.incorrectAnswers,
       question.correctAnswer,
     ]);
+
+    game.answersSubmitted = {};
     
     io.to(gameId).emit('newQuestion', {
-      questionIndex: currentQuestionIndex,
+      questionIndex: game.currentQuestionIndex,
       question: question.question, 
       answers: shuffledAnswers,
+      totalQuestions: game.totalQuestions,
     });
 
     game.timers.questionTimer = setTimeout(() => {
       
-      showAnswer(gameId, currentQuestionIndex);
+      showAnswer(gameId, game.currentQuestionIndex);
     }, 20000); // 20 seconds
   };
 
@@ -141,6 +145,7 @@ const startGameLoop = (gameId) => {
     const score2 = game.scores[game.player2] || 0;
 
     let result;
+
     if (score1 > score2) {
       result = {
         winner: game.player1,
@@ -156,7 +161,6 @@ const startGameLoop = (gameId) => {
         winner: null, 
       };
     }
-
 
     io.to(gameId).emit('gameOver', {
       scores: game.scores,
@@ -175,7 +179,6 @@ const startGameLoop = (gameId) => {
 io.on("connection", (socket) => {
   console.log(`A player connected: ${socket.id}`);
 
-  // Handle 'createGame' event
   socket.on("createGame", ({ gameId, category, difficulty }) => {
     if (games[gameId]) {
       socket.emit('error', { message: 'Game ID already exists.' });
@@ -192,6 +195,7 @@ io.on("connection", (socket) => {
       scores: {},
       timers: {},
       ready: {},
+      answersSubmitted: {},
     };
 
     games[gameId].answers[socket.id] = {};
@@ -231,7 +235,8 @@ io.on("connection", (socket) => {
           io.to(gameId).emit('gameStarted', { 
             gameId, 
             opponentId: game.player1, 
-            playerId: game.player2 
+            playerId: game.player2,
+            totalQuestions: questions.length,
           });
 
       
@@ -268,8 +273,19 @@ io.on("connection", (socket) => {
     }
 
     game.answers[socket.id][questionIndex] = answer;
+    game.answersSubmitted[socket.id] = true;
 
     console.log(`Player ${socket.id} answered question ${questionIndex}: ${answer}`);
+
+    const bothAnswered = [game.player1, game.player2].every(player => game.answersSubmitted[player])
+
+    if (bothAnswered) {
+      console.log(`Both players have answered question ${questionIndex} in game ${gameId}. Showing answer immediately.`);
+
+      clearTimeout(game.timers.questionTimer);
+
+      showAnswer(gameId, questionIndex);
+    }
   });
 
 
@@ -298,119 +314,207 @@ io.on("connection", (socket) => {
   });
 });
 
-// Function to start a question
-function startQuestion(gameId) {
+// function startQuestion(gameId) {
+//   const game = games[gameId];
+
+//   if (!game) return;
+
+//   const questionIndex = game.currentQuestionIndex;
+//   const question = game.questions[questionIndex];
+
+//   if (!question) {
+//     endGame(gameId);
+//     return;
+//   }
+
+//   console.log(`Starting question ${questionIndex + 1} of ${game.questions.length} for game ${gameId}.`);
+
+//   const shuffledAnswers = shuffleAnswers([
+//     ...question.incorrectAnswers,
+//     question.correctAnswer,
+//   ]);
+
+//   console.log(`Shuffled Answers for game ${gameId}, question ${questionIndex + 1}:`, shuffledAnswers);
+
+//   // Verify that 'correctAnswer' is included
+//   if (!shuffledAnswers.includes(question.correctAnswer)) {
+//     console.error(`Correct answer not found in shuffledAnswers for game ${gameId}, question ${questionIndex + 1}.`);
+//   }
+
+//   // Emit 'newQuestion' to both players
+//   io.to(game.player1).emit('newQuestion', {
+//     gameId,
+//     questionIndex,
+//     question: question.question,
+//     answers: shuffledAnswers,
+//   });
+
+//   io.to(game.player2).emit('newQuestion', {
+//     gameId,
+//     questionIndex,
+//     question: question.question,
+//     answers: shuffledAnswers,
+//   });
+
+//   // Set a timer for the question duration (e.g., 20 seconds)
+//   game.questionTimer = setTimeout(() => {
+//     console.log(`Question ${questionIndex + 1} time up for game ${gameId}.`);
+//     processAnswers(gameId);
+//   }, 20000);
+// }
+
+const showAnswer = (gameId, questionIndex) => {
   const game = games[gameId];
 
-  if (!game) return;
-
-  const questionIndex = game.currentQuestionIndex;
-  const question = game.questions[questionIndex];
-
-  if (!question) {
-    endGame(gameId);
+  if (!game) {
+    console.error(`showAnswer: Game ${gameId} not found.`);
     return;
   }
 
-  console.log(`Starting question ${questionIndex + 1} of ${game.questions.length} for game ${gameId}.`);
+  const question = game.questions[questionIndex]
+  const correctAnswer = question.correctAnswer;
 
-  const shuffledAnswers = shuffleAnswers([
-    ...question.incorrectAnswers,
-    question.correctAnswer,
-  ]);
-
-  console.log(`Shuffled Answers for game ${gameId}, question ${questionIndex + 1}:`, shuffledAnswers);
-
-  // Verify that 'correctAnswer' is included
-  if (!shuffledAnswers.includes(question.correctAnswer)) {
-    console.error(`Correct answer not found in shuffledAnswers for game ${gameId}, question ${questionIndex + 1}.`);
-  }
-
-  // Emit 'newQuestion' to both players
-  io.to(game.player1).emit('newQuestion', {
-    gameId,
-    questionIndex,
-    question: question.question,
-    answers: shuffledAnswers,
-  });
-
-  io.to(game.player2).emit('newQuestion', {
-    gameId,
-    questionIndex,
-    question: question.question,
-    answers: shuffledAnswers,
-  });
-
-  // Set a timer for the question duration (e.g., 20 seconds)
-  game.questionTimer = setTimeout(() => {
-    console.log(`Question ${questionIndex + 1} time up for game ${gameId}.`);
-    processAnswers(gameId);
-  }, 20000);
-}
-
-// Function to process answers after both players have answered or time is up
-function processAnswers(gameId) {
-  const game = games[gameId]; 
-
-  if (!game) return;
-
-  const questionIndex = game.currentQuestionIndex;
-  const question = game.questions[questionIndex];
-
-  if (!question) return;
-
-  const player1Answer = game.answers[game.player1][questionIndex];
-  const player2Answer = game.answers[game.player2][questionIndex];
-  const player1Correct = player1Answer === question.correctAnswer;
-  const player2Correct = player2Answer === question.correctAnswer;
-
-  if (player1Correct) {
-    game.scores[game.player1] += 1;
-  }
-  if (player2Correct) {
-    game.scores[game.player2] += 1;
-  }
-
-  console.log(`Player1 (${game.player1}) answered correctly: ${player1Correct}`);
-  console.log(`Player2 (${game.player2}) answered correctly: ${player2Correct}`);
-  console.log(`Scores after question ${questionIndex + 1}:`, game.scores);
-
-  const results = {
-    gameId,
-    questionIndex,
-    correctAnswer: question.correctAnswer,
-    scores: game.scores,
-    player1Correct,
-    player2Correct,
-  };
-
-  // Emit 'questionResult' to both players
-  io.to(game.player1).emit('questionResult', results);
-  io.to(game.player2).emit('questionResult', results);
-
-  console.log(`Emitted questionResult for game ${gameId}, question ${questionIndex + 1}.`);
-
-  if (game.questionTimer) {
-    clearTimeout(game.questionTimer);
-    game.questionTimer = null;
-    console.log(`Cleared questionTimer for game ${gameId}, question ${questionIndex + 1}.`);
-  }
-
-  // Set a timer for the results display duration (e.g., 10 seconds)
-  game.resultTimer = setTimeout(() => {
-    game.currentQuestionIndex += 1;
-    console.log(`Moving to question ${game.currentQuestionIndex + 1} for game ${gameId}.`);
-
-    // Check if there are more questions
-    if (game.currentQuestionIndex < game.questions.length) {
-      startQuestion(gameId);
+  [game.player1, game.player2].forEach((playerId) => {
+    const answer = game.answers[playerId][questionIndex];
+    if (answer === correctAnswer) {
+      game.scores[playerId] = (game.scores[playerId] || 0) + 1;
+      console.log(
+        `showAnswer: Player ${playerId} answered correctly. Score: ${game.scores[playerId]}`
+      );
     } else {
-      endGame(gameId);
+      console.log(
+        `showAnswer: Player ${playerId} answered incorrectly or did not answer.`
+      );
     }
-  }, 10000); 
-}
+  });
 
-// Function to end the game and emit final scores
+  io.to(gameId).emit('showAnswer', {
+    questionIndex,
+    correctAnswer,
+    players: {
+      [game.player1]: game.answers[game.player1][questionIndex],
+      [game.player2]: game.answers[game.player2][questionIndex],
+    },
+  });
+
+  game.timers.answerTimer = setTimeout(() => {
+    game.currentQuestionIndex += 1;
+    const sendQuestion = () => {
+      if (game.currentQuestionIndex >= game.totalQuestions) {
+        endGame(gameId);
+        return;
+      }
+
+      const question = game.questions[game.currentQuestionIndex];
+
+      // Verify the question structure
+      if (
+        !question ||
+        typeof question.question !== 'string' ||
+        !question.correctAnswer ||
+        !Array.isArray(question.incorrectAnswers)
+      ) {
+        console.error(
+          `sendQuestion: Invalid question structure for questionIndex ${game.currentQuestionIndex} in game ${gameId}.`
+        );
+        endGame(gameId);
+        return;
+      }
+
+      const shuffledAnswers = shuffleAnswers([
+        ...question.incorrectAnswers,
+        question.correctAnswer,
+      ]);
+
+      // Reset answer tracking for the new question
+      game.answersSubmitted = {};
+
+      // Emit 'newQuestion' event with correct data
+      io.to(gameId).emit('newQuestion', {
+        questionIndex: game.currentQuestionIndex,
+        question: question.question,
+        answers: shuffledAnswers,
+        totalQuestions: game.totalQuestions,
+      });
+
+      // Start 20-second timer for answering
+      game.timers.questionTimer = setTimeout(() => {
+        console.log(
+          `sendQuestion: Time up for question ${game.currentQuestionIndex + 1} in game ${gameId}. Showing answer.`
+        );
+        showAnswer(gameId, game.currentQuestionIndex);
+      }, 20000); // 20 seconds
+    };
+
+    sendQuestion();
+  }, 10000); // 10 seconds
+};
+
+
+
+
+
+// function processAnswers(gameId) {
+//   const game = games[gameId]; 
+
+//   if (!game) return;
+
+//   const questionIndex = game.currentQuestionIndex;
+//   const question = game.questions[questionIndex];
+
+//   if (!question) return;
+
+//   const player1Answer = game.answers[game.player1][questionIndex];
+//   const player2Answer = game.answers[game.player2][questionIndex];
+//   const player1Correct = player1Answer === question.correctAnswer;
+//   const player2Correct = player2Answer === question.correctAnswer;
+
+//   if (player1Correct) {
+//     game.scores[game.player1] += 1;
+//   }
+//   if (player2Correct) {
+//     game.scores[game.player2] += 1;
+//   }
+
+//   console.log(`Player1 (${game.player1}) answered correctly: ${player1Correct}`);
+//   console.log(`Player2 (${game.player2}) answered correctly: ${player2Correct}`);
+//   console.log(`Scores after question ${questionIndex + 1}:`, game.scores);
+
+//   const results = {
+//     gameId,
+//     questionIndex,
+//     correctAnswer: question.correctAnswer,
+//     scores: game.scores,
+//     player1Correct,
+//     player2Correct,
+//   };
+
+//   // Emit 'questionResult' to both players
+//   io.to(game.player1).emit('questionResult', results);
+//   io.to(game.player2).emit('questionResult', results);
+
+//   console.log(`Emitted questionResult for game ${gameId}, question ${questionIndex + 1}.`);
+
+//   if (game.questionTimer) {
+//     clearTimeout(game.questionTimer);
+//     game.questionTimer = null;
+//     console.log(`Cleared questionTimer for game ${gameId}, question ${questionIndex + 1}.`);
+//   }
+
+//   // Set a timer for the results display duration (e.g., 10 seconds)
+//   game.resultTimer = setTimeout(() => {
+//     game.currentQuestionIndex += 1;
+//     console.log(`Moving to question ${game.currentQuestionIndex + 1} for game ${gameId}.`);
+
+//     // Check if there are more questions
+//     if (game.currentQuestionIndex < game.questions.length) {
+//       startQuestion(gameId);
+//     } else {
+//       endGame(gameId);
+//     }
+//   }, 10000); 
+// }
+
 function endGame(gameId) {
   const game = games[gameId];
 
@@ -418,10 +522,39 @@ function endGame(gameId) {
 
   console.log(`Ending game ${gameId}.`);
   
-  io.to(game.player1).emit('gameOver', { scores: game.scores });
-  io.to(game.player2).emit('gameOver', { scores: game.scores });
+  const score1 = game.scores[game.player1] || 0;
+  const score2 = game.scores[game.player2] || 0;
 
+  let result;
+  if (score1 > score2) {
+    result = {
+      winner: game.player1,
+      loser: game.player2,
+    };
+    console.log(`endGame: Player ${game.player1} wins against Player ${game.player2}.`);
+  } else if (score2 > score1) {
+    result = {
+      winner: game.player2,
+      loser: game.player1,
+    };
+    console.log(`endGame: Player ${game.player2} wins against Player ${game.player1}.`);
+  } else {
+    result = {
+      winner: null,
+    };
+    console.log(`endGame: Game ${gameId} ended in a tie.`);
+  }
+
+  io.to(gameId).emit('gameOver', {
+    scores: game.scores,
+    result,
+  });
+
+  clearTimeout(game.timers.questionTimer);
+  clearTimeout(game.timers.answerTimer);
+  
   delete games[gameId];
+  console.log(`endGame: Game ${gameId} has been cleaned up.`);
 }
 
 // Utility function to shuffle answers

@@ -17,6 +17,7 @@ const Quiz = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
+  const [totalQuestions, setTotalQuestions] = useState(0); 
 
   useEffect(() => {
     if (!gameId) {
@@ -24,6 +25,7 @@ const Quiz = () => {
       return;
     }
 
+    socket.on('gameStarted', handleGameStarted);
     socket.on('newQuestion', handleNewQuestion);
     socket.on('showAnswer', handleShowAnswer);
     socket.on('gameOver', handleGameOver);
@@ -39,6 +41,7 @@ const Quiz = () => {
     });
 
     return () => {
+      socket.off('gameStarted', handleGameStarted);
       socket.off('newQuestion', handleNewQuestion);
       socket.off('showAnswer', handleShowAnswer);
       socket.off('gameOver', handleGameOver);
@@ -47,8 +50,18 @@ const Quiz = () => {
     };
   }, [gameId, navigate]);
 
+  const handleGameStarted = (data) => {
+    const { totalQuestions } = data;
+    setTotalQuestions(totalQuestions);
+    console.log(`Quiz: Total Questions set to ${totalQuestions}`);
+  };
+
   const handleNewQuestion = (data) => {
     const { questionIndex, question, answers } = data;
+
+    if (totalQuestions && totalQuestions !== totalQuestions) {
+      setTotalQuestions(totalQuestions);
+    }
 
     setCurrentQuestion({
       question,
@@ -121,7 +134,7 @@ const Quiz = () => {
 
       {phase === 'answering' && currentQuestion && (
         <div>
-          <h3>Question {currentQuestionIndex + 1}</h3>
+          <h3>Question {currentQuestionIndex + 1} of {totalQuestions}</h3>
           <p>{decodeHtml(currentQuestion.question)}</p>
           <ul>
             {currentQuestion.answers.map((answer, idx) => (
@@ -142,7 +155,7 @@ const Quiz = () => {
 
       {phase === 'feedback' && currentQuestion && (
         <div>
-          <h3>Question {currentQuestionIndex + 1} Results</h3>
+          <h3>Question {currentQuestionIndex + 1} of {totalQuestions} Results</h3>
 
           {selectedAnswer ? (
             selectedAnswer === decodeHtml(correctAnswer) ? (
