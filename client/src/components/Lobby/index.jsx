@@ -33,9 +33,7 @@ const Lobby = () => {
       
       navigate(`/quiz/${gameId}`,{ 
         state: { 
-          questions: [], 
-          opponentId: gameData.opponentId,
-          playerId: gameData.playerId
+          totalQuestions: gameData.totalQuestions,
         } 
       });
     };

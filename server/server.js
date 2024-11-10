@@ -87,7 +87,7 @@ const startGameLoop = (gameId) => {
     const question = game.questions[game.currentQuestionIndex];
 
 
-    const shuffledAnswers = shuffleAnswers([
+    const shuffledAnswers = shuffleAnswers2([
       ...question.incorrectAnswers,
       question.correctAnswer,
     ]);
@@ -104,7 +104,7 @@ const startGameLoop = (gameId) => {
     game.timers.questionTimer = setTimeout(() => {
       
       showAnswer(gameId, game.currentQuestionIndex);
-    }, 20000); // 20 seconds
+    }, 10000); // 10 seconds
   };
 
   const showAnswer = (gameId, questionIndex) => {
@@ -132,9 +132,9 @@ const startGameLoop = (gameId) => {
 
     
     game.timers.answerTimer = setTimeout(() => {
-      currentQuestionIndex += 1;
+      game.currentQuestionIndex += 1;
       sendQuestion();
-    }, 10000); 
+    }, 5000); 
   };
 
   const endGame = (gameId) => {
@@ -430,7 +430,7 @@ const showAnswer = (gameId, questionIndex) => {
         return;
       }
 
-      const shuffledAnswers = shuffleAnswers([
+      const shuffledAnswers = shuffleAnswers2([
         ...question.incorrectAnswers,
         question.correctAnswer,
       ]);
