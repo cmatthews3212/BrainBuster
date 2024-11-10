@@ -256,6 +256,15 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on('gameInvite', ({ gameId, friendId, inviterId, senderName }) => {
+    io.to(friendId).emit('gameInviteReceived', {
+      gameId,
+      inviterId,
+      friendId,
+      senderName,
+    })
+  })
+
   socket.on("submitAnswer", ({ gameId, questionIndex, answer }) => {
     const game = games[gameId];
     if (!game) {
@@ -558,7 +567,7 @@ function endGame(gameId) {
 }
 
 // Utility function to shuffle answers
-function shuffleAnswers(answers) {
+function shuffleAnswers2(answers) {
   let shuffled = [...answers];
 
   for (let i = shuffled.length - 1; i > 0; i--) {

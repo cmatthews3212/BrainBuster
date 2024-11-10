@@ -1,22 +1,60 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import JoinGame from '../components/Game/JoinGame';
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_ME, QUERY_USERS } from '../utils/queries';
+import socket from '../socket';
 import Auth from '../utils/auth'
 
 function Dashboard() {
   const navigate = useNavigate();
   const [showGameOptions, setShowGameOptions] = useState(false);
+  const [inviteReceived, setInviteReceived] = useState(false);
+  const [invitingPlayer, setInvitingPlayer] = useState(null);
+  const [gameId, setGameId] = useState(null)
+  const [inviteName, setInviteName] = useState(null) 
+  const { loading, error, data } = useQuery(GET_ME);
+  console.log(data)
+  const me = data?.me || {}
 
   const handleCreateGame = () => {
     navigate('/create-game');
   };
 
+  const handleJoinGame = () => {
+    socket.emit('acceptGameInvite', {
+      gameId,
+      opponentId: invitingPlayer,
+    })
+
+      navigate(`/lobby/${gameId}`)
+    
+  }
+
+  useEffect(() => {
+    const handleInviteReceived = (gameData) => {
+      const { gameId, inviterId, friendId, senderName } = gameData;
+
+      if (friendId === me._id) {
+        setInviteReceived(true);
+        setInvitingPlayer(inviterId);
+        setGameId(gameId);
+        setInviteName(senderName)
+
+      }
+
+
+    }
+
+    socket.on('gameInviteReceived', handleInviteReceived)
+
+    return () => {
+      socket.off('gameInviteReceived', handleInviteReceived)
+    }
+  }, [me])
+
+
  
-    const { loading, error, data } = useQuery(GET_ME);
-    console.log(data)
-    const userData = data?.me || {}
 
 
 
@@ -29,7 +67,7 @@ function Dashboard() {
     console.error(error)
   }
 
-  if (!userData.avatar) {
+  if (!me.avatar) {
     navigate('/avatars')
   }
 
@@ -113,10 +151,10 @@ function Dashboard() {
             padding: '2rem',
             boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)'
           }}>
-            <h2 style={{ color: '#7E57C2', marginBottom: '1.5rem' }}>Ready to Play?</h2>
+            <h2 style={{ color: '#7E57C2', marginBottom: '1.5rem' }}>{inviteName} has invited you to a game!</h2>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button 
-                onClick={() => setShowGameOptions(!showGameOptions)}
+                onClick={handleJoinGame}
                 style={{ 
                   backgroundColor: '#FF4081',
                   color: '#FFFFFF',
@@ -134,7 +172,7 @@ function Dashboard() {
                   }
                 }}
               >
-                Play Game
+                Join Game
               </button>
             </div>
 
