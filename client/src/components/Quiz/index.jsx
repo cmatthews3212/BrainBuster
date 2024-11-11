@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import socket from '../../socket';
 import styles from './quiz.module.css';
+import Auth from '../../utils/auth'
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_ME, QUERY_USERS } from "../../utils/queries";
+import { ADD_STATS } from "../../utils/mutations";
+
 
 
 const Quiz = () => {
@@ -17,9 +22,14 @@ const Quiz = () => {
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [finalScores, setFinalScores] = useState({});
+  const [opponentId, setOpponentId] = useState(null)
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
+  const {loading, data} = useQuery(QUERY_USERS);
+  const [addStats] = useMutation(ADD_STATS)
+  const usersArray = data.users
+  console.log(usersArray)
 
   const totalQuestions = location.state?.totalQuestions || 0;
   
@@ -55,8 +65,9 @@ const Quiz = () => {
   }, [gameId, navigate]);
 
   const handleGameStarted = (data) => {
-    const { totalQuestions } = data;
+    const { totalQuestions, opponentId } = data;
     setTotalQuestions(totalQuestions);
+    setOpponentId(opponentId)
     console.log(`Quiz: Total Questions set to ${totalQuestions}`);
   };
 
@@ -106,18 +117,53 @@ const Quiz = () => {
   if (gameOver) {
     const myScore = finalScores[socket.id] || 0;
     const opponentScore = finalScores[opponentId] || 0;
-
+    let wins = 0;
+    let played = 0;
     let resultText;
     if (result.winner === socket.id) {
       resultText = 'You Win!';
+      wins += 1
+      played += 1
     } else if (result.winner === null) {
       resultText = "It's a Tie!";
+      played += 1
     } else {
       resultText = 'You Lose!';
+      played += 1
     }
 
+
+    console.log('my score', myScore, 'their score', opponentScore)
+    
+    const handleAddStat = async () => {
+      const token = Auth.loggedIn() ? Auth.getToken() : null;
+    
+      if (!token) {
+          return false;
+      }
+
+      try {
+        const { data } = await addStats({
+          variables: {
+              userId: Auth.getProfile().data._id, 
+              stats: {
+                gamesWon: wins,
+                gamesPlayed: played
+              }
+          },
+        })
+        console.log(data)
+
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    handleAddStat()
+
     return (
-      <div className={styles.gameOverContainer}>
+      <div className={styles.gameOverContainer} style={{
+        marginTop: '100px'
+      }}>
         <h2>Game Over</h2>
         <p>Your Score: {myScore}</p>
         <p>Opponent's Score: {opponentScore}</p>
@@ -128,7 +174,9 @@ const Quiz = () => {
   }
   
   return (
-    <div className={styles.quizContainer}>
+    <div className={styles.quizContainer} style={{
+      marginTop: "100px"
+    }}>
       {error && <p className={styles.errorText}>Error: {error}</p>}
 
       {phase === 'answering' && currentQuestion && (
