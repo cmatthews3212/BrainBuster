@@ -157,13 +157,13 @@ const handleAddFriend = async (request) => {
             update: (cache, { data: { addFriend } }) => {
                 if (!addFriend) return;
 
-                // Update the current user's friends list
+                // Add only the requested friend to the current user's friends list
                 cache.modify({
                     id: cache.identify(userData),
                     fields: {
                         friends(existingFriendsRefs = []) {
                             const newFriendRef = cache.writeFragment({
-                                data: addFriend.friend, // Friend data returned from the mutation
+                                data: addFriend.friend, // Only the friend data
                                 fragment: gql`
                                     fragment NewFriend on User {
                                         _id
@@ -172,32 +172,16 @@ const handleAddFriend = async (request) => {
                                     }
                                 `
                             });
-                            return [...existingFriendsRefs, newFriendRef];
-                        }
-                    }
-                });
 
-                // Update the added friend's friends list to include the current user
-                cache.modify({
-                    id: cache.identify(addFriend.friend),
-                    fields: {
-                        friends(existingFriendsRefs = []) {
-                            const currentUserRef = cache.writeFragment({
-                                data: addFriend.user,
-                                fragment: gql`
-                                    fragment CurrentUser on User {
-                                        _id
-                                        firstName
-                                        lastName
-                                    }
-                                `
-                            });
-                            return [...existingFriendsRefs, currentUserRef];
+                            // Prevent self-addition: only add if friend ID is different from user ID
+                            return addFriend.friend._id !== userData._id && 
+                                !existingFriendsRefs.some(ref => ref.__ref === newFriendRef.__ref)
+                                ? [...existingFriendsRefs, newFriendRef]
+                                : existingFriendsRefs;
                         }
                     }
                 });
             }
-           
         });
 
         if (data.addFriend.success) {
