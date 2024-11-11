@@ -78,4 +78,50 @@
     background-color: rgb(255, 64, 129);
     color: white;
     border: none;
-} 
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.change-avatar-btn:hover {
+    background-color: rgb(230, 50, 110);
+    transform: translateY(-2px);
+}
+
+/* Updated Friends List Header Style */
+.friends-list {
+    width: 100%;
+}
+
+.friends-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #edf2f7;
+}
+
+.friends-list-header h2 {
+    color: #2d3748;
+    font-size: 1.5rem;
+    margin: 0; /* Remove default margin */
+}
+
+.find-friends-btn {
+    background-color: rgb(255, 64, 129);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.find-friends-btn:hover {
+    background-color: rgb(230, 50, 110);
+    transform: translateY(-2px);
+}

@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 const FriendsList = ({ userData, handleRemoveFriend, navigate }) => {
     return (
         <div className='friends-list'>
-            <h2>Your Friends</h2>
-            <button onClick={() => navigate('/find')} className="find-friends-btn">
-                Find Friends!
-            </button>
+            <div className='friends-list-header'>
+                <h2>Your Friends</h2>
+                <button onClick={() => navigate('/find')} className="find-friends-btn">
+                    Find Friends!
+                </button>
+            </div>
             <div className='friends-grid'>
                 {userData?.friends ? (
                     userData.friends.map((friend) => (

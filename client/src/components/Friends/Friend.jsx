@@ -7,6 +7,7 @@ import { ADD_FRIEND } from "../../utils/mutations";
 import { SEND_FRIEND_REQUEST } from "../../utils/mutations";
 import { GET_ME, QUERY_USER } from "../../utils/queries";
 import Auth from "../../utils/auth";
+import './Friend.css';
 
 const FriendSelect = ({ friend, onClear, gameId }) => {
     
@@ -65,7 +66,13 @@ const FriendSelect = ({ friend, onClear, gameId }) => {
             marginTop: '100px'
         }}>
             <div>
-             <img src={friend.avatar.src}></img>
+                {friend.avatar?.src ? (
+                    <img src={friend.avatar.src} alt={`${friend.firstName}'s avatar`} />
+                ) : (
+                    <div className="default-avatar">
+                        {friend.firstName.charAt(0)}
+                    </div>
+                )}
             </div>
             <div>
             <h2>{friend.firstName} {friend.lastName}</h2>
