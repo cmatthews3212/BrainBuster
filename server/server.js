@@ -270,7 +270,7 @@ io.on("connection", (socket) => {
   //}
 
    
-  )
+  })
 
   socket.on("submitAnswer", ({ gameId, questionIndex, answer }) => {
     const game = games[gameId];
