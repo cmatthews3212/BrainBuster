@@ -60,14 +60,41 @@ const handleRemoveFriend = async (friend) => {
                 userId: Auth.getProfile().data._id, 
                 friendId: friend._id
             },
+            update: (cache) => {
+                // Remove friend from the current user's friends list
+                cache.modify({
+                    id: cache.identify(userData),
+                    fields: {
+                        friends(existingFriendsRefs = [], { readField }) {
+                            return existingFriendsRefs.filter(
+                                (friendRef) => readField('_id', friendRef) !== friend._id
+                            );
+                        }
+                    }
+                });
+
+                // Remove current user from the friend's friends list
+                cache.modify({
+                    id: cache.identify(friend),
+                    fields: {
+                        friends(existingFriendsRefs = [], { readField }) {
+                            return existingFriendsRefs.filter(
+                                (userRef) => readField('_id', userRef) !== userData._id
+                            );
+                        }
+                    }
+                });
+            }
         });
+            
+        
         console.log('friend removed')
         console.log(data)
     } catch (err) {
         console.error(err)
     }
 
-    window.location.reload();
+    // window.location.reload();
 }
 
 
@@ -85,6 +112,19 @@ const handleDecline = async (request) => {
                 friendId: request._id,
             
             },
+            update: (cache) => {
+                // Remove the declined friend request from the current user's friendRequests list
+                cache.modify({
+                    id: cache.identify(userData),
+                    fields: {
+                        friendRequests(existingRequestsRefs = [], { readField }) {
+                            return existingRequestsRefs.filter(
+                                (requestRef) => readField('_id', requestRef) !== request._id
+                            );
+                        }
+                    }
+                });
+            }
         });
         console.log('friend request declined')
         console.log(data)
@@ -92,7 +132,7 @@ const handleDecline = async (request) => {
         console.error(err)
     }
 
-    window.location.reload();
+    // window.location.reload();
 }
 
 
@@ -115,30 +155,48 @@ const handleAddFriend = async (request) => {
                 friendId: request._id 
             },
             update: (cache, { data: { addFriend } }) => {
-                // Add friend to the cache for the current user
+                if (!addFriend) return;
+
+                // Update the current user's friends list
                 cache.modify({
-                  fields: {
-                    me(existingUserData = {}) {
-                      const newFriend = addFriend.friend; // friend object from the response
-                      return {
-                        ...existingUserData,
-                        friends: [...existingUserData.friends, newFriend]
-                      };
+                    id: cache.identify(userData),
+                    fields: {
+                        friends(existingFriendsRefs = []) {
+                            const newFriendRef = cache.writeFragment({
+                                data: addFriend.friend, // Friend data returned from the mutation
+                                fragment: gql`
+                                    fragment NewFriend on User {
+                                        _id
+                                        firstName
+                                        lastName
+                                    }
+                                `
+                            });
+                            return [...existingFriendsRefs, newFriendRef];
+                        }
                     }
-                  }
                 });
-        
-                // Add current user to the friend's cache
+
+                // Update the added friend's friends list to include the current user
                 cache.modify({
-                  id: cache.identify(addFriend.friend),
-                  fields: {
-                    friends(existingFriends = []) {
-                      return [...existingFriends, addFriend.user]; // current user added to friend's list
+                    id: cache.identify(addFriend.friend),
+                    fields: {
+                        friends(existingFriendsRefs = []) {
+                            const currentUserRef = cache.writeFragment({
+                                data: addFriend.user,
+                                fragment: gql`
+                                    fragment CurrentUser on User {
+                                        _id
+                                        firstName
+                                        lastName
+                                    }
+                                `
+                            });
+                            return [...existingFriendsRefs, currentUserRef];
+                        }
                     }
-                  }
                 });
-              }
-                
+            }
            
         });
 
@@ -151,7 +209,7 @@ const handleAddFriend = async (request) => {
         console.error(err)
     }
     
-    window.location.reload();
+    // window.location.reload();
     handleDecline(request);
 }
 

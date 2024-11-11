@@ -27,6 +27,7 @@ const io = socketIo(gameServer, {
     credentials: true,
   },
 });
+console.log('socket', io.sockets.sockets.keys())
 
 const startApolloServer = async () => {
   await server.start();
@@ -172,36 +173,6 @@ const startGameLoop = (gameId) => {
 };
 
 
-io.on("connection", (socket) => {
-  console.log(`A player connected: ${socket.id}`);
-
-  // Handle 'createGame' event
-  socket.on("createGame", ({ gameId, category, difficulty }) => {
-    if (games[gameId]) {
-      socket.emit('error', { message: 'Game ID already exists.' });
-      return;
-    }
-
-    games[gameId] = {
-      player1: socket.id,
-      player2: null,
-      category,
-      difficulty,
-      questions: [],
-      answers: {},
-      scores: {},
-      timers: {},
-      ready: {},
-    };
-
-    games[gameId].answers[socket.id] = {};
-    games[gameId].scores[socket.id] = 0;
-    games[gameId].ready[socket.id] = false; 
-
-    socket.join(gameId);
-    socket.emit("waitingForOpponent");
-    console.log(`Game ${gameId} created by ${socket.id}`);
-  });
 
   socket.on("joinGame", async ({ gameId }) => {
     console.log(`${socket.id} attempting to join game ${gameId}`);
@@ -252,12 +223,20 @@ io.on("connection", (socket) => {
   });
 
   socket.on('gameInvite', ({ gameId, friendId, inviterId, senderName }) => {
-    io.to(friendId).emit('gameInviteReceived', {
+    console.log('sending invite to ', { gameId, friendId, inviterId, senderName})
+
+    const recipientSocketId = users[friendId];
+
+    if (recipientSocketId){
+  
+    io.to(recipientSocketId).emit('gameInviteReceived', {
       gameId,
       inviterId,
-      friendId,
       senderName,
-    })
+    });
+  }
+
+   
   })
 
   socket.on("submitAnswer", ({ gameId, questionIndex, answer }) => {
@@ -284,6 +263,13 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log(`Player disconnected: ${socket.id}`);
+    for (let userId in users) {
+      if (users[userId] === socket.id) {
+        delete users[userId];
+        console.log(`User ${userId} disconnected`);
+        break;
+      }
+    }
 
     for (let gameId in games) {
       const game = games[gameId];

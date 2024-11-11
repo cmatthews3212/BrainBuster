@@ -14,9 +14,10 @@ function Dashboard() {
   const [gameId, setGameId] = useState(null)
   const [inviteName, setInviteName] = useState(null) 
   const { loading, error, data } = useQuery(GET_ME);
-  console.log(data)
+  // console.log(data)
   const me = data?.me || {}
-
+  console.log(me)
+  console.log(socket)
   const handleCreateGame = () => {
     navigate('/create-game');
   };
@@ -26,11 +27,13 @@ function Dashboard() {
       gameId,
       opponentId: invitingPlayer,
     })
-
+    if (gameId){
       navigate(`/lobby/${gameId}`)
+
+    } 
     
   }
-
+ 
   useEffect(() => {
     const handleInviteReceived = (gameData) => {
       const { gameId, inviterId, friendId, senderName } = gameData;
@@ -45,17 +48,25 @@ function Dashboard() {
 
 
     }
-
+    
     socket.on('gameInviteReceived', handleInviteReceived)
-
+    
     return () => {
       socket.off('gameInviteReceived', handleInviteReceived)
     }
   }, [me])
+  
+  
+  socket.on('connection', () => {
+    console.log('Connected to the socket server');
+    if (me._id) {
+      socket.emit('authenticated', me._id);
+    }
+  });
 
-
- 
-
+socket.on('gameInviteReceived', (data) => {
+  console.log("game Invite", data)
+})
 
 
 
