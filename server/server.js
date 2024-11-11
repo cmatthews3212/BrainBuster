@@ -260,11 +260,9 @@ io.on("connection", (socket) => {
   socket.on('gameInvite', ({ gameId, friendId, inviterId, senderName }) => {
     console.log('sending invite to ', { gameId, friendId, inviterId, senderName})
 
-    const recipientSocketId = users[friendId];
-
-    if (recipientSocketId){
+    
   
-    io.to(recipientSocketId).emit('gameInviteReceived', {
+    io.to(friendId).emit('gameInviteReceived', {
       gameId,
       inviterId,
       senderName,
@@ -272,7 +270,7 @@ io.on("connection", (socket) => {
   }
 
    
-  })
+  )
 
   socket.on("submitAnswer", ({ gameId, questionIndex, answer }) => {
     const game = games[gameId];
@@ -309,13 +307,13 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log(`Player disconnected: ${socket.id}`);
-    for (let userId in users) {
-      if (users[userId] === socket.id) {
-        delete users[userId];
-        console.log(`User ${userId} disconnected`);
-        break;
-      }
-    }
+    // for (let userId in users) {
+    //   if (users[userId] === socket.id) {
+    //     delete users[userId];
+    //     console.log(`User ${userId} disconnected`);
+    //     break;
+    //   }
+    // }
 
     for (let gameId in games) {
       const game = games[gameId];

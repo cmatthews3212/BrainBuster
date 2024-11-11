@@ -78,7 +78,7 @@ const FriendSelect = ({ friend, onClear, gameId }) => {
             <div>
                 {data.me.friends ? (
                    data.me.friends.map((meFriend) => (
-                    meFriend._id === friend._id ? <h3>You are friends!</h3> : <button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
+                    meFriend._id === friend._id ? <h3>You are friends!</h3> : <p>You are not friends!</p>
                    ))
                 ) : (
                     <>
@@ -86,8 +86,7 @@ const FriendSelect = ({ friend, onClear, gameId }) => {
                     </>
                 )}
 
-                
-
+<button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
                 
 
                

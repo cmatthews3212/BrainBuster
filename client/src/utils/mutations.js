@@ -180,3 +180,13 @@ export const UPDATE_AVATAR = gql`
     }
   }
 `;
+
+export const ADD_STATS = gql`
+  mutation addStats($userId: ID!, $stats: StatsInput) {
+    addStats(userId: $userId, stats: $stats){
+        gamesPlayed
+        gamesWon
+      
+    }
+  }
+`;
