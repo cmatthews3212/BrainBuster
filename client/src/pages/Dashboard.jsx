@@ -5,10 +5,12 @@ import { useMutation, useQuery } from '@apollo/client';
 import { GET_ME, QUERY_USERS } from '../utils/queries';
 import socket from '../socket';
 import Auth from '../utils/auth'
+import { useTheme } from './ThemeContext.jsx';
 
 function Dashboard() {
   const navigate = useNavigate();
   const [showGameOptions, setShowGameOptions] = useState(false);
+  const { theme } = useTheme();
   const [inviteReceived, setInviteReceived] = useState(false);
   const [invitingPlayer, setInvitingPlayer] = useState(null);
   const [gameId, setGameId] = useState(null)
@@ -34,6 +36,10 @@ function Dashboard() {
     
   }
  
+  const handlePlay = () => {
+    navigate('/home');
+  };
+
   useEffect(() => {
     const handleInviteReceived = (gameData) => {
       const { gameId, inviterId, friendId, senderName } = gameData;
@@ -89,7 +95,7 @@ socket.on('gameInviteReceived', (data) => {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Main content - adjusted to account for navbar */}
       <div className="dashboard-container" style={{ 
-        backgroundColor: '#A7FFEB',
+        backgroundColor: theme.colors.background,
         flex: 1,
         padding: '2rem',
         display: 'grid',
@@ -99,7 +105,7 @@ socket.on('gameInviteReceived', (data) => {
       }}>
         {/* Sidebar */}
         <div className="sidebar" style={{ 
-          backgroundColor: '#FFFFFF',
+          backgroundColor: theme.colors.card,
           borderRadius: '12px',
           padding: '2rem',
           boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
@@ -137,16 +143,19 @@ socket.on('gameInviteReceived', (data) => {
               <span>🧑</span>
               <span>Customize Avatar</span>
             </Link>
-            <Link to="/themes" style={{ 
-              color: '#7E57C2',
-              textDecoration: 'none',
-              padding: '1rem',
-              borderRadius: '8px',
-              backgroundColor: '#F5F5F5',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}>
+            <Link 
+              to="/themes" 
+              style={{ 
+                color: '#7E57C2',
+                textDecoration: 'none',
+                padding: '1rem',
+                borderRadius: '8px',
+                backgroundColor: '#F5F5F5',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem'
+              }}
+            >
               <span>🎨</span>
               <span>Themes</span>
             </Link>
@@ -165,7 +174,7 @@ socket.on('gameInviteReceived', (data) => {
             <h2 style={{ color: '#7E57C2', marginBottom: '1.5rem' }}>{inviteName} has invited you to a game!</h2>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button 
-                onClick={handleJoinGame}
+                onClick={handlePlay}
                 style={{ 
                   backgroundColor: '#FF4081',
                   color: '#FFFFFF',
@@ -183,7 +192,7 @@ socket.on('gameInviteReceived', (data) => {
                   }
                 }}
               >
-                Join Game
+                PLAY
               </button>
             </div>
 
@@ -210,7 +219,6 @@ socket.on('gameInviteReceived', (data) => {
                 >
                   Create New Game
                 </button>
-                <JoinGame />
               </div>
             )}
           </div>

@@ -85,6 +85,7 @@ function Nav() {
               <Link 
                 to="/home" 
                 className={styles.navItem}
+                onClick={() => setIsOpen(false)} 
                 style={{
                   color: '#7E57C2',
                   textDecoration: 'none',
@@ -102,6 +103,7 @@ function Nav() {
               <Link 
                 to="/profile" 
                 className={styles.navItem}
+                onClick={() => setIsOpen(false)} 
                 style={{
                   color: '#7E57C2',
                   textDecoration: 'none',
@@ -119,6 +121,7 @@ function Nav() {
               <Link 
                 to="/leaderboard" 
                 className={styles.navItem}
+                onClick={() => setIsOpen(false)} 
                 style={{
                   color: '#7E57C2',
                   textDecoration: 'none',
@@ -136,6 +139,7 @@ function Nav() {
               <Link 
                 to="/dashboard" 
                 className={styles.navItem}
+                onClick={() => setIsOpen(false)} 
                 style={{
                   color: '#7E57C2',
                   textDecoration: 'none',
@@ -152,7 +156,10 @@ function Nav() {
               </Link>
               <a 
                 href="/" 
-                onClick={() => Auth.logout()}
+                onClick={() => {
+                  Auth.logout();
+                  setIsOpen(false);
+                }}
                 className={styles.navItem}
                 style={{
                   color: '#FF4081',

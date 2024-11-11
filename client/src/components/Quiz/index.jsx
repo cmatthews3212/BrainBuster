@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import socket from '../../socket';
+import styles from './quiz.module.css';
+
 
 const Quiz = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(null);
@@ -18,27 +21,31 @@ const Quiz = () => {
   const [error, setError] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
 
+  const totalQuestions = location.state?.totalQuestions || 0;
+  
   useEffect(() => {
     if (!gameId) {
-      setError('Missing game ID.');
+      console.log('Missing game ID.');
       return;
     }
 
+    socket.on('gameStarted', handleGameStarted);
     socket.on('newQuestion', handleNewQuestion);
     socket.on('showAnswer', handleShowAnswer);
     socket.on('gameOver', handleGameOver);
 
     socket.on('opponentLeft', () => {
-      setError('Opponent has left the game.');
+      console.log('Opponent has left the game.');
       navigate('/');
     });
 
     socket.on('error', (data) => {
-      setError(data.message);
+      console.log(data.message);
       navigate('/');
     });
 
     return () => {
+      socket.off('gameStarted', handleGameStarted);
       socket.off('newQuestion', handleNewQuestion);
       socket.off('showAnswer', handleShowAnswer);
       socket.off('gameOver', handleGameOver);
@@ -46,6 +53,12 @@ const Quiz = () => {
       socket.off('error');
     };
   }, [gameId, navigate]);
+
+  const handleGameStarted = (data) => {
+    const { totalQuestions } = data;
+    setTotalQuestions(totalQuestions);
+    console.log(`Quiz: Total Questions set to ${totalQuestions}`);
+  };
 
   const handleNewQuestion = (data) => {
     const { questionIndex, question, answers } = data;
@@ -58,7 +71,7 @@ const Quiz = () => {
     setSelectedAnswer(null);
     setCorrectAnswer(null);
     setPhase('answering');
-    setTimeLeft(20); 
+    setTimeLeft(10); 
   };
   
   const handleShowAnswer = (data) => {
@@ -73,7 +86,7 @@ const Quiz = () => {
 
     setSelectedAnswer(userAnswer);
     setPhase('feedback');
-    setTimeLeft(10); 
+    setTimeLeft(5); 
   };
   
   const handleGameOver = (data) => {
@@ -92,7 +105,6 @@ const Quiz = () => {
   
   if (gameOver) {
     const myScore = finalScores[socket.id] || 0;
-    const opponentId = Object.keys(finalScores).find(id => id !== socket.id);
     const opponentScore = finalScores[opponentId] || 0;
 
     let resultText;
@@ -105,7 +117,7 @@ const Quiz = () => {
     }
 
     return (
-      <div className="game-over-container">
+      <div className={styles.gameOverContainer}>
         <h2>Game Over</h2>
         <p>Your Score: {myScore}</p>
         <p>Opponent's Score: {opponentScore}</p>
@@ -116,20 +128,20 @@ const Quiz = () => {
   }
   
   return (
-    <div className="quiz-container">
-      {error && <p className="error-text">Error: {error}</p>}
+    <div className={styles.quizContainer}>
+      {error && <p className={styles.errorText}>Error: {error}</p>}
 
       {phase === 'answering' && currentQuestion && (
         <div>
-          <h3>Question {currentQuestionIndex + 1}</h3>
+          <h3>Question {currentQuestionIndex + 1} of {totalQuestions}</h3>
           <p>{decodeHtml(currentQuestion.question)}</p>
-          <ul>
+          <ul className={styles.answersList}>
             {currentQuestion.answers.map((answer, idx) => (
               <li key={idx}>
                 <button
                   onClick={() => handleAnswerClick(answer)}
                   disabled={selectedAnswer !== null}
-                  className={selectedAnswer === answer ? 'selected' : ''}
+                  className={`${styles.answerButton} ${selectedAnswer === answer ? styles.selected : ''}`}
                 >
                   {decodeHtml(answer)}
                 </button>
@@ -142,18 +154,18 @@ const Quiz = () => {
 
       {phase === 'feedback' && currentQuestion && (
         <div>
-          <h3>Question {currentQuestionIndex + 1} Results</h3>
+          <h3>Question {currentQuestionIndex + 1} of {totalQuestions} Results</h3>
 
           {selectedAnswer ? (
             selectedAnswer === decodeHtml(correctAnswer) ? (
-              <p className="correct">Correct!</p>
+              <p className={styles.correct}>Correct!</p>
             ) : (
-              <p className="incorrect">
+              <p className={styles.incorrect}>
                 Incorrect! The correct answer is: {decodeHtml(correctAnswer)}
               </p>
             )
           ) : (
-            <p className="incorrect">
+            <p className={styles.incorrect}>
               Time's up! The correct answer is: {decodeHtml(correctAnswer)}
             </p>
           )}
