@@ -12,7 +12,6 @@ import { ADD_STATS } from "../../utils/mutations";
 const Quiz = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(null);
@@ -22,7 +21,6 @@ const Quiz = () => {
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [finalScores, setFinalScores] = useState({});
-  const [opponentId, setOpponentId] = useState(null)
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
@@ -30,15 +28,68 @@ const Quiz = () => {
   const [addStats] = useMutation(ADD_STATS)
   const usersArray = data.users
   console.log(usersArray)
-
-  const totalQuestions = location.state?.totalQuestions || 0;
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [opponentId, setOpponentId] = useState(null);
   
+  const handleGameStarted = (data) => {
+    const { totalQuestions, opponentId } = data;
+    setTotalQuestions(totalQuestions);
+    setOpponentId(opponentId);
+    console.log(`Quiz: Total Questions set to ${totalQuestions}`);
+    console.log(`Quiz: Opponent ID set to ${opponentId}`);
+  };
+  
+  const handleNewQuestion = (data) => {
+    const { questionIndex, question, answers, totalQuestions: tq } = data;
+
+    if (tq && tq !== totalQuestions) {
+      setTotalQuestions(tq);
+    }
+    
+    setCurrentQuestion({
+      question,
+      answers,
+    });
+    setCurrentQuestionIndex(questionIndex);
+    setSelectedAnswer(null);
+    setCorrectAnswer(null);
+    setPhase('answering');
+    setTimeLeft(10); 
+  };
+  
+  const handleShowAnswer = (data) => {
+    const { questionIndex, correctAnswer, players } = data;
+
+    setCorrectAnswer(correctAnswer);
+
+    const userAnswer = players[socket.id] || '';
+
+    if (userAnswer === correctAnswer) {
+      setScore((prev) => prev + 1);
+    }
+
+    setSelectedAnswer(userAnswer);
+    setPhase('feedback');
+    setTimeLeft(10); 
+  };
+
+  const handleGameOver = (data) => {
+    const { scores, result } = data;
+    setFinalScores(scores);
+    setResult(result);
+    setGameOver(true);
+
+    console.log('Final Scores:', scores);
+    console.log('Game Result:', result);
+  };
+
+
   useEffect(() => {
     if (!gameId) {
       console.log('Missing game ID.');
       return;
     }
-
+    
     socket.on('gameStarted', handleGameStarted);
     socket.on('newQuestion', handleNewQuestion);
     socket.on('showAnswer', handleShowAnswer);
@@ -64,49 +115,16 @@ const Quiz = () => {
     };
   }, [gameId, navigate]);
 
-  const handleGameStarted = (data) => {
-    const { totalQuestions, opponentId } = data;
-    setTotalQuestions(totalQuestions);
-    setOpponentId(opponentId)
-    console.log(`Quiz: Total Questions set to ${totalQuestions}`);
-  };
-
-  const handleNewQuestion = (data) => {
-    const { questionIndex, question, answers } = data;
-
-    setCurrentQuestion({
-      question,
-      answers,
-    });
-    setCurrentQuestionIndex(questionIndex);
-    setSelectedAnswer(null);
-    setCorrectAnswer(null);
-    setPhase('answering');
-    setTimeLeft(10); 
-  };
-  
-  const handleShowAnswer = (data) => {
-    const { questionIndex, correctAnswer, players } = data;
-
-    setCorrectAnswer(correctAnswer);
-
-    const userAnswer = players[socket.id];
-    if (userAnswer === correctAnswer) {
-      setScore((prev) => prev + 1);
+  useEffect(() => {
+    if (gameOver) {
+      console.log('Game Over Triggered');
+      console.log('Opponent ID:', opponentId);
+      console.log('Final Scores:', finalScores);
+      console.log(`My Score: ${finalScores[socket.id] || 0}`);
+      console.log(`Opponent's Score: ${finalScores[opponentId] || 0}`);
     }
-
-    setSelectedAnswer(userAnswer);
-    setPhase('feedback');
-    setTimeLeft(5); 
-  };
+  }, [gameOver, finalScores, opponentId]);
   
-  const handleGameOver = (data) => {
-    const { scores, result } = data;
-    setFinalScores(scores);
-    setResult(result);
-    setGameOver(true);
-  };
-
   useEffect(() => {
     if (timeLeft > 0) {
       const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -116,10 +134,17 @@ const Quiz = () => {
   
   if (gameOver) {
     const myScore = finalScores[socket.id] || 0;
-    const opponentScore = finalScores[opponentId] || 0;
+    const opponentEntry = Object.entries(finalScores).find(([id, score]) => id !== socket.id);
+    const opponentScore = opponentEntry ? opponentEntry[1] : 0;
+
+    console.log(`My Socket ID: ${socket.id}`);
+    console.log(`Opponent Socket ID: ${opponentEntry ? opponentEntry[0] : 'Not Found'}`);
+    console.log(`My Score: ${myScore}`);
+    console.log(`Opponent's Score: ${opponentScore}`);
     let wins = 0;
     let played = 0;
     let resultText;
+
     if (result.winner === socket.id) {
       resultText = 'You Win!';
       wins += 1
@@ -132,33 +157,7 @@ const Quiz = () => {
       played += 1
     }
 
-
-    console.log('my score', myScore, 'their score', opponentScore)
-    
-    const handleAddStat = async () => {
-      const token = Auth.loggedIn() ? Auth.getToken() : null;
-    
-      if (!token) {
-          return false;
-      }
-
-      try {
-        const { data } = await addStats({
-          variables: {
-              userId: Auth.getProfile().data._id, 
-              stats: {
-                gamesWon: wins,
-                gamesPlayed: played
-              }
-          },
-        })
-        console.log(data)
-
-      } catch (err) {
-        console.error(err)
-      }
-    }
-    handleAddStat()
+    console.log(`My Score: ${myScore}, Opponent's Score: ${opponentScore}`);
 
     return (
       <div className={styles.gameOverContainer} style={{
