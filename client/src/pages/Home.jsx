@@ -3,7 +3,7 @@ import { QUERY_USERS } from "../utils/queries";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
 import { SET_USERS } from "../utils/actions";
-import JoinGame from "../components/Game/JoinGame";
+
 import { useNavigate } from "react-router-dom";
 import AuthService from "../utils/auth";
 import Navbar from "../components/Nav";

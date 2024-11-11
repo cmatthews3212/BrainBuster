@@ -262,12 +262,12 @@ io.on("connection", (socket) => {
 
     
   
-    // io.to(recipientSocketId).emit('gameInviteReceived', {
-    //   gameId,
-    //   inviterId,
-    //   senderName,
-    // });
-  //}
+    io.to(friendId).emit('gameInviteReceived', {
+      gameId,
+      inviterId,
+      senderName,
+    });
+  }
 
    
   )

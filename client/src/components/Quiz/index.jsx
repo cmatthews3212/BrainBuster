@@ -28,6 +28,8 @@ const Quiz = () => {
   const [correctAnswer, setCorrectAnswer] = useState(null);
   const {loading, data} = useQuery(QUERY_USERS);
   const [addStats] = useMutation(ADD_STATS)
+  let wins = 0;
+  let played = 0;
   const usersArray = data.users
   console.log(usersArray)
 
@@ -113,12 +115,35 @@ const Quiz = () => {
       return () => clearTimeout(timerId);
     }
   }, [timeLeft]);
+
+  const handleAddStat = async (wins, played) => {
+    const token = Auth.loggedIn() ? Auth.getToken() : null;
+  
+    if (!token) {
+        return false;
+    }
+
+    try {
+      const { data } = await addStats({
+        variables: {
+            userId: Auth.getProfile().data._id, 
+            stats: {
+              gamesWon: wins,
+              gamesPlayed: played
+            }
+        },
+      })
+      console.log(data)
+
+    } catch (err) {
+      console.error(err)
+    }
+  }
   
   if (gameOver) {
     const myScore = finalScores[socket.id] || 0;
     const opponentScore = finalScores[opponentId] || 0;
-    let wins = 0;
-    let played = 0;
+   
     let resultText;
     if (result.winner === socket.id) {
       resultText = 'You Win!';
@@ -135,30 +160,8 @@ const Quiz = () => {
 
     console.log('my score', myScore, 'their score', opponentScore)
     
-    const handleAddStat = async () => {
-      const token = Auth.loggedIn() ? Auth.getToken() : null;
-    
-      if (!token) {
-          return false;
-      }
-
-      try {
-        const { data } = await addStats({
-          variables: {
-              userId: Auth.getProfile().data._id, 
-              stats: {
-                gamesWon: wins,
-                gamesPlayed: played
-              }
-          },
-        })
-        console.log(data)
-
-      } catch (err) {
-        console.error(err)
-      }
-    }
-    handleAddStat()
+  
+    handleAddStat(wins, played);
 
     return (
       <div className={styles.gameOverContainer} style={{

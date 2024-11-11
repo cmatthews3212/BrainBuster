@@ -259,10 +259,10 @@ const resolvers = {
       //   return user.avatar;
     },
     addStats: async (parent, { userId, stats }, context) => {
-      if (!context.user) {
-        console.error('Please log in');
-        throw new AuthenticationError('Please log in.');
-      }
+      // if (!context.user) {
+      //   console.error('Please log in');
+      //   throw new AuthenticationError('Please log in.');
+      // }
 
       const user = await User.findById(userId);
 

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import JoinGame from '../components/Game/JoinGame';
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_ME, QUERY_USERS } from '../utils/queries';
 import socket from '../socket';
