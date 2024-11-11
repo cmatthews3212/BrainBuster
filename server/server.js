@@ -26,6 +26,7 @@ const io = socketIo(gameServer, {
     credentials: true,
   },
 });
+console.log('socket', io.sockets.sockets.keys())
 
 const startApolloServer = async () => {
   await server.start();
@@ -257,12 +258,20 @@ io.on("connection", (socket) => {
   });
 
   socket.on('gameInvite', ({ gameId, friendId, inviterId, senderName }) => {
-    io.to(friendId).emit('gameInviteReceived', {
+    console.log('sending invite to ', { gameId, friendId, inviterId, senderName})
+
+    const recipientSocketId = users[friendId];
+
+    if (recipientSocketId){
+  
+    io.to(recipientSocketId).emit('gameInviteReceived', {
       gameId,
       inviterId,
-      friendId,
       senderName,
-    })
+    });
+  }
+
+   
   })
 
   socket.on("submitAnswer", ({ gameId, questionIndex, answer }) => {
@@ -300,6 +309,13 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log(`Player disconnected: ${socket.id}`);
+    for (let userId in users) {
+      if (users[userId] === socket.id) {
+        delete users[userId];
+        console.log(`User ${userId} disconnected`);
+        break;
+      }
+    }
 
     for (let gameId in games) {
       const game = games[gameId];

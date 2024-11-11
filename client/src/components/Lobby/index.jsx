@@ -18,7 +18,7 @@ const Lobby = () => {
   const {loading, data} = useQuery(GET_ME)
   const me = data?.me || {}
   
-  console.log(me)
+  // console.log(me)
   useEffect(() => {
     
     if (!gameId) return;
@@ -42,7 +42,7 @@ const Lobby = () => {
       setOpponent(null);
       console.log('Opponent left game.')
     };
-    
+    console.log(socket)
     
     
     const handleGameInviteRecieved = (gameData) => {
@@ -68,8 +68,9 @@ const Lobby = () => {
       gameId,
       friendId,
       inviterId,
-      senderName: `${me.firstName} ${me.lastName}`
+      senderName: `${Auth.getProfile().data.firstName} ${me.lastName}`
     })
+    console.log('invite send', { gameId, friendId, inviterId })
 
     setInviteSent(true)
   }
@@ -81,6 +82,8 @@ const Lobby = () => {
       opponentId: invitingPlayer,
     })
   }
+
+  console.log(data)
   
   const handleDeclineInvite = () => {
     console.log(`Declining invite from ${invitingPlayer}`) 
@@ -127,7 +130,7 @@ const Lobby = () => {
             me.friends.map((friend) =>(
               <>
               {/* <li>{friend.firstName} {friend.lastName}</li> */}
-              <button onClick={handleInvite(friend._id)} key={friend._id} style={{
+              <button onClick={() => handleInvite(friend._id)} key={friend._id} style={{
                 margin: '10px'
               }}>Invite {friend.firstName} {friend.lastName} to this game!</button>
               </>

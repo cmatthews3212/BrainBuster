@@ -61,9 +61,11 @@ const FriendSelect = ({ friend, onClear, gameId }) => {
     console.log(friend)
     
     return (
-        <div>
+        <div className="friendView" style={{
+            marginTop: '100px'
+        }}>
             <div>
-             <img src={friend.avatar}></img>
+             <img src={friend.avatar.src}></img>
             </div>
             <div>
             <h2>{friend.firstName} {friend.lastName}</h2>
@@ -72,13 +74,11 @@ const FriendSelect = ({ friend, onClear, gameId }) => {
             <div>
                 <h3>{friend.firstName}'s Stats:</h3>
             </div>
-            <div>
-                <h3>{friend.firstName}'s </h3>
-            </div>
+            
             <div>
                 {data.me.friends ? (
                    data.me.friends.map((meFriend) => (
-                    meFriend._id === friend._id ? <button>Invite {friend.firstName} to a Game!</button> : <p>You need to be friends to invite someone to a game</p>
+                    meFriend._id === friend._id ? <h3>You are friends!</h3> : <button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
                    ))
                 ) : (
                     <>
@@ -88,7 +88,7 @@ const FriendSelect = ({ friend, onClear, gameId }) => {
 
                 
 
-                <button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
+                
 
                
             </div>
