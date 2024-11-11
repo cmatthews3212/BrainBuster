@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import socket from '../../socket';
 import styles from './quiz.module.css';
+import Auth from '../../utils/auth'
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_ME, QUERY_USERS } from "../../utils/queries";
+import { ADD_STATS } from "../../utils/mutations";
+
 
 
 const Quiz = () => {
@@ -19,6 +24,10 @@ const Quiz = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
+  const {loading, data} = useQuery(QUERY_USERS);
+  const [addStats] = useMutation(ADD_STATS)
+  const usersArray = data.users
+  console.log(usersArray)
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [opponentId, setOpponentId] = useState(null);
   
@@ -132,21 +141,28 @@ const Quiz = () => {
     console.log(`Opponent Socket ID: ${opponentEntry ? opponentEntry[0] : 'Not Found'}`);
     console.log(`My Score: ${myScore}`);
     console.log(`Opponent's Score: ${opponentScore}`);
-
+    let wins = 0;
+    let played = 0;
     let resultText;
 
     if (result.winner === socket.id) {
       resultText = 'You Win!';
+      wins += 1
+      played += 1
     } else if (result.winner === null) {
       resultText = "It's a Tie!";
+      played += 1
     } else {
       resultText = 'You Lose!';
+      played += 1
     }
 
     console.log(`My Score: ${myScore}, Opponent's Score: ${opponentScore}`);
 
     return (
-      <div className={styles.gameOverContainer}>
+      <div className={styles.gameOverContainer} style={{
+        marginTop: '100px'
+      }}>
         <h2>Game Over</h2>
         <p>Your Score: {myScore}</p>
         <p>Opponent's Score: {opponentScore}</p>
@@ -157,7 +173,9 @@ const Quiz = () => {
   }
   
   return (
-    <div className={styles.quizContainer}>
+    <div className={styles.quizContainer} style={{
+      marginTop: "100px"
+    }}>
       {error && <p className={styles.errorText}>Error: {error}</p>}
 
       {phase === 'answering' && currentQuestion && (

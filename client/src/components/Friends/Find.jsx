@@ -4,6 +4,7 @@ import { QUERY_USERS } from "../../utils/queries";
 import Profile from "../../pages/Profile";
 import FriendSelect from "./Friend";
 import { useNavigate } from "react-router-dom";
+import './Find.css';
 
 const FindFriends = () => {
     const [selectedFriend, setSelectedFriend] = useState('')
@@ -36,54 +37,36 @@ const FindFriends = () => {
     }
 
     return (
-        <div className="find-friends-container" style={{
-            marginTop: '100px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-        }}>
+        <div className="find-friends-container">
             <h2>FIND FRIENDS</h2>
-            <div>
-            <ul style={{
-                listStyle: 'none',
-                backgroundColor: 'white',
-                padding: '20px',
-                borderRadius: '12px',
-                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-            }}>
-            {friendsData ? (
-              
-                    friendsData.map((friend) => (
-                        <div>
-                            <li onClick={() => handleFriendSelect(friend)} key={friend._id}
-                                style={{
-                                    fontSize: '30px',
-                                    margin: '20px',
-                                    backgroundColor: 'rgb(255, 64, 129)',
-                                    color: 'white',
-                                    padding: '10px',
-                                    borderRadius: '10px',
-                                    textAlign: 'center',
-                                }} className="findFriendBtn">{friend.firstName} {friend.lastName}</li>
-                            
-                        </div>
-                 
-                        
-                    ))
-              
-            ) : (
-                <p>No Users Found...</p>
-            )}
-            </ul>
+            <div className="friends-list-container">
+                <ul>
+                    {friendsData ? (
+                        friendsData.map((friend) => (
+                            <li 
+                                key={friend._id}
+                                className="friend-item"
+                                onClick={() => handleFriendSelect(friend)}
+                            >
+                                <div className="friend-info">
+                                    <div className="friend-avatar">
+                                        {friend.avatar?.src ? (
+                                            <img src={friend.avatar.src} alt={`${friend.firstName}'s avatar`} />
+                                        ) : (
+                                            friend.firstName.charAt(0)
+                                        )}
+                                    </div>
+                                    <span>{friend.firstName} {friend.lastName}</span>
+                                </div>
+                            </li>
+                        ))
+                    ) : (
+                        <p className="no-users">No Users Found...</p>
+                    )}
+                </ul>
             </div>
-            
         </div>
-
-        
-    )
-
-
+    );
 }
 
 export default FindFriends;

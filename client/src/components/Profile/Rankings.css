@@ -1,0 +1,85 @@
+.rankings {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.rankings-title {
+  color: #333;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 2rem;
+}
+
+.rankings-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.rankings-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 100px;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  font-weight: bold;
+  border-bottom: 2px solid #eee;
+}
+
+.rankings-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.ranking-item {
+  display: grid;
+  grid-template-columns: 80px 1fr 100px;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+}
+
+.ranking-item:hover {
+  background-color: #f9f9f9;
+}
+
+.rank {
+  font-weight: bold;
+  color: #666;
+}
+
+.player {
+  color: #333;
+}
+
+.score {
+  font-weight: bold;
+  color: #2c5282;
+}
+
+/* Top 3 rankings special styling */
+.ranking-item:nth-child(1) .rank {
+  color: gold;
+}
+
+.ranking-item:nth-child(2) .rank {
+  color: silver;
+}
+
+.ranking-item:nth-child(3) .rank {
+  color: #cd7f32; /* bronze */
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .rankings {
+    padding: 1rem;
+  }
+  
+  .rankings-header,
+  .ranking-item {
+    grid-template-columns: 60px 1fr 80px;
+    font-size: 0.9rem;
+  }
+} 

@@ -60,7 +60,7 @@ function Dashboard() {
     return () => {
       socket.off('gameInviteReceived', handleInviteReceived)
     }
-  }, [me])
+  }, [me._id])
   
   
   socket.on('connection', () => {
@@ -174,7 +174,7 @@ socket.on('gameInviteReceived', (data) => {
             <h2 style={{ color: '#7E57C2', marginBottom: '1.5rem' }}>{inviteName} has invited you to a game!</h2>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button 
-                onClick={handlePlay}
+                onClick={() => handleJoinGame(gameId)}
                 style={{ 
                   backgroundColor: '#FF4081',
                   color: '#FFFFFF',

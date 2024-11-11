@@ -13,9 +13,15 @@ const typeDefs = gql`
     preferences: Preferences
     friends: [User]
     friendRequests: [User]
+    gameInvite: String
   }
 
   type UserStats {
+    gamesPlayed: Int
+    gamesWon: Int
+  }
+
+  input StatsInput {
     gamesPlayed: Int
     gamesWon: Int
   }
@@ -76,6 +82,7 @@ const typeDefs = gql`
   type Mutation {
     addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
     addAvatar(userId: ID!, avatar: AvatarInput): Avatar
+    addStats(userId: ID!, stats: StatsInput): User
     deleteUser(userId: ID!): User
     updateUser(firstName: String, lastName: String, email: String, password: String): User
     updateAvatar(userId: ID!, avatar: AvatarInput): Avatar

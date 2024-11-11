@@ -266,18 +266,17 @@ io.on("connection", (socket) => {
   socket.on('gameInvite', ({ gameId, friendId, inviterId, senderName }) => {
     console.log('sending invite to ', { gameId, friendId, inviterId, senderName})
 
-  },
-  //   const recipientSocketId = users[friendId];
-
-  //   if (recipientSocketId){
+    
   
-  //   io.to(recipientSocketId).emit('gameInviteReceived', {
-  //     gameId,
-  //     inviterId,
-  //     senderName,
-  //   });
-  // },
+    // io.to(recipientSocketId).emit('gameInviteReceived', {
+    //   gameId,
+    //   inviterId,
+    //   senderName,
+    // });
+  //}
 
+   
+  )
 
   socket.on("submitAnswer", ({ gameId, questionIndex, answer }) => {
     const game = games[gameId];

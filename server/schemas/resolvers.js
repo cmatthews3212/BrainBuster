@@ -258,6 +258,24 @@ const resolvers = {
       //   await user.save();
       //   return user.avatar;
     },
+    addStats: async (parent, { userId, stats }, context) => {
+      if (!context.user) {
+        console.error('Please log in');
+        throw new AuthenticationError('Please log in.');
+      }
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        console.error('User not found');
+        throw new AuthenticationError('User not found.');
+      }
+
+      user.stats = stats;
+      await user.save();
+      return user.stats;
+
+    }
   },
   // User: {
   //   avatarUrl: (user) => {
