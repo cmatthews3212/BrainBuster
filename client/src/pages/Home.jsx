@@ -7,6 +7,7 @@ import { SET_USERS } from "../utils/actions";
 import { useNavigate } from "react-router-dom";
 import AuthService from "../utils/auth";
 import Navbar from "../components/Nav";
+import JoinGame from "../components/JoinGame";
 
 const Home = () => {
   const navigate = useNavigate();
