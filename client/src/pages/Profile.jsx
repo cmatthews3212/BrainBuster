@@ -1,5 +1,7 @@
-import Avatar from '../components/Avatar/Avatars';
-import CustomizeAvatar from '../components/Avatar/CustomizeAvatar';
+import './Profile.css';
+import ProfileHeader from '../components/Profile/ProfileHeader';
+import FriendsList from '../components/Profile/FriendsList';
+import FriendRequests from '../components/Profile/FriendRequests';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
@@ -245,195 +247,33 @@ useEffect(() => {
 
 
 
-if (loading) {
-    return <p>Loading Profile...</p>
-}
+if (loading) return <p>Loading Profile...</p>;
+if (error) console.log(error);
 
-if (error) {
-    console.log(error)
-}
-                
 return (
-    
-            <div className="profile"
-            style={{
-                marginTop: '100px'
-            }}>
-
-        <div className='profile-head'
-        style={{
-            display: 'flex',
-            justifyContent: 'space-around',
-            alignItems: 'center'
-        }}>
-        <h2>Hello, {userData.firstName || "User"}</h2>
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-        }}>
-
-            {userData.avatar?.src ? (
-
-            <>
-        <img src={userData.avatar.src}
-        style={{
-            width: '150px'
-        }}></img>
-        <button className="change-avatar-btn" onClick={renderAvatarsPage}
-        style={{
-            backgroundColor: 'rgb(255, 64, 129)',
-            color: 'rgb(255, 255, 255)',
-            border: 'none',
-            borderRadius: '10px',
-            width: '150px',
-            height: '50px',
-            fontSize: '15px'
-        }}>Change Avatar</button>
-        </>
-            ) : (
-            <button className='change-avatar-btn' onClick={renderAvatarsPage}>Create Avatar</button>
-            )}
-
-        </div>
-
-        </div>
+    <div className="profile">
+        <ProfileHeader userData={userData} />
+        
         <div className='profile-info'>
-        <div>
-          
-        </div>
-
-        <div className='friends-container'
-        style={{
-            backgroundColor: 'white',
-            width: '90%',
-            borderRadius: '12px',
-            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-            display: 'flex',
-            margin: '0 auto',
-            marginTop: '20px',
-            padding: '20px'
-        }}>
-
-            <div>
-
-                <h2>Your Friends</h2>
-                <button onClick={() => navigate('/find')}style={{
-                        backgroundColor: 'rgb(255, 64, 129)',
-                        color: 'rgb(255, 255, 255)',
-                        border: 'none',
-                        borderRadius: '7px',
-                        width: '150px',
-                        padding: '10px',
-                        // height: '20px',
-                        textDecoration: 'none',
-                        fontSize: '15px',
-                        margin: '10px'
-                    }}>Find Friends!</button>
-             <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                
-                
-            }}>
-                {userData?.friends ? (userData.friends.map((friend) => (
-                    <div className='friend-div' style={{
-                        border: '3px solid white',
-                        margin: '10px',
-                        borderRadius: '10px',
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                    }}>
-                    <h3>{friend.firstName} {friend.lastName}</h3>
-                    <hr></hr>
-                    <div className='friendBtns' style={{
-                        display: 'flex',
-                        flexDirection: 'column'
-                    }}>
-                    <Link className='viewFriend' to={`/profile/${friend._id}`}
-                    style={{
-                        backgroundColor: 'rgb(255, 64, 129)',
-                        color: 'rgb(255, 255, 255)',
-                        border: 'none',
-                        borderRadius: '7px',
-                        width: '80px',
-                        padding: '10px',
-                        // height: '20px',
-                        textDecoration: 'none',
-                        fontSize: '15px',
-                        margin: '10px'
-                    }}>View Friend</Link>
-                    <button  className="removeFriend" onClick={() => handleRemoveFriend(friend)}
-                        style={{
-                            backgroundColor: 'red',
-                            color: 'rgb(255, 255, 255)',
-                            border: 'none',
-                            borderRadius: '7px',
-                            width: '100px',
-                            height: '30px',
-                            fontSize: '12px',
-                            margin: '10px'
-                        }}>Remove Friend</button>
-                        </div>
-                   
-                    </div>
-                )) ) : (
-                    <div>
-                        <p>No friends found...</p>
-                    </div>
-                )}
-                </div>
-              
+            <div className='friends-container'>
+                <FriendsList 
+                    userData={userData}
+                    handleRemoveFriend={handleRemoveFriend}
+                    navigate={navigate}
+                />
+                <FriendRequests 
+                    userData={userData}
+                    handleAddFriend={handleAddFriend}
+                    handleDecline={handleDecline}
+                />
             </div>
-                  
-            <div>
-                <h2>Friend Requests</h2>
-                {userData.friendRequests ? ( userData.friendRequests.map((request) => (
-    
-                    <div>
-                        <h3>{request.firstName} {request.lastName}</h3>
-                        <hr></hr>
-                        <button onClick={() => handleAddFriend(request)} style={{
-                            backgroundColor: 'rgb(255, 64, 129)',
-                            color: 'rgb(255, 255, 255)',
-                            border: 'none',
-                            borderRadius: '7px',
-                            width: '150px',
-                            height: '30px',
-                            fontSize: '12px',
-                            margin: '10px'
-                        }}>Accept Friend Request</button>
-                        <button onClick={() => handleDecline(request)} style={{
-                            backgroundColor: 'red',
-                            color: 'rgb(255, 255, 255)',
-                            border: 'none',
-                            borderRadius: '7px',
-                            width: '150px',
-                            height: '30px',
-                            fontSize: '12px',
-                            margin: '10px'
-                        }}>Decline Friend Request</button>
-                    </div>
-                   
-                ))  
-                  
-                ) : (
-                    <div>
-                    <p>No friend requests yet...</p>
-                    </div>
-                )}
+            
+            <div className='stats-container'>
+                <h2>Your Stats</h2>
             </div>
-
-
-
         </div>
-        <div className='stats-container'>
-        <h2>Your Stats</h2>
-
-        </div>
-        </div>
-
-
-</div>
-    )
+    </div>
+);
 }
 
 export default Profile;

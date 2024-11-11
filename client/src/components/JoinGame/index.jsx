@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import socket from '../../socket';
+import './JoinGame.css';
+import { useTheme } from '../../pages/ThemeContext';
 
 // comment
 
@@ -11,6 +13,7 @@ const JoinGame = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     const gameIdRef = useRef('');
+    const { theme } = useTheme();
 
     useEffect(() => {
         const handleGameNotFound = () => {
@@ -43,8 +46,8 @@ const JoinGame = () => {
         };
     }, [navigate]);
 
-    const handleJoinGame = () => {
-        console.log('handleJoinGame called');
+    const handleQuickPlay = () => {
+        console.log('handleQuickPlay called');
 
         if (!gameIdInput.trim()) {
             setError('Please enter a valid Game ID.')
@@ -54,26 +57,47 @@ const JoinGame = () => {
         gameIdRef.current = gameIdInput;
         setError(null);
 
-
         if (!socket.connected) {
             socket.connect();
         }
 
         console.log('Emitting joinGame with:', { gameId: gameIdInput });
-    
         socket.emit('joinGame', { gameId: gameIdInput });
     };
 
     return (
         <div className='join-game-container'>
-            <h2>Join a Game</h2>
-            <input
-                type='text'
-                placeholder='Enter Game ID'
-                value={gameIdInput}
-                onChange={(e) => setGameIdInput(e.target.value)}
-            />
-            <button onClick={handleJoinGame}>Join Game</button>
+            <div className="join-game-header">
+                <h2>Join Game</h2>
+            </div>
+            <div className="join-game-content">
+                <div className="join-game-card">
+                    <h3>Quick Play</h3>
+                    <p>Join an existing game session</p>
+                    <input
+                        type='text'
+                        placeholder='Enter Game ID'
+                        value={gameIdInput}
+                        onChange={(e) => setGameIdInput(e.target.value)}
+                    />
+                    <button 
+                        className="join-button"
+                        onClick={handleQuickPlay}
+                    >
+                        Join Game
+                    </button>
+                </div>
+
+                <div className="join-game-card">
+                    <h3>Invite Friends</h3>
+                    <p>Create a new game with friends</p>
+                    <button 
+                        className="invite-button"
+                    >
+                        Invite Friends
+                    </button>
+                </div>
+            </div>
             {error && <p className='error-text'>{error}</p>}
         </div>
     );

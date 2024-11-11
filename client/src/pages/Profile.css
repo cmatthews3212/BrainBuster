@@ -1,0 +1,127 @@
+.profile {
+    max-width: 1200px;
+    margin: 80px auto 0;
+    padding: 20px;
+}
+
+.profile-info {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+/* Profile Header */
+.profile-head {
+    background-color: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profile-head h2 {
+    font-size: 2rem;
+    color: #2d3748;
+    margin: 0;
+}
+
+.avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar-container img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Friends Container */
+.friends-container {
+    background-color: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.friends-list, .friend-requests {
+    width: 100%;
+}
+
+.friends-list h2, .friend-requests h2 {
+    color: #2d3748;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+/* Stats Container */
+.stats-container {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* Buttons */
+.change-avatar-btn {
+    background-color: rgb(255, 64, 129);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.change-avatar-btn:hover {
+    background-color: rgb(230, 50, 110);
+    transform: translateY(-2px);
+}
+
+/* Updated Friends List Header Style */
+.friends-list {
+    width: 100%;
+}
+
+.friends-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #edf2f7;
+}
+
+.friends-list-header h2 {
+    color: #2d3748;
+    font-size: 1.5rem;
+    margin: 0; /* Remove default margin */
+}
+
+.find-friends-btn {
+    background-color: rgb(255, 64, 129);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.find-friends-btn:hover {
+    background-color: rgb(230, 50, 110);
+    transform: translateY(-2px);
+}
