@@ -1,0 +1,14 @@
+.join-game-card input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.error-text {
+    color: #e53e3e;
+    margin-top: 15px;
+    text-align: center;
+} 
