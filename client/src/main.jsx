@@ -27,6 +27,7 @@ import Auth from "./utils/auth.js";
 import Themes from "./pages/Themes.jsx";
 import { ThemeProvider } from "@emotion/react";
 // import AvatarDisplay  from './components/Avatar/AvatarDisplay.jsx';
+import Stats from "./components/Profile/Stats.jsx";
 
 //additional pages for the trivia game
 // import Dashboard from './pages/Dashboard.jsx';
@@ -104,6 +105,10 @@ const router = createBrowserRouter([
       {
         path: "/themes",
         element: <Themes />,
+      },
+      {
+        path: "/stats",
+        element: <Stats />,
       },
     ],
   },
