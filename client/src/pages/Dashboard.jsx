@@ -23,15 +23,9 @@ function Dashboard() {
     navigate('/create-game');
   };
 
-  const handleJoinGame = () => {
-    socket.emit('acceptGameInvite', {
-      gameId,
-      opponentId: invitingPlayer,
-    })
-
-      navigate(`/lobby/${gameId}`)
-    
-  }
+  const handlePlay = () => {
+    navigate('/home');
+  };
 
   useEffect(() => {
     const handleInviteReceived = (gameData) => {
@@ -159,7 +153,7 @@ function Dashboard() {
             <h2 style={{ color: '#7E57C2', marginBottom: '1.5rem' }}>{inviteName} has invited you to a game!</h2>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button 
-                onClick={handleJoinGame}
+                onClick={handlePlay}
                 style={{ 
                   backgroundColor: '#FF4081',
                   color: '#FFFFFF',
@@ -177,7 +171,7 @@ function Dashboard() {
                   }
                 }}
               >
-                Join Game
+                PLAY
               </button>
             </div>
 
