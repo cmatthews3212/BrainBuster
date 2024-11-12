@@ -2,24 +2,33 @@ const { User, Game } = require('../models');
 const { signToken } = require('../utils/auth');
 const { AuthenticationError } =require('apollo-server-express');
 const { fetchTriviaQuestions } = require('../utils/requests');
+const mongoose = require('mongoose')
+const {Schema} = mongoose;
+
 
 const resolvers = {
   Query: {
     me: async (parent, args, context) => {
       if (context.user) {
         const user = await User.findById(context.user._id);
+        await user.populate('friendRequests', 'firstName lastName email avatar')
+        await user.populate('friends', 'firstName lastName email avatar')
 
         return user;
       }
       throw new AuthenticationError('Please log in.');
     },
     user: async (parent, args, context) => {
-      const user = await User.findById(args._id);
+      const user = await User.findById(args._id)
+
+     await user.populate('friendRequests', 'firstName lastName email avatar')
+     await user.populate('friends', 'firstName lastName email avatar')
+     await user.populate('avatar', 'src')
 
       return user;
     },
     users: async () => {
-      return User.find({});
+      return await User.find().sort({"stats.gamesWon" : -1});
     },
     game: async (parent, { gameId }, context) => {
       if (context.user) {
@@ -35,6 +44,19 @@ const resolvers = {
 
       return { token, user };
     },
+    deleteUser: async (parent, {userId}) => {
+        const user = await User.findByIdAndDelete(userId);
+
+        if (!user) {
+          throw new Error('user not found')
+        }
+       
+      
+      console.log('user deleted')
+      return {sucess: true, message: "Deleted Sucessfully"}
+
+    
+    },
     updateUser: async (parent, args, context) => {
       if (context.user) {
         return await User.findByIdAndUpdate(context.user._id, args, {
@@ -42,6 +64,92 @@ const resolvers = {
         });
       }
       throw new AuthenticationError('Please log in.');
+    },
+    sendFriendRequest: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
+      try {
+        await User.findByIdAndUpdate(
+            friendId, 
+            { $addToSet: { friendRequests: userId } } // Only add userId, no additional details
+        );
+        return { success: true };
+    } catch (err) {
+        console.error(err);
+        throw new Error('Error sending friend request');
+    }
+    },
+    declineFriendRequest: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
+      try {
+        const user = await User.findByIdAndUpdate(
+            friendId, 
+            { $pull: { friendRequests: userId } },
+       
+        );
+        const friend = await User.findByIdAndUpdate(
+          userId,
+          { $pull: { friendRequests: friendId }},
+      
+        )
+  
+        await user.populate('friends', 'firstName lastName email avatar')
+        await friend.populate('friends', 'firstName lastName email avatar')
+        return {
+          user,
+          friend
+        };
+    } catch (err) {
+        console.error(err);
+        throw new Error('Error sending friend request');
+    }
+  },
+  addFriend: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
+    
+    try {
+      const user = await User.findByIdAndUpdate(
+          friendId, 
+          { $addToSet: { friends: userId } },
+          { new: true }// Only add userId, no additional details
+      );
+      const friend = await User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { friends: friendId }},
+        { new: true }
+      )
+
+      await user.populate('friends', 'firstName lastName email avatar')
+      await friend.populate('friends', 'firstName lastName email avatar')
+      return {
+        success: true,
+        user,
+        friend
+      };
+  } catch (err) {
+      console.error(err);
+      throw new Error('Error sending friend request');
+  }
+  },
+    removeFriend: async (parent, { userId, friendId, firstName, lastName, email }, context) => {
+      try {
+        const user = await User.findByIdAndUpdate(
+            friendId, 
+            { $pull: { friends: userId } },
+       
+        );
+        const friend = await User.findByIdAndUpdate(
+          userId,
+          { $pull: { friends: friendId }},
+      
+        )
+  
+        await user.populate('friends', 'firstName lastName email avatar')
+        await friend.populate('friends', 'firstName lastName email avatar')
+        return {
+          user,
+          friend
+        };
+    } catch (err) {
+        console.error(err);
+        throw new Error('Error sending friend request');
+    }
     },
     login: async (parent, { email, password }) => {
       const user = await User.findOne({ email });
@@ -81,8 +189,8 @@ const resolvers = {
           });
           return game;
         } catch (error) {
-          console.error('Error:', error);
-          throw new Error('Failed to create game.')
+          console.error('Error in createGame resolver:', error);
+          throw new Error(error.message || 'Failed to create game.');
         }
       }
       throw new AuthenticationError('Please log in');
@@ -124,6 +232,38 @@ const resolvers = {
         console.error('Please log in');
         throw new AuthenticationError('Please log in.');
       }
+
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { 'avatar.src' : avatar.src},
+        {new: true}
+      );
+
+      if (!updatedUser) {
+        console.error('User not found');
+        throw new AuthenticationError('User not found')
+      }
+
+      return updatedUser.avatar;
+      // const user = await User.findById(userId);
+
+      // if (!user) {
+      //   console.error('User not found');
+      //   throw new AuthenticationError('User not found.');
+      // }
+
+      // if (avatar.src) user.avatar.src = avatar.src;
+  
+
+      //   await user.save();
+      //   return user.avatar;
+    },
+    addStats: async (parent, { userId, stats }, context) => {
+      // if (!context.user) {
+      //   console.error('Please log in');
+      //   throw new AuthenticationError('Please log in.');
+      // }
+
       const user = await User.findById(userId);
 
       if (!user) {
@@ -131,13 +271,12 @@ const resolvers = {
         throw new AuthenticationError('User not found.');
       }
 
-      if (avatar.seed) user.avatar.seed = avatar.seed;
-      if (avatar.size) user.avatar.size = avatar.size;
-      if (avatar.hair) user.avatar.hair = avatar.hair;
+      user.stats.gamesPlayed = stats.gamesPlayed ?? user.stats.gamesPlayed;
+      user.stats.gamesWon = stats.gamesWon ?? user.stats.gamesWon;
+      await user.save();
+      return user.stats;
 
-        await user.save();
-        return user.avatar;
-    },
+    }
   },
   // User: {
   //   avatarUrl: (user) => {

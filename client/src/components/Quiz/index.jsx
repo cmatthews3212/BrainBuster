@@ -1,162 +1,298 @@
 import { useState, useEffect } from "react";
-import { useMutation } from '@apollo/client';
-import { CREATE_GAME } from '../../utils/mutations';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import socket from '../../socket';
+import styles from './quiz.module.css';
+import Auth from '../../utils/auth'
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_ME, QUERY_USERS } from "../../utils/queries";
+import { ADD_STATS } from "../../utils/mutations";
 
-const categories = [
-  { label: 'Music', value: 'music'},
-  { label: 'Sport and Leisure', value: 'sport_and_leisure'},
-  { label: 'Film and TV', value: 'film_and_tv'},
-  { label: 'Arts and Literature', value: 'arts_and_literature'},
-  { label: 'History', value: 'history'},
-  { label: 'Society and Culture', value: 'society_and_culture'},
-  { label: 'Science', value: 'science'},
-  { label: 'Geography', value: 'geography'},
-  { label: 'Food and Drink', value: 'food_and_drink'},
-  { label: 'General Knowledge', value: 'general_knowledge'},
-]
 
-const difficulties = ['easy', 'medium', 'hard'];
 
 const Quiz = () => {
-  const [questions, setQuestions] = useState([]);
-  const [userAnswers, setUserAnswers] = useState({});
-  const [score, setScore] = useState({});
+  const { gameId } = useParams();
+  const navigate = useNavigate();
+
+  const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [phase, setPhase] = useState('waiting');
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [score, setScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const [finalScores, setFinalScores] = useState({});
+  const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [correctAnswer, setCorrectAnswer] = useState(null);
+  const {loading, data} = useQuery(GET_ME);
+  const [addStats] = useMutation(ADD_STATS)
+  const [wins, setWins] = useState(0);
+  const [plays, setPlays] = useState(0)
+  // const usersArray = data.users
+  // console.log(usersArray)
 
-  const [selectedCategory, setSelectedCategory] = useState(categories[0].value);
-  const [selectedDifficulty, setSelectedDifficulty] = useState(difficulties[0]);
+  const currentGamesWon = data?.me?.stats?.gamesWon || 0
+  const currentGamesPlayed = data?.me?.stats?.gamesPlayed || 0
 
-  const [createGame] = useMutation(CREATE_GAME);
+  const [totalQuestions, setTotalQuestions] = useState(
+    location.state?.totalQuestions || 0
+  );
+  // const usersArray = data.users
+  // console.log(usersArray)
+  // const [totalQuestions, setTotalQuestions] = useState(0);
+  const [opponentId, setOpponentId] = useState(null);
+  
+  const handleGameStarted = (data) => {
+    const { totalQuestions, opponentId } = data;
+    setTotalQuestions(totalQuestions);
+    setOpponentId(opponentId);
+    console.log(`Quiz: Total Questions set to ${totalQuestions}`);
+    console.log(`Quiz: Opponent ID set to ${opponentId}`);
+  };
+  
+  const handleNewQuestion = (data) => {
+    const { questionIndex, question, answers, totalQuestions: tq } = data;
 
-  const fetchQuestions = async () => {
-    setLoading(true);
-    setError(null);
-    setUserAnswers({});
-    setScore(0);
+    if (tq && tq !== totalQuestions) {
+      setTotalQuestions(tq);
+    }
+    
+    setCurrentQuestion({
+      question,
+      answers,
+    });
+    setCurrentQuestionIndex(questionIndex);
+    setSelectedAnswer(null);
+    setCorrectAnswer(null);
+    setPhase('answering');
+    setTimeLeft(10); 
+  };
+  
+  const handleShowAnswer = (data) => {
+    const { questionIndex, correctAnswer, players } = data;
+
+    setCorrectAnswer(correctAnswer);
+
+    const userAnswer = players[socket.id] || '';
+
+    if (userAnswer === correctAnswer) {
+      setScore((prev) => prev + 1);
+    }
+
+    setSelectedAnswer(userAnswer);
+    setPhase('feedback');
+    setTimeLeft(10); 
+  };
+
+  // const handleGameOver = (data) => {
+  //   const { scores, result } = data;
+  //   setFinalScores(scores);
+  //   setResult(result);
+  //   setGameOver(true);
+
+  //   console.log('Final Scores:', scores);
+  //   console.log('Game Result:', result);
+  // };
+
+
+  useEffect(() => {
+    if (!gameId) {
+      console.log('Missing game ID.');
+      return;
+    }
+    
+    socket.on('gameStarted', handleGameStarted);
+    socket.on('newQuestion', handleNewQuestion);
+    socket.on('showAnswer', handleShowAnswer);
+    socket.on('gameOver', handleGameOver);
+
+    socket.on('opponentLeft', () => {
+      console.log('Opponent has left the game.');
+      navigate('/');
+    });
+
+    socket.on('error', (data) => {
+      console.log(data.message);
+      navigate('/');
+    });
+
+    return () => {
+      socket.off('gameStarted', handleGameStarted);
+      socket.off('newQuestion', handleNewQuestion);
+      socket.off('showAnswer', handleShowAnswer);
+      socket.off('gameOver', handleGameOver);
+      socket.off('opponentLeft');
+      socket.off('error');
+    };
+  }, [gameId, navigate]);
+
+  useEffect(() => {
+    if (gameOver) {
+      console.log('Game Over Triggered');
+      console.log('Opponent ID:', opponentId);
+      console.log('Final Scores:', finalScores);
+      console.log(`My Score: ${finalScores[socket.id] || 0}`);
+      console.log(`Opponent's Score: ${finalScores[opponentId] || 0}`);
+    }
+  }, [gameOver, finalScores, opponentId]);
+  
+  const handleGameOver = (data) => {
+    const { scores, result } = data;
+    setFinalScores(scores);
+    setResult(result);
+    setGameOver(true);
+
+    if (result.winner === socket.id) {
+      setWins((prevWins) => prevWins + 1)
+    }
+
+    setPlays((prevPlays) => prevPlays + 1)
+  };
+
+  useEffect(() => {
+    if (timeLeft > 0) {
+      const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timerId);
+    }
+  }, [timeLeft]);
+
+
+  
+  useEffect(() => {
+    if (gameOver  && (wins > 0 || plays > 0)) {
+      handleAddStat()
+    }
+  }, [gameOver, wins, plays])
+
+  const handleAddStat = async () => {
+    const token = Auth.loggedIn() ? Auth.getToken() : null;
+  
+    if (!token) {
+        return false;
+    }
 
     try {
-      const { data } = await createGame({
+      const { data } = await addStats({
         variables: {
-          amount: 10,
-          category: selectedCategory,
-          difficulty: selectedDifficulty,
+            userId: Auth.getProfile().data._id, 
+            stats: {
+              gamesWon: currentGamesWon + wins,
+              gamesPlayed: currentGamesPlayed + plays
+            }
         },
-      });
+      })
+      console.log(data)
 
-      setQuestions(data.createGame.questions);
     } catch (err) {
-      console.error('Error fetching questions:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      console.error(err)
     }
-  };
+  }
+  
+  if (gameOver) {
+    const myScore = finalScores[socket.id] || 0;
+    // const opponentScore = finalScores[opponentId] || 0;
+   
+    const opponentEntry = Object.entries(finalScores).find(([id, score]) => id !== socket.id);
+    const opponentScore = opponentEntry ? opponentEntry[1] : 0;
 
-  const decodeHtml = (html) => {
-    const txt = document.createElement("textarea");
-    txt.innerHTML = html;
-    return txt.value;
-  };
+    console.log(`My Socket ID: ${socket.id}`);
+    console.log(`Opponent Socket ID: ${opponentEntry ? opponentEntry[0] : 'Not Found'}`);
+    console.log(`My Score: ${myScore}`);
+    console.log(`Opponent's Score: ${opponentScore}`);
 
-  const shuffleAnswers = (answers) => {
-    return answers.sort(() => Math.random() - 0.5);
-  };
+    let resultText;
 
-  const handleAnswerSelect = (questionIndex, answer) => {
-    setUserAnswers((prev) => ({
-      ...prev,
-      [questionIndex]: answer,
-    }));
+    if (result.winner === socket.id) {
+      resultText = 'You Win!';
+    
 
-    if (answer === questions[questionIndex].correctAnswer) {
-      setScore((prevScore) => prevScore + 1);
+    } else if (result.winner === null) {
+      resultText = "It's a Tie!";
+
+    } else {
+      resultText = 'You Lose!';
+     
     }
-  };
 
-  const isQuizComplete = Object.keys(userAnswers).length === questions.length;
 
+    console.log(`My Score: ${myScore}, Opponent's Score: ${opponentScore}`);
+
+    return (
+      <div className={styles.gameOverContainer} style={{
+        marginTop: '100px'
+      }}>
+        <h2>Game Over</h2>
+        <p>Your Score: {myScore}</p>
+        <p>Opponent's Score: {opponentScore}</p>
+        <h3>{resultText}</h3>
+        <button onClick={() => navigate('/')}>Return to Home</button>
+      </div>
+    );
+  }
+  
   return (
-    <div className="quiz-container">
-      <h2>Chose your Game!</h2>
-      <div>
-        <h3>
-          CATEGORY
-      </h3>
-      <hr></hr>
-          <ul
-          value={selectedCategory}
-          disabled={questions.length > 0}
-        >
-          {categories.map((cat) => (
-            <li onClick={(e) => setSelectedCategory(e.target.value)} key={cat.value} value={cat.value}>
-              {cat.label}
-            </li>
-          ))}
-        </ul>
-      <h3>
-        DIFFICULTY
-        </h3>
-        <hr></hr>
-        <ul
-          value={selectedDifficulty}
-          onChange={(e) => setSelectedDifficulty(e.target.value)}
-          disabled={questions.length > 0}
-        >
-          {difficulties.map((diff) => (
-            <li key={diff} value={diff}>
-              {diff.charAt(0).toUpperCase() + diff.slice(1)}
-            </li>
-          ))}
-        </ul>
-      
-      <button className="quizBtn" onClick={fetchQuestions} disabled={loading || questions.length > 0}>
-        { loading ? "Loading..." : "Start Quiz"}
-      </button>
-    </div>
-    {error && <p>Error: {error}</p>}
-    {questions.length > 0 && (
-      <div>
-        <p>Score: {score}/{questions.length}</p>
-        {isQuizComplete && (
-          <div>
-            <h2>Quiz Complete!</h2>
-            <p>Your final score is {score} out of {questions.length}</p>
-            <button onClick={() => window.location.reload()}>Play Again</button>
-          </div>
-        )}
-        {!isQuizComplete &&
-          questions.map((question, index) => (
-            <div key={index}>
-              <h3>{decodeHtml(question.question)}</h3>
-              <ul>
-                {shuffleAnswers([
-                  ...question.incorrectAnswers,
-                  question.correctAnswer
-                ]).map((answer, idx) => (
-                  <li key={idx}>
-                    <button onClick={() => handleAnswerSelect(index, answer)} disabled={userAnswers[index] !== undefined}>
-                      {decodeHtml(answer)}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              {userAnswers[index] !== undefined && (
-                <p>
-                  {userAnswers[index] === questions[index].correctAnswer
-                    ? "Correct!"
-                    : `Incorrect! The correct answer is ${decodeHtml(
-                      questions[index].correctAnswer
-                    )}`
-                  }
-                </p>
-              )}
-            </div>
-          ))}
+    <div className={styles.quizContainer} style={{
+      marginTop: "100px"
+    }}>
+      {error && <p className={styles.errorText}>Error: {error}</p>}
+
+      {phase === 'answering' && currentQuestion && (
+        <div>
+          <h3>Question {currentQuestionIndex + 1} of {totalQuestions}</h3>
+          <p>{decodeHtml(currentQuestion.question)}</p>
+          <ul className={styles.answersList}>
+            {currentQuestion.answers.map((answer, idx) => (
+              <li key={idx}>
+                <button
+                  onClick={() => handleAnswerClick(answer)}
+                  disabled={selectedAnswer !== null}
+                  className={`${styles.answerButton} ${selectedAnswer === answer ? styles.selected : ''}`}
+                >
+                  {decodeHtml(answer)}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p>Time Left: {timeLeft} seconds</p>
+        </div>
+      )}
+
+      {phase === 'feedback' && currentQuestion && (
+        <div>
+          <h3>Question {currentQuestionIndex + 1} of {totalQuestions} Results</h3>
+
+          {selectedAnswer ? (
+            selectedAnswer === decodeHtml(correctAnswer) ? (
+              <p className={styles.correct}>Correct!</p>
+            ) : (
+              <p className={styles.incorrect}>
+                Incorrect! The correct answer is: {decodeHtml(correctAnswer)}
+              </p>
+            )
+          ) : (
+            <p className={styles.incorrect}>
+              Time's up! The correct answer is: {decodeHtml(correctAnswer)}
+            </p>
+          )}
+          <p>Next question in: {timeLeft} seconds</p>
         </div>
       )}
     </div>
   );
+
+  function handleAnswerClick(answer) {
+    if (phase !== 'answering') return;
+
+    setSelectedAnswer(answer);
+    socket.emit('submitAnswer', { gameId, questionIndex: currentQuestionIndex, answer });
+  }
+  
+  function decodeHtml(html) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
+
 };
 
 export default Quiz;

@@ -1,0 +1,324 @@
+.profile {
+    max-width: 1200px;
+    margin: 80px auto 0;
+    padding: 20px;
+}
+
+/* Profile Header Section */
+.profile-head {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.04),
+        0 1px 3px rgba(0, 0, 0, 0.02);
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-head::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #FF4081, #7E57C2, #2196F3);
+    opacity: 0.8;
+}
+
+.profile-head h2 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    background: linear-gradient(120deg, #FF4081, #7E57C2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    letter-spacing: -1px;
+}
+
+/* Avatar Section */
+.avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.avatar-container img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.avatar-container img:hover {
+    transform: scale(1.05);
+}
+
+.change-avatar-btn {
+    background: #FF4081;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 24px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 6px rgba(255, 64, 129, 0.2);
+}
+
+.change-avatar-btn:hover {
+    transform: translateY(-2px);
+    background: #FF6B9D;
+    box-shadow: 0 6px 12px rgba(255, 64, 129, 0.3);
+}
+
+/* Main Content Grid */
+.profile-info {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+.profile-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.friends-container,
+.friend-requests-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.04),
+        0 1px 3px rgba(0, 0, 0, 0.02);
+    position: relative;
+    overflow: hidden;
+}
+
+.friends-container::before,
+.friend-requests-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #FF4081, #7E57C2, #2196F3);
+    opacity: 0.8;
+}
+
+/* Friends List Header */
+.friends-list-header {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(126, 87, 194, 0.1);
+}
+
+.friends-list-header h2 {
+    color: #2D3748;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* No Friends Message */
+.no-friends-message {
+    text-align: center;
+    padding: 30px;
+    color: #6B7280;
+    font-size: 1.1rem;
+    background: rgba(248, 249, 250, 0.7);
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+/* Friend Requests Section */
+.friend-requests {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid rgba(126, 87, 194, 0.1);
+}
+
+.friend-requests h2 {
+    color: #2D3748;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.friend-request-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: rgba(248, 249, 250, 0.7);
+    border-radius: 12px;
+    margin: 10px 0;
+    transition: all 0.3s ease;
+}
+
+.friend-request-item:hover {
+    background: rgba(248, 249, 250, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.friend-name {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #2D3748;
+}
+
+/* Friend Request Buttons */
+.friend-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.accept-button,
+.decline-button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.accept-button {
+    background: #FF4081;
+    color: white;
+    box-shadow: 0 4px 6px rgba(255, 64, 129, 0.2);
+}
+
+.accept-button:hover {
+    background: #FF6B9D;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 64, 129, 0.3);
+}
+
+.decline-button {
+    background: #DC3545;
+    color: white;
+    box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);
+}
+
+.decline-button:hover {
+    background: #E4606D;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Stats Container */
+.stats-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.04),
+        0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.stats-container h2 {
+    color: #2D3748;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+.stats {
+    background: rgba(126, 87, 194, 0.05);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 15px 0;
+    transition: all 0.3s ease;
+}
+
+.stats:hover {
+    background: rgba(126, 87, 194, 0.1);
+    transform: translateY(-2px);
+}
+
+.stats h3 {
+    color: #4A5568;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.stats p {
+    color: #7E57C2;
+    font-weight: 700;
+    font-size: 2rem !important;
+    margin: 0;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile {
+        margin-top: 60px;
+        padding: 15px;
+    }
+
+    .profile-head {
+        padding: 30px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-head h2 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+
+    .profile-info {
+        grid-template-columns: 1fr;
+    }
+
+    .avatar-container img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .stats p {
+        font-size: 1.5rem !important;
+    }
+
+    .friends-container {
+        padding: 20px;
+    }
+
+    .friend-request-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .friend-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .accept-button,
+    .decline-button {
+        min-width: 120px;
+    }
+}

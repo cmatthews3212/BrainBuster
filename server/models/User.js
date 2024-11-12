@@ -42,16 +42,29 @@ const userSchema = new Schema({
     },
   },
   friends: [{
-    type: Schema.Types.ObjectId, 
-    ref: 'User'
-  }]
+ 
+      type: Schema.Types.ObjectId, 
+      ref: 'User'
+
+  
+  }],
+  friendRequests: [{
+  
+      type: Schema.Types.ObjectId, 
+      ref: 'User'
+
+    // firstName: String,
+    // lastName: String,
+    // email: String
+  }],
+  
 });
 
 // set up pre-save middleware to create password
 userSchema.pre('save', async function(next) {
-  if (this.isNew) {
-    this.avatar.seed = this._id.toString();
-  }
+  // if (this.isNew) {
+  //   this.avatar.src = this._id.toString();
+  // }
 
   if (this.isNew || this.isModified('password')) {
     const saltRounds = 10;

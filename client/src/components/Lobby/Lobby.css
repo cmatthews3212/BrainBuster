@@ -1,0 +1,177 @@
+.lobby-container {
+    max-width: 1200px;
+    margin: 80px auto 0;
+    padding: 20px;
+}
+
+.lobby-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.04),
+        0 1px 3px rgba(0, 0, 0, 0.02);
+    position: relative;
+    overflow: hidden;
+}
+
+.lobby-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #FF4081, #7E57C2, #2196F3);
+    opacity: 0.8;
+}
+
+.game-id {
+    font-size: 1.2rem;
+    color: #2D3748;
+    margin-bottom: 20px;
+    padding: 15px 20px;
+    background: rgba(248, 249, 250, 0.7);
+    border-radius: 12px;
+    display: inline-block;
+    font-weight: 600;
+    border: 1px solid rgba(126, 87, 194, 0.1);
+}
+
+.game-id span {
+    color: #7E57C2;
+    margin-left: 8px;
+    font-family: monospace;
+}
+
+.waiting-message {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 40px 0;
+    background: linear-gradient(120deg, #FF4081, #7E57C2);
+    /* -webkit-background-clip: text; */
+    -webkit-text-fill-color: transparent;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.friends-section {
+    margin-top: 40px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    border: 1px solid rgba(126, 87, 194, 0.1);
+}
+
+.friends-section h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2D3748;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(126, 87, 194, 0.1);
+}
+
+.friends-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.friend-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.friend-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.friend-name {
+    font-weight: 600;
+    color: #4A5568;
+}
+
+.error-message {
+    color: #E53E3E;
+    background-color: rgba(229, 62, 62, 0.1);
+    border: 1px solid rgba(229, 62, 62, 0.2);
+    padding: 1rem;
+    border-radius: 12px;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .lobby-container {
+        margin: 1.5rem;
+        padding: 2rem;
+    }
+
+    .lobby-header h2 {
+        font-size: 2.5rem;
+    }
+
+    .lobby-card {
+        padding: 2rem;
+    }
+
+    .button-primary {
+        padding: 1.1rem 2rem;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .lobby-container {
+        background: linear-gradient(135deg, #1A202C 0%, #2D3748 100%);
+    }
+
+    .lobby-card {
+        background: #2D3748;
+        border-color: rgba(126, 87, 194, 0.3);
+    }
+
+    .lobby-card h3 {
+        color: #E2E8F0;
+    }
+
+    .lobby-card p {
+        color: #A0AEC0;
+    }
+
+    .player-item {
+        background-color: #4A5568;
+    }
+
+    .player-item:hover {
+        background-color: #2D3748;
+    }
+
+    .player-name {
+        color: #E2E8F0;
+    }
+
+    .game-status.active {
+        background-color: rgba(72, 187, 120, 0.2);
+        color: #9AE6B4;
+    }
+
+    .game-status.waiting {
+        background-color: rgba(236, 201, 75, 0.2);
+        color: #FAF089;
+    }
+} 

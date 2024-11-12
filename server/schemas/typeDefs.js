@@ -8,13 +8,20 @@ const typeDefs = gql`
     firstName: String
     lastName: String
     email: String
-    avatar: Avatar!
+    avatar: Avatar
     stats: UserStats
     preferences: Preferences
     friends: [User]
+    friendRequests: [User]
+    gameInvite: String
   }
 
   type UserStats {
+    gamesPlayed: Int
+    gamesWon: Int
+  }
+
+  input StatsInput {
     gamesPlayed: Int
     gamesWon: Int
   }
@@ -57,26 +64,35 @@ const typeDefs = gql`
   }
 
   type Avatar {
-    avatarId: ID
-    seed: String!
-    size: Int
-    hair: String
+    avatarId: ID!
+    src: String!
   }
 
   input AvatarInput {
     avatarId: ID
-    seed: String!
-    size: Int
-    hair: String
+    src: String
   }
+
+  type AddFriendResponse {
+  success: Boolean!
+  user: User
+  friend: User
+}
 
   type Mutation {
     addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
-    addAvatar(userId: ID!, avatar: AvatarInput!): Avatar
+    addAvatar(userId: ID!, avatar: AvatarInput): Avatar
+    addStats(userId: ID!, stats: StatsInput): User
+    deleteUser(userId: ID!): User
     updateUser(firstName: String, lastName: String, email: String, password: String): User
     updateAvatar(userId: ID!, avatar: AvatarInput): Avatar
+    addFriend(userId: ID!, friendId: ID!): AddFriendResponse
+    sendFriendRequest(userId: ID!, friendId: ID!): User
+    acceptFriendRequest(userId: ID!, friendId: ID!): User
+    declineFriendRequest(userId: ID!, friendId: ID!): User
+    removeFriend(userId: ID!, friendId: ID!): User
     login(email: String!, password: String!): Auth
-    createGame(amount: Int, category: String, difficulty: String): Game
+    createGame(amount: Int!, category: String!, difficulty: String!): Game
     joinGame(gameId: ID!): Game
   }
 `;
