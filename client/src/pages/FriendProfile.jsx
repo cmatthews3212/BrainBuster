@@ -13,6 +13,8 @@ const FriendProfile = () => {
     const me = Auth.getProfile().data;
     const {loading, error, data} = useQuery(QUERY_USERS);
 
+
+
   
 
 
@@ -41,6 +43,26 @@ const FriendProfile = () => {
                             )}
                             <h2 className="profile-name">{user.firstName} {user.lastName}</h2>
                             <div className="friend-status">You are friends!</div>
+                                <h2>{user.firstName}'s Stats:</h2>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-around',
+                                width: '60%',
+                                margin: '0 auto'
+                            }}>
+                                <div>
+                                    <h3>Games Played</h3>
+                                    <p style={{
+                                        fontSize: '25px'
+                                    }}>{user.stats.gamesPlayed}</p>
+                                </div>
+                                <div>
+                                    <h3>Games Won</h3>
+                                    <p style={{
+                                        fontSize: '25px'
+                                    }}>{user.stats.gamesWon}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )

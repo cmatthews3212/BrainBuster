@@ -10,7 +10,11 @@ import Auth from "../../utils/auth";
 import './Friend.css';
 
 const FriendSelect = ({ friend, onClear, gameId }) => {
+    const navigate = useNavigate()
     
+    const renderFriendProfile = (id) => {
+        return navigate(`/profile/${id}`)
+    }
 
     const { loading, error, data } = useQuery(GET_ME)
     console.log(data)
@@ -78,23 +82,25 @@ const FriendSelect = ({ friend, onClear, gameId }) => {
             <h2>{friend.firstName} {friend.lastName}</h2>
             <button onClick={onClear}>Go back to find friends</button>
             </div>
-            <div>
-                <h3>{friend.firstName}'s Stats:</h3>
-            </div>
+           
             
             <div>
-                {data.me.friends ? (
-                   data.me.friends.map((meFriend) => (
-                    meFriend._id === friend._id ? <h3>You are friends!</h3> : <p>You are not friends!</p>
-                   ))
+                {data.me.friends && data.me.friends.some((meFriend) => meFriend._id === friend._id) ? (
+                    <>
+                      <h3 style={{
+                        textAlign: 'center'
+                    }}>Your Friends!</h3>
+                    <button onClick={() => renderFriendProfile(friend._id)}>View {friend.firstName}'s Profile</button>
+                    </>
                 ) : (
                     <>
-                   
+                     <h3 style={{
+                        textAlign: 'center'
+                    }}>Your Not Friends!</h3>
+                    <button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
+                  
                     </>
-                )}
-
-<button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
-                
+                    )}
 
                
             </div>
