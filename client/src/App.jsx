@@ -12,6 +12,7 @@ import Nav from "./components/Nav";
 import { GlobalProvider } from "./utils/GlobalState";
 import { ThemeProvider } from "./pages/ThemeContext";
 import Dashboard from "./pages/Dashboard";
+import { SocketProvider } from "./contexts/SocketContext";
 //import Themes from './pages/Themes';
 
 const httpLink = createHttpLink({
@@ -36,12 +37,14 @@ const client = new ApolloClient({
 function App() {
   return (
     <ApolloProvider client={client}>
-      <ThemeProvider>
-        <GlobalProvider>
-          <Nav />
-          <Outlet />
-        </GlobalProvider>
-      </ThemeProvider>
+      <SocketProvider>
+        <ThemeProvider>
+          <GlobalProvider>
+            <Nav />
+            <Outlet />
+          </GlobalProvider>
+        </ThemeProvider>
+      </SocketProvider>
     </ApolloProvider>
   );
 }
