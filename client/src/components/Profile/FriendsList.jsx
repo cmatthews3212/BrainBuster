@@ -1,10 +1,25 @@
 import './FriendsList.css';
+import { useNavigate } from 'react-router-dom';
 
 const FriendsList = ({ userData, handleRemoveFriend, navigate }) => {
+    const navigateFriends = useNavigate();
+    const renderFriends = () => {
+        navigateFriends('/find')
+    }
     return (
         <div className="friends-container">
             <div className="friends-list-header">
                 <h2>Friends List</h2>
+                <button onClick={renderFriends}
+                style={{
+                    backgroundColor: '#FF4081',
+                    border: 'none',
+                    color: 'white',
+                    padding: '15px',
+                    borderRadius: '50px',
+                    fontWeight: 'bold'
+
+                }}>Find Friends</button>
             </div>
             
             {userData.friends && userData.friends.length > 0 ? (

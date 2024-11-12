@@ -9,7 +9,9 @@ const FriendRequests = ({ userData, handleAddFriend, handleDecline }) => {
                 <div className="friend-requests-list">
                     {userData.friendRequests.map((request) => (
                         <div key={request._id} className="friend-request-item">
-                            <span className="friend-name">{request.firstName} {request.lastName}</span>
+                            <span className="friend-name" style={{
+                                color: 'black'
+                            }}>{request.firstName} {request.lastName}</span>
                             <div className="friend-actions">
                                 <button 
                                     className="accept-button"
