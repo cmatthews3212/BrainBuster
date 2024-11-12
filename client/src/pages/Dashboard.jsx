@@ -217,7 +217,9 @@ function Dashboard() {
             padding: '2rem',
             boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)'
           }}>
-            <h2 style={{ color: '#7E57C2', marginBottom: '1.5rem' }}>{inviteName} has invited you to a game!</h2>
+            {inviteName ? (
+              <>
+              <h2 style={{ color: '#7E57C2', marginBottom: '1.5rem' }}>{inviteName} has invited you to a game!</h2>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button 
                 onClick={() => handleJoinGame(gameId)}
@@ -238,9 +240,13 @@ function Dashboard() {
                   }
                 }}
               >
-                PLAY
+                Join Game with {inviteName}
               </button>
             </div>
+              </>
+            ) : ( <h2>You have no Game Invites</h2>)}
+
+            
 
             {showGameOptions && (
               <div style={{ 
