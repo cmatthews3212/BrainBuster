@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
-import socket from "../../socket";
+import { useSocket } from '../../contexts/SocketContext';
 import { CREATE_GAME } from '../../utils/mutations';
 import './CreateGame.css';
 
@@ -25,22 +25,23 @@ const CreateGame = () => {
     const [selectedDifficulty, setSelectedDifficulty] = useState(difficulties[0]);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const socket = useSocket();
 
     const [createGame] = useMutation(CREATE_GAME);
 
     useEffect(() => {
-      if (!socket.connected) {
-        socket.connect();
-      }
-
-      socket.on('connect', () => {
-        console.log('Socket connected:', socket.id);
-      });
+        if (socket && !socket.connected) {
+            socket.connect();
+        }
+      
+        socket.on('connect', () => {
+            console.log('Socket connected:', socket.id);
+        });
 
       return () => {
         socket.off('connect');
       }
-    }, []);
+    }, [socket]);
 
     const handleCreateGame = async () => {
         setLoading(true);
@@ -57,8 +58,9 @@ const CreateGame = () => {
             if (data && data.createGame) {
                 const gameId = data.createGame._id;
 
-                socket.emit('createGame', { gameId, category: selectedCategory, difficulty: selectedDifficulty});
-  
+                socket.emit('createGame', { gameId, category: selectedCategory, difficulty: selectedDifficulty });
+                console.log('Emitted createGame with gameId:', gameId);
+                
                 navigate(`/lobby/${gameId}`);
             } else {
                 throw new Error('Failed to create game.');

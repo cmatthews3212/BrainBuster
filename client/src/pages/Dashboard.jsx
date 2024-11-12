@@ -5,6 +5,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { GET_ME, QUERY_USERS } from '../utils/queries';
 import socket from '../socket';
 import { useTheme } from './ThemeContext.jsx';
+import { useSocket } from '../contexts/SocketContext';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ function Dashboard() {
   const [inviteName, setInviteName] = useState(null) 
   const { loading, error, data } = useQuery(GET_ME);
   const [authenticated, setAuthenticated] = useState(false);
+  const socket = useSocket();
   // console.log(data)
   const me = data?.me || {}
   console.log(me)

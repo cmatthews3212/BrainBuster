@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
-import { useMutation, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { GET_ME } from '../../utils/queries';
+import { useSocket } from '../../contexts/SocketContext'; 
 import Auth from '../../utils/auth';
-import socket from '../../socket';
 
 const Lobby = () => {
   const navigate = useNavigate();
@@ -14,26 +14,44 @@ const Lobby = () => {
   const [error, setError] = useState('');
   const [inviteReceived, setInviteReceived] = useState(false);
   const [invitingPlayer, setInvitingPlayer] = useState(null);
-  const [inviteSent, setInviteSent] = useState(false)
-  const {loading, data} = useQuery(GET_ME)
-  const me = data?.me || {}
+  const [inviterId, setInviterId] = useState(null); // New state to store inviterId
+  const [inviteSent, setInviteSent] = useState(false);
+  const { loading, data } = useQuery(GET_ME);
+  const me = data?.me || {};
+  const socket = useSocket();
   
   useEffect(() => {
-    
-    if (!gameId) return;
+    if (!socket || !gameId) return;
     
     console.log('Lobby useEffect triggered with gameId:', gameId);
 
-    if (me._id) {
-      socket.emit('authenticated', me._id);
-      console.log(`Emitted 'authenticated' with user ID: ${me._id}`);
+    if (me._id && socket) {
+      socket.emit('authenticated', me._id, (response) => {
+        if (response.status === 'ok') {
+          console.log(`Emitted 'authenticated' with user ID: ${me._id}`);
+        } else {
+          console.error('Authentication failed:', response.message);
+          setError(response.message);
+          setGameFull(true);
+        }
+      });
     }
     
     const handleGameStarted = (gameData) => {
       console.log('Received gameStarted event with data:', gameData);
+
+      if (!gameData.opponentId) {
+        console.error('Opponent ID is undefined. Redirecting to home.');
+  
+        navigate('/');
+
+        return;
+      }
       
       setWaiting(false);
       setOpponent(gameData.opponentId);
+
+      console.log(`Navigating to quiz page for gameId: ${gameId}`);
       
       navigate(`/quiz/${gameId}`,{ 
         state: { 
@@ -44,27 +62,29 @@ const Lobby = () => {
     
     const handleOpponentLeft = () => {
       setOpponent(null);
-      console.log('Opponent left game.')
+      console.log('Opponent left game.');
+      navigate('/'); 
     };
-    console.log(socket)
     
     
-    const handleGameInviteRecieved = (gameData) => {
-      console.log('Game invite recieved:', gameData);
-      setInviteReceived(true)
-      setInvitingPlayer(gameData.senderName)
-    }
+    const handleGameInviteReceived = (gameData) => {
+      console.log('Game invite received:', gameData);
+      setInviteReceived(true);
+      setInvitingPlayer(gameData.senderName);
+      setInviterId(gameData.inviterId);
+    };
+  
     
-    socket.on('gameInviteReceived', handleGameInviteRecieved);
+    socket.on('gameInviteReceived', handleGameInviteReceived);
     socket.on('gameStarted', handleGameStarted);
     socket.on('opponentLeft', handleOpponentLeft);
     
     return () => {
-      socket.off('gameInviteReceived', handleGameInviteRecieved);
+      socket.off('gameInviteReceived', handleGameInviteReceived);
       socket.off('gameStarted', handleGameStarted);
       socket.off('opponentLeft', handleOpponentLeft);
     };
-  }, [gameId, navigate, me._id]);
+  }, [socket, gameId, navigate, me._id]);
 
   const handleInvite = (friendId) => {
     const inviterId = me._id;
@@ -132,14 +152,13 @@ const Lobby = () => {
         }}>
         {me.friends ? (
             me.friends.map((friend) =>(
-              <>
-              {/* <li>{friend.firstName} {friend.lastName}</li> */}
-              <button onClick={() => handleInvite(friend._id)} key={friend._id} style={{
-                margin: '10px'
-              }}>Invite {friend.firstName} {friend.lastName} to this game!</button>
-              </>
-            
-            ))
+              <button 
+                key={friend._id}
+                onClick={() => handleInvite(friend._id)} 
+                style={{margin: '10px'}}>
+                  Invite {friend.firstName} {friend.lastName} to this game!
+              </button>
+          ) )
         ) : (
           <p>You have no friends to invite</p>
         )}
