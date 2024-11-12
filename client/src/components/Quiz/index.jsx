@@ -24,12 +24,15 @@ const Quiz = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
-  const {loading, data} = useQuery(QUERY_USERS);
+  const {loading, data} = useQuery(GET_ME);
   const [addStats] = useMutation(ADD_STATS)
   const [wins, setWins] = useState(0);
   const [plays, setPlays] = useState(0)
   // const usersArray = data.users
   // console.log(usersArray)
+
+  const currentGamesWon = data?.me?.stats?.gamesWon || 0
+  const currentGamesPlayed = data?.me?.stats?.gamesPlayed || 0
 
   const [totalQuestions, setTotalQuestions] = useState(
     location.state?.totalQuestions || 0
@@ -156,8 +159,8 @@ const Quiz = () => {
 
   
   useEffect(() => {
-    if (gameOver) {
-      handleAddStat(wins, plays)
+    if (gameOver  && (wins > 0 || plays > 0)) {
+      handleAddStat()
     }
   }, [gameOver, wins, plays])
 
@@ -173,8 +176,8 @@ const Quiz = () => {
         variables: {
             userId: Auth.getProfile().data._id, 
             stats: {
-              gamesWon: wins,
-              gamesPlayed: plays
+              gamesWon: currentGamesWon + wins,
+              gamesPlayed: currentGamesPlayed + plays
             }
         },
       })
