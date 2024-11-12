@@ -2,17 +2,15 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import socket from '../../socket';
 import styles from './quiz.module.css';
-import Auth from '../../utils/auth'
+import Auth from '../../utils/auth';
 import { useMutation, useQuery } from "@apollo/client";
-import { GET_ME, QUERY_USERS } from "../../utils/queries";
+import { QUERY_USERS, GET_ME } from "../../utils/queries";
 import { ADD_STATS } from "../../utils/mutations";
-
 
 
 const Quiz = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
-
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -24,19 +22,17 @@ const Quiz = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
-  const {loading, data} = useQuery(QUERY_USERS);
-  const [addStats] = useMutation(ADD_STATS)
+  // const {loading, data} = useQuery(QUERY_USERS);
+  const [addStats] = useMutation(ADD_STATS);
   const [wins, setWins] = useState(0);
-  const [plays, setPlays] = useState(0)
-  // const usersArray = data.users
-  // console.log(usersArray)
-
-  const totalQuestions = location.state?.totalQuestions || 0;
-  // const usersArray = data.users
-  // console.log(usersArray)
-  // const [totalQuestions, setTotalQuestions] = useState(0);
+  const [plays, setPlays] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(location.state?.totalQuestions || 0);
   const [opponentId, setOpponentId] = useState(null);
-  
+  const {loading, data} = useQuery(GET_ME)
+
+  const currentGamesWon = data?.me?.stats?.gamesWon || 0
+  const currentGamesPlayed = data?.me?.stats?.gamesPlayed || 0
+
   const handleGameStarted = (data) => {
     const { totalQuestions, opponentId } = data;
     setTotalQuestions(totalQuestions);
@@ -79,16 +75,19 @@ const Quiz = () => {
     setTimeLeft(10); 
   };
 
-  // const handleGameOver = (data) => {
-  //   const { scores, result } = data;
-  //   setFinalScores(scores);
-  //   setResult(result);
-  //   setGameOver(true);
+  const handleGameOver = (data) => {
+    const { scores, result } = data;
+    setFinalScores(scores);
+    setResult(result);
+    setGameOver(true);
 
-  //   console.log('Final Scores:', scores);
-  //   console.log('Game Result:', result);
-  // };
+    // Update wins and plays
+    if (result.winner === socket.id) {
+      setWins((prevWins) => prevWins + 1);
+    }
 
+    setPlays((prevPlays) => prevPlays + 1);
+  };
 
   useEffect(() => {
     if (!gameId) {
@@ -100,7 +99,6 @@ const Quiz = () => {
     socket.on('newQuestion', handleNewQuestion);
     socket.on('showAnswer', handleShowAnswer);
     socket.on('gameOver', handleGameOver);
-
     socket.on('opponentLeft', () => {
       console.log('Opponent has left the game.');
       navigate('/');
@@ -121,29 +119,7 @@ const Quiz = () => {
     };
   }, [gameId, navigate]);
 
-  useEffect(() => {
-    if (gameOver) {
-      console.log('Game Over Triggered');
-      console.log('Opponent ID:', opponentId);
-      console.log('Final Scores:', finalScores);
-      console.log(`My Score: ${finalScores[socket.id] || 0}`);
-      console.log(`Opponent's Score: ${finalScores[opponentId] || 0}`);
-    }
-  }, [gameOver, finalScores, opponentId]);
-  
-  const handleGameOver = (data) => {
-    const { scores, result } = data;
-    setFinalScores(scores);
-    setResult(result);
-    setGameOver(true);
-
-    if (result.winner === socket.id) {
-      setWins((prevWins) => prevWins + 1)
-    }
-
-    setPlays((prevPlays) => prevPlays + 1)
-  };
-
+  // Timer logic for countdown
   useEffect(() => {
     if (timeLeft > 0) {
       const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -151,71 +127,53 @@ const Quiz = () => {
     }
   }, [timeLeft]);
 
-
-  
+  // Handle stats update when game over and stats have been updated
   useEffect(() => {
-    if (gameOver) {
-      handleAddStat(wins, plays)
+    if (gameOver && (wins > 0 || plays > 0)) {
+      handleAddStat();
     }
-  }, [gameOver, wins, plays])
+  }, [gameOver, wins, plays]);
 
   const handleAddStat = async () => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
   
     if (!token) {
-        return false;
+      return false;
     }
 
     try {
       const { data } = await addStats({
         variables: {
-            userId: Auth.getProfile().data._id, 
-            stats: {
-              gamesWon: wins,
-              gamesPlayed: plays
-            }
+          userId: Auth.getProfile().data._id,
+          stats: {
+            gamesWon: currentGamesWon + wins,
+            gamesPlayed: currentGamesPlayed + plays
+          }
         },
-      })
-      console.log(data)
+      });
+      console.log(data);
 
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }
-  
+  };
+
   if (gameOver) {
     const myScore = finalScores[socket.id] || 0;
-    // const opponentScore = finalScores[opponentId] || 0;
-   
     const opponentEntry = Object.entries(finalScores).find(([id, score]) => id !== socket.id);
     const opponentScore = opponentEntry ? opponentEntry[1] : 0;
 
-    console.log(`My Socket ID: ${socket.id}`);
-    console.log(`Opponent Socket ID: ${opponentEntry ? opponentEntry[0] : 'Not Found'}`);
-    console.log(`My Score: ${myScore}`);
-    console.log(`Opponent's Score: ${opponentScore}`);
-
     let resultText;
-
     if (result.winner === socket.id) {
       resultText = 'You Win!';
-    
-
     } else if (result.winner === null) {
       resultText = "It's a Tie!";
-
     } else {
       resultText = 'You Lose!';
-     
     }
 
-
-    console.log(`My Score: ${myScore}, Opponent's Score: ${opponentScore}`);
-
     return (
-      <div className={styles.gameOverContainer} style={{
-        marginTop: '100px'
-      }}>
+      <div className={styles.gameOverContainer} style={{ marginTop: '100px' }}>
         <h2>Game Over</h2>
         <p>Your Score: {myScore}</p>
         <p>Opponent's Score: {opponentScore}</p>
@@ -224,11 +182,9 @@ const Quiz = () => {
       </div>
     );
   }
-  
+
   return (
-    <div className={styles.quizContainer} style={{
-      marginTop: "100px"
-    }}>
+    <div className={styles.quizContainer} style={{ marginTop: "100px" }}>
       {error && <p className={styles.errorText}>Error: {error}</p>}
 
       {phase === 'answering' && currentQuestion && (
@@ -255,7 +211,6 @@ const Quiz = () => {
       {phase === 'feedback' && currentQuestion && (
         <div>
           <h3>Question {currentQuestionIndex + 1} of {totalQuestions} Results</h3>
-
           {selectedAnswer ? (
             selectedAnswer === decodeHtml(correctAnswer) ? (
               <p className={styles.correct}>Correct!</p>
@@ -281,13 +236,12 @@ const Quiz = () => {
     setSelectedAnswer(answer);
     socket.emit('submitAnswer', { gameId, questionIndex: currentQuestionIndex, answer });
   }
-  
+
   function decodeHtml(html) {
     const txt = document.createElement("textarea");
     txt.innerHTML = html;
     return txt.value;
   }
-
 };
 
 export default Quiz;
