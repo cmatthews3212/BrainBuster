@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import { useSocket } from '../../contexts/SocketContext';
 import { CREATE_GAME } from '../../utils/mutations';
+import socket from '../../socket'
 import './CreateGame.css';
 
 const categories = [
