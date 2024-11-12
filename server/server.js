@@ -263,28 +263,28 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on('gameInvite', ({ gameId, friendId, inviterId, senderName }) => {
-    console.log('sending invite to ', { gameId, friendId, inviterId, senderName})
+  // socket.on('gameInvite', ({ gameId, friendId, inviterId, senderName }) => {
+  //   console.log('sending invite to ', { gameId, friendId, inviterId, senderName})
 
     
   
-    // io.to(recipientSocketId).emit('gameInviteReceived', {
-    //   gameId,
-    //   inviterId,
-    //   senderName,
-    // });
-  },
+  //   // io.to(recipientSocketId).emit('gameInviteReceived', {
+  //   //   gameId,
+  //   //   inviterId,
+  //   //   senderName,
+  //   // });
+  // // },
 
   
-    io.to(friendId).emit('gameInviteReceived', {
-      gameId,
-      inviterId,
-      senderName,
-    });
-  }
+  //   io.to(friendId).emit('gameInviteReceived', {
+  //     gameId,
+  //     inviterId,
+  //     senderName,
+  //   });
+  // }
 
    
-  )
+  // )
 
   socket.on("submitAnswer", ({ gameId, questionIndex, answer }) => {
     const game = games[gameId];
@@ -316,7 +316,7 @@ io.on("connection", (socket) => {
 
       showAnswer(gameId, questionIndex);
     }
-  }));
+  })
 
 
   socket.on("disconnect", () => {
@@ -349,7 +349,8 @@ io.on("connection", (socket) => {
       }
     }
   });
-});
+})
+
 
 const showAnswer = (gameId, questionIndex) => {
   const game = games[gameId];
@@ -489,4 +490,4 @@ function shuffleAnswers2(answers) {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
-};
+}

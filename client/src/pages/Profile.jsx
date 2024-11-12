@@ -270,6 +270,10 @@ return (
             
             <div className='stats-container'>
                 <h2>Your Stats</h2>
+                <div>
+                    <h3>Games Played:</h3>
+                    <p className=''
+                </div>
             </div>
         </div>
     </div>

@@ -31,10 +31,10 @@ const Quiz = () => {
   // const usersArray = data.users
   // console.log(usersArray)
 
-  // const totalQuestions = location.state?.totalQuestions || 0;
+  const totalQuestions = location.state?.totalQuestions || 0;
   // const usersArray = data.users
   // console.log(usersArray)
-  const [totalQuestions, setTotalQuestions] = useState(0);
+  // const [totalQuestions, setTotalQuestions] = useState(0);
   const [opponentId, setOpponentId] = useState(null);
   
   const handleGameStarted = (data) => {
