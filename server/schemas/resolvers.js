@@ -28,7 +28,7 @@ const resolvers = {
       return user;
     },
     users: async () => {
-      return await User.find({});
+      return await User.find().sort({"stats.gamesWon" : -1});
     },
     game: async (parent, { gameId }, context) => {
       if (context.user) {

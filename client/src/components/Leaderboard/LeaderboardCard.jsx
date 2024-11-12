@@ -1,9 +1,13 @@
 import React from 'react';
 import './LeaderboardCard.css';
 
-const LeaderboardCard = ({ rank, username, score, avatar }) => {
+const LeaderboardCard = ({ rank, username, score, avatar, stats }) => {
+  
   return (
-    <div className="leaderboard-card">
+    <div className="leaderboard-card" style={{
+      display: 'flex',
+      justifyContent: 'space-around'
+    }}>
       <div className="rank-container">
         <span className="rank">{rank}</span>
       </div>
@@ -21,9 +25,17 @@ const LeaderboardCard = ({ rank, username, score, avatar }) => {
         <h3 className="username">{username}</h3>
       </div>
 
-      <div className="score-container">
-        <span className="score">{score}</span>
-        <span className="points">points</span>
+      <div className="score-container" style={{
+        display: 'flex',
+        justifyContent: 'center'
+      }}>
+        <span className="score">Games Won</span>
+        <span className="points" style={{
+          textAlign: 'center',
+          margin: '0 auto',
+          marginTop: '5px',
+          fontWeight: 'bold'
+        }}>{stats.gamesWon}</span>
       </div>
     </div>
   );

@@ -15,6 +15,8 @@ const Leaderboard = () => {
   
   const usersArray = data.users;
 
+
+
   return (
     <div className="dashboard-container">
       <div className="content-wrapper">
@@ -31,6 +33,7 @@ const Leaderboard = () => {
               username={`${player.firstName} ${player.lastName}`}
               score={player.score}
               avatar={player.avatar?.src}
+              stats={player.stats}
             />
           ))}
         </div>
