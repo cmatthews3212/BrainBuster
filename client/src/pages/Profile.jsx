@@ -271,13 +271,20 @@ return (
             <div className='stats-container'>
                 <h2>Your Stats</h2>
                 <div>
-                    <h3>Games Played:</h3>
-                    <p className='gamesNum'>{userData.stats.gamesPlayed}</p>
-                    
-                </div>
-                <div>
-                    <h3>Games Won:</h3>
-                    <p className='gamesNum'>{userData.stats.gamesWon}</p>
+                    <div className='stats'>
+                        <h3>Games Played</h3>
+                        <p className='gamesNum' style={{
+                            fontSize: '25px'
+                        }}>{userData.stats.gamesPlayed}</p>
+                        
+                    </div>
+                    <div className='stats'>
+                        <h3>Games Won</h3>
+                        <p className='gamesNum'  style={{
+                            fontSize: '25px'
+                        }}>{userData.stats.gamesWon}</p>
+                    </div>
+
                 </div>
             </div>
         </div>
