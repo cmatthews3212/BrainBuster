@@ -18,12 +18,16 @@ const Lobby = () => {
   const {loading, data} = useQuery(GET_ME)
   const me = data?.me || {}
   
-  // console.log(me)
   useEffect(() => {
     
     if (!gameId) return;
     
     console.log('Lobby useEffect triggered with gameId:', gameId);
+
+    if (me._id) {
+      socket.emit('authenticated', me._id);
+      console.log(`Emitted 'authenticated' with user ID: ${me._id}`);
+    }
     
     const handleGameStarted = (gameData) => {
       console.log('Received gameStarted event with data:', gameData);
@@ -60,7 +64,7 @@ const Lobby = () => {
       socket.off('gameStarted', handleGameStarted);
       socket.off('opponentLeft', handleOpponentLeft);
     };
-  }, [gameId, navigate]);
+  }, [gameId, navigate, me._id]);
 
   const handleInvite = (friendId) => {
     const inviterId = me._id;

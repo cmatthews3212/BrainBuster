@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-//import JoinGame from '../components/Game/JoinGame';
 import JoinGame from '../components/JoinGame';
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_ME, QUERY_USERS } from '../utils/queries';
 import socket from '../socket';
-import Auth from '../utils/auth'
 import { useTheme } from './ThemeContext.jsx';
 
 function Dashboard() {
@@ -17,10 +15,38 @@ function Dashboard() {
   const [gameId, setGameId] = useState(null)
   const [inviteName, setInviteName] = useState(null) 
   const { loading, error, data } = useQuery(GET_ME);
+  const [authenticated, setAuthenticated] = useState(false);
   // console.log(data)
   const me = data?.me || {}
   console.log(me)
   console.log(socket)
+
+  useEffect(() => {
+    socket.connect();
+
+    if (me._id && !authenticated) {
+      socket.emit('authenticated', me._id);
+      console.log(`Emitted 'authenticated' with user ID: ${me._id}`);
+      setAuthenticated(true);
+    }
+
+    const handleInviteReceived = (gameData) => {
+      const { gameId, inviterId, senderName } = gameData;
+      setInviteReceived(true);
+      setInvitingPlayer(inviterId);
+      setGameId(gameId);
+      setInviteName(senderName);
+      console.log('Game invite received:', gameData);
+    };
+
+    socket.on('gameInviteReceived', handleInviteReceived);
+
+    return () => {
+      socket.off('gameInviteReceived', handleInviteReceived);
+      socket.disconnect();
+    };
+  }, [me._id, authenticated])
+
   const handleCreateGame = () => {
     navigate('/create-game');
   };
@@ -42,6 +68,12 @@ function Dashboard() {
   };
 
   useEffect(() => {
+    if (me._id) {
+      socket.emit('authenticated', me._id);
+      console.log(`Emitted 'authenticated' with user ID: ${me._id}`);
+    }
+
+
     const handleInviteReceived = (gameData) => {
       const { gameId, inviterId, friendId, senderName } = gameData;
 
@@ -50,7 +82,7 @@ function Dashboard() {
         setInvitingPlayer(inviterId);
         setGameId(gameId);
         setInviteName(senderName)
-
+        console.log('Game invite received:', gameData);
       }
 
 
@@ -63,17 +95,6 @@ function Dashboard() {
     }
   }, [me._id])
   
-  
-  socket.on('connection', () => {
-    console.log('Connected to the socket server');
-    if (me._id) {
-      socket.emit('authenticated', me._id);
-    }
-  });
-
-socket.on('gameInviteReceived', (data) => {
-  console.log("game Invite", data)
-})
 
 
 
