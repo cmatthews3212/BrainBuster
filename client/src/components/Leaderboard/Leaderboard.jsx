@@ -18,7 +18,9 @@ const Leaderboard = () => {
 
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container" style={{
+      marginTop: '100px'
+    }}>
       <div className="content-wrapper">
         <header className="dashboard-header">
           <h1>Leaderboard</h1>

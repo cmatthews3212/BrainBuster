@@ -4,7 +4,7 @@ import { useQuery } from '@apollo/client';
 import { GET_ME } from '../../utils/queries';
 import { useSocket } from '../../contexts/SocketContext'; 
 import Auth from '../../utils/auth';
-
+import socket from '../../socket';
 const Lobby = () => {
   const navigate = useNavigate();
   const { gameId } = useParams();
@@ -24,17 +24,9 @@ const Lobby = () => {
     if (!socket || !gameId) return;
     
     console.log('Lobby useEffect triggered with gameId:', gameId);
-
-    if (me._id && socket) {
-      socket.emit('authenticated', me._id, (response) => {
-        if (response.status === 'ok') {
-          console.log(`Emitted 'authenticated' with user ID: ${me._id}`);
-        } else {
-          console.error('Authentication failed:', response.message);
-          setError(response.message);
-          setGameFull(true);
-        }
-      });
+    if (me._id) {
+      socket.emit('authenticated', me._id);
+      console.log(`Emitted 'authenticated' with user ID: ${me._id}`);
     }
     
     const handleGameStarted = (gameData) => {
@@ -84,8 +76,7 @@ const Lobby = () => {
       socket.off('gameStarted', handleGameStarted);
       socket.off('opponentLeft', handleOpponentLeft);
     };
-  }, [socket, gameId, navigate, me._id]);
-
+  }, [gameId, navigate, me._id]);
   const handleInvite = (friendId) => {
     const inviterId = me._id;
     socket.emit('gameInvite', {
@@ -95,10 +86,8 @@ const Lobby = () => {
       senderName: `${Auth.getProfile().data.firstName} ${me.lastName}`
     })
     console.log('invite send', { gameId, friendId, inviterId })
-
     setInviteSent(true)
   }
-
   const handleAcceptInvite = () => {
     console.log(`Accepting invite from ${invitingPlayer}`);
     socket.emit('acceptGameInvite', {
@@ -106,7 +95,6 @@ const Lobby = () => {
       opponentId: invitingPlayer,
     })
   }
-
   console.log(data)
   
   const handleDeclineInvite = () => {
@@ -127,16 +115,13 @@ const Lobby = () => {
         <p>
           Game ID: <strong>{gameId}</strong>
         </p>
-
         {waiting ? (
           <p>Waiting for the game to start...</p>
         ) : (
           <p>Your opponent has joined. The game is starting...</p>
         )}
-
         {gameFull && <p className='error'>{error}</p>}
       </div>
-
       <div>
         {/* <h3>{invitingPlayer} has invited you to join their quiz!</h3>
         <button onClick={handleAcceptInvite}>Accept</button>

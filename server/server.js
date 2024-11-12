@@ -354,9 +354,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Handle game invitations
   socket.on('gameInvite', ({ gameId, friendId, inviterId, senderName }) => {
-    console.log('Sending invite to ', { gameId, friendId, inviterId, senderName });
+    console.log('sending invite to ', { gameId, friendId, inviterId, senderName})
 
     const recipientSocketIds = userIdToSocketIds.get(friendId);
 
@@ -441,11 +440,11 @@ io.on("connection", (socket) => {
       console.error('Error fetching questions:', error);
       io.to(gameId).emit('error', { message: 'Failed to fetch questions.' });
       delete games[gameId];
-      console.log(`acceptGameInvite: Game ${gameId} deleted due to error.`);
     }
   });
 
-  // Handle answer submissions
+  
+
   socket.on("submitAnswer", ({ gameId, questionIndex, answer }) => {
     const game = games[gameId];
     if (!game) {
@@ -519,3 +518,143 @@ io.on("connection", (socket) => {
     }
   });
 });
+
+const showAnswer = (gameId, questionIndex) => {
+  const game = games[gameId];
+
+  if (!game) {
+    console.error(`showAnswer: Game ${gameId} not found.`);
+    return;
+  }
+
+  const question = game.questions[questionIndex]
+  const correctAnswer = question.correctAnswer;
+
+  [game.player1, game.player2].forEach((playerId) => {
+    const answer = game.answers[playerId][questionIndex];
+    if (answer === correctAnswer) {
+      game.scores[playerId] = (game.scores[playerId] || 0) + 1;
+      console.log(
+        `showAnswer: Player ${playerId} answered correctly. Score: ${game.scores[playerId]}`
+      );
+    } else {
+      console.log(
+        `showAnswer: Player ${playerId} answered incorrectly or did not answer.`
+      );
+    }
+  });
+
+  io.to(gameId).emit('showAnswer', {
+    questionIndex,
+    correctAnswer,
+    players: {
+      [game.player1]: game.answers[game.player1][questionIndex],
+      [game.player2]: game.answers[game.player2][questionIndex],
+    },
+  });
+
+  game.timers.answerTimer = setTimeout(() => {
+    game.currentQuestionIndex += 1;
+    const sendQuestion = () => {
+      if (game.currentQuestionIndex >= game.totalQuestions) {
+        endGame(gameId);
+        return;
+      }
+
+      const question = game.questions[game.currentQuestionIndex];
+
+      // Verify the question structure
+      if (
+        !question ||
+        typeof question.question !== 'string' ||
+        !question.correctAnswer ||
+        !Array.isArray(question.incorrectAnswers)
+      ) {
+        console.error(
+          `sendQuestion: Invalid question structure for questionIndex ${game.currentQuestionIndex} in game ${gameId}.`
+        );
+        endGame(gameId);
+        return;
+      }
+
+      const shuffledAnswers = shuffleAnswers2([
+        ...question.incorrectAnswers,
+        question.correctAnswer,
+      ]);
+
+      // Reset answer tracking for the new question
+      game.answersSubmitted = {};
+
+      // Emit 'newQuestion' event with correct data
+      io.to(gameId).emit('newQuestion', {
+        questionIndex: game.currentQuestionIndex,
+        question: question.question,
+        answers: shuffledAnswers,
+        totalQuestions: game.totalQuestions,
+      });
+
+      // Start 20-second timer for answering
+      game.timers.questionTimer = setTimeout(() => {
+        console.log(
+          `sendQuestion: Time up for question ${game.currentQuestionIndex + 1} in game ${gameId}. Showing answer.`
+        );
+        showAnswer(gameId, game.currentQuestionIndex);
+      }, 20000); // 20 seconds
+    };
+
+    sendQuestion();
+  }, 10000); // 10 seconds
+};
+
+
+function endGame(gameId) {
+  const game = games[gameId];
+
+  if (!game) return;
+
+  console.log(`Ending game ${gameId}.`);
+  
+  const score1 = game.scores[game.player1] || 0;
+  const score2 = game.scores[game.player2] || 0;
+
+  let result;
+  if (score1 > score2) {
+    result = {
+      winner: game.player1,
+      loser: game.player2,
+    };
+    console.log(`endGame: Player ${game.player1} wins against Player ${game.player2}.`);
+  } else if (score2 > score1) {
+    result = {
+      winner: game.player2,
+      loser: game.player1,
+    };
+    console.log(`endGame: Player ${game.player2} wins against Player ${game.player1}.`);
+  } else {
+    result = {
+      winner: null,
+    };
+    console.log(`endGame: Game ${gameId} ended in a tie.`);
+  }
+
+  io.to(gameId).emit('gameOver', {
+    scores: game.scores,
+    result,
+  });
+
+  clearTimeout(game.timers.questionTimer);
+  clearTimeout(game.timers.answerTimer);
+  
+  delete games[gameId];
+  console.log(`endGame: Game ${gameId} has been cleaned up.`);
+}
+
+function shuffleAnswers2(answers) {
+  let shuffled = [...answers];
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};

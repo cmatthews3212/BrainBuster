@@ -4,6 +4,7 @@ import { QUERY_USERS } from "../../utils/queries";
 import Profile from "../../pages/Profile";
 import FriendSelect from "./Friend";
 import { useNavigate } from "react-router-dom";
+import Auth from '../../utils/auth'
 import './Find.css';
 
 const FindFriends = () => {
@@ -43,7 +44,8 @@ const FindFriends = () => {
                 <ul>
                     {friendsData ? (
                         friendsData.map((friend) => (
-                            <li 
+                            friend._id !== Auth.getProfile().data._id ? (
+                          <li 
                                 key={friend._id}
                                 className="friend-item"
                                 onClick={() => handleFriendSelect(friend)}
@@ -59,6 +61,7 @@ const FindFriends = () => {
                                     <span>{friend.firstName} {friend.lastName}</span>
                                 </div>
                             </li>
+                            ) : (<></>)
                         ))
                     ) : (
                         <p className="no-users">No Users Found...</p>

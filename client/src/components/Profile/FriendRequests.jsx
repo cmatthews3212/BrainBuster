@@ -1,27 +1,39 @@
 const FriendRequests = ({ userData, handleAddFriend, handleDecline }) => {
     return (
-        <div className='friend-requests'>
-            <h2>Friend Requests</h2>
-            {userData.friendRequests ? (
-                userData.friendRequests.map((request) => (
-                    <div key={request._id} className='request-card'>
-                        <h3>{request.firstName} {request.lastName}</h3>
-                        <hr />
-                        <div className='request-actions'>
-                            <button onClick={() => handleAddFriend(request)} className="accept-request">
-                                Accept Friend Request
-                            </button>
-                            <button onClick={() => handleDecline(request)} className="decline-request">
-                                Decline Friend Request
-                            </button>
+        <div className="friend-requests-container">
+            <div className="friend-requests-header">
+                <h2>Friend Requests</h2>
+            </div>
+            
+            {userData.friendRequests && userData.friendRequests.length > 0 ? (
+                <div className="friend-requests-list">
+                    {userData.friendRequests.map((request) => (
+                        <div key={request._id} className="friend-request-item">
+                            <span className="friend-name">{request.firstName} {request.lastName}</span>
+                            <div className="friend-actions">
+                                <button 
+                                    className="accept-button"
+                                    onClick={() => handleAddFriend(request)}
+                                >
+                                    Accept
+                                </button>
+                                <button 
+                                    className="decline-button"
+                                    onClick={() => handleDecline(request)}
+                                >
+                                    Decline
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))
+                    ))}
+                </div>
             ) : (
-                <p>No friend requests yet...</p>
+                <div className="no-requests-message">
+                    No friend requests
+                </div>
             )}
         </div>
     );
-}
+};
 
 export default FriendRequests; 

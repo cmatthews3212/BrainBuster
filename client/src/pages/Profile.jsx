@@ -255,7 +255,7 @@ return (
         <ProfileHeader userData={userData} />
         
         <div className='profile-info'>
-            <div className='friends-container'>
+            <div className='profile-left-column'>
                 <FriendsList 
                     userData={userData}
                     handleRemoveFriend={handleRemoveFriend}
