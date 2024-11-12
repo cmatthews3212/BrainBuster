@@ -5,7 +5,6 @@ import { useMutation, useQuery } from '@apollo/client';
 import { GET_ME, QUERY_USERS } from '../utils/queries';
 import socket from '../socket';
 import { useTheme } from './ThemeContext.jsx';
-import { useSocket } from '../contexts/SocketContext';
 
 function Dashboard() {
   const navigate = useNavigate();

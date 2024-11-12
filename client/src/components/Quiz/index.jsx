@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { useSocket } from '../../contexts/SocketContext';
+import socket from '../../socket';
 import styles from './quiz.module.css';
 import Auth from '../../utils/auth';
 import { useMutation, useQuery } from "@apollo/client";
@@ -70,8 +70,7 @@ const Quiz = () => {
 
     setCorrectAnswer(correctAnswer);
 
-    const userId = Auth.getProfile().data._id; 
-    const userAnswer = players[userId] || '';
+    const userAnswer = players[socket.id] || '';
 
     if (userAnswer === correctAnswer) {
       setScore((prev) => prev + 1);
@@ -97,8 +96,8 @@ const Quiz = () => {
   };
 
   useEffect(() => {
-    if (!gameId || !socket) {
-      console.log('Missing game ID or socket not initialized.');
+    if (!gameId) {
+      console.log('Missing game ID.');
       return;
     }
     
@@ -124,7 +123,7 @@ const Quiz = () => {
       socket.off('opponentLeft');
       socket.off('error');
     };
-  }, [gameId, navigate, socket]);
+  }, [gameId, navigate]);
 
   // Timer logic for countdown
   useEffect(() => {
