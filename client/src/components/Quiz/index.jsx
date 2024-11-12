@@ -31,9 +31,7 @@ const Quiz = () => {
   // const usersArray = data.users
   // console.log(usersArray)
 
-  const [totalQuestions, setTotalQuestions] = useState(
-    location.state?.totalQuestions || 0
-  );
+  const totalQuestions = location.state?.totalQuestions || 0;
   // const usersArray = data.users
   // console.log(usersArray)
   // const [totalQuestions, setTotalQuestions] = useState(0);
