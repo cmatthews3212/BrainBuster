@@ -17,14 +17,15 @@ function Dashboard() {
   const [gameId, setGameId] = useState(null)
   const [inviteName, setInviteName] = useState(null) 
   const { loading, error, data } = useQuery(GET_ME);
-  // console.log(data)
+  const { loading: loadingUsers, error: errorUsers, data: dataUsers } = useQuery(QUERY_USERS);
+
   const me = data?.me || {}
   console.log(me)
   console.log(socket)
   const handleCreateGame = () => {
     navigate('/create-game');
   };
-
+  
   const handleJoinGame = () => {
     socket.emit('acceptGameInvite', {
       gameId,
@@ -32,28 +33,28 @@ function Dashboard() {
     })
     if (gameId){
       navigate(`/lobby/${gameId}`)
-
+      
     } 
     
   }
- 
+  
   const handlePlay = () => {
     navigate('/home');
   };
-
+  
   useEffect(() => {
     const handleInviteReceived = (gameData) => {
       const { gameId, inviterId, friendId, senderName } = gameData;
-
+      
       if (friendId === me._id) {
         setInviteReceived(true);
         setInvitingPlayer(inviterId);
         setGameId(gameId);
         setInviteName(senderName)
-
+        
       }
-
-
+      
+      
     }
     
     socket.on('gameInviteReceived', handleInviteReceived)
@@ -70,17 +71,25 @@ function Dashboard() {
       socket.emit('authenticated', me._id);
     }
   });
+  
+  socket.on('gameInviteReceived', (data) => {
+    console.log("game Invite", data)
+  })
+  
+  const topThreePlayers = dataUsers.users.slice(0, 3);
 
-socket.on('gameInviteReceived', (data) => {
-  console.log("game Invite", data)
-})
-
-
-
+  if (errorUsers) {
+    console.error(errorUsers)
+  }
+  if (loadingUsers) {
+    return <p>Loading...</p>
+  }
+  
+  
   if (loading) {
     return <p>Loading...</p>
   }
-
+  
   if (error ) {
     console.error(error)
   }
@@ -88,10 +97,11 @@ socket.on('gameInviteReceived', (data) => {
   if (!me.avatar) {
     navigate('/avatars')
   }
-
-
-
-
+  
+  
+  
+  
+  
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Main content - adjusted to account for navbar */}
@@ -233,8 +243,8 @@ socket.on('gameInviteReceived', (data) => {
           }}>
             <h2 style={{ color: '#7E57C2', marginBottom: '1.5rem' }}>Top Players</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-              {[1, 2, 3].map((num) => (
-                <div key={num} style={{ 
+              {topThreePlayers.map((player, index) => (
+                <div key={index} style={{ 
                   backgroundColor: '#F5F5F5',
                   padding: '1.5rem',
                   borderRadius: '8px',
@@ -253,11 +263,11 @@ socket.on('gameInviteReceived', (data) => {
                     justifyContent: 'center',
                     fontWeight: 'bold'
                   }}>
-                    {num}
+                    {index + 1}
                   </div>
                   <div>
-                    <p style={{ color: '#7E57C2', fontWeight: '500' }}>Player {num}</p>
-                    <p style={{ color: '#616161' }}>Score: {600 - (num * 50)}</p>
+                    <p style={{ color: '#7E57C2', fontWeight: '500' }}>{player.firstName} {player.lastName}</p>
+                    <p style={{ color: '#616161' }}>Games Won: {player.stats.gamesWon}</p>
                   </div>
                 </div>
               ))}
