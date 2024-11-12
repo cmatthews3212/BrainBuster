@@ -1,36 +1,43 @@
-import { Link } from 'react-router-dom';
+import './FriendsList.css';
 
 const FriendsList = ({ userData, handleRemoveFriend, navigate }) => {
     return (
-        <div className='friends-list'>
-            <div className='friends-list-header'>
-                <h2>Your Friends</h2>
-                <button onClick={() => navigate('/find')} className="find-friends-btn">
-                    Find Friends!
-                </button>
+        <div className="friends-container">
+            <div className="friends-list-header">
+                <h2>Friends List</h2>
             </div>
-            <div className='friends-grid'>
-                {userData?.friends ? (
-                    userData.friends.map((friend) => (
-                        <div key={friend._id} className='friend-card'>
-                            <h3>{friend.firstName} {friend.lastName}</h3>
-                            <hr />
-                            <div className='friend-actions'>
-                                <Link className='view-friend' to={`/profile/${friend._id}`}>
-                                    View Friend
-                                </Link>
-                                <button className="remove-friend" onClick={() => handleRemoveFriend(friend)}>
-                                    Remove Friend
+            
+            {userData.friends && userData.friends.length > 0 ? (
+                <div className="friends-list">
+                    {userData.friends.map((friend) => (
+                        <div key={friend._id} className="friend-item">
+                            <span className="friend-name">
+                                {friend.firstName} {friend.lastName}
+                            </span>
+                            <div className="friend-actions">
+                                <button 
+                                    className="friend-button view-button"
+                                    onClick={() => navigate(`/profile/${friend._id}`)}
+                                >
+                                    View
+                                </button>
+                                <button 
+                                    className="friend-button remove-button"
+                                    onClick={() => handleRemoveFriend(friend)}
+                                >
+                                    Remove
                                 </button>
                             </div>
                         </div>
-                    ))
-                ) : (
-                    <p>No friends found...</p>
-                )}
-            </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="no-friends-message">
+                    No friends added yet
+                </div>
+            )}
         </div>
     );
-}
+};
 
 export default FriendsList; 
