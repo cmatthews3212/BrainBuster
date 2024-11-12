@@ -169,7 +169,10 @@ function Dashboard() {
               <img src={data.me.avatar.src}></img>
             </div>
             <h3 style={{ color: '#7E57C2', marginBottom: '0.5rem' }}>{data.me.firstName} {data.me.lastName}</h3>
-            <p style={{ color: '#616161' }}>Rank: #1</p>
+            {dataUsers ? dataUsers.users.map((user, index) => (
+              user._id === me._id ? <p style={{ color: '#616161' }}>Rank: #{index + 1}</p> : <></>
+            )) : ( <></>)}
+            
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
