@@ -5,6 +5,7 @@ const { expressMiddleware } = require("@apollo/server/express4");
 const path = require("path");
 const { authMiddleware } = require("./utils/auth");
 const { fetchTriviaQuestions } = require('./utils/requests');
+const userIdToSocketIds = new Map();
 
 const { typeDefs, resolvers } = require("./schemas");
 const db = require("./config/connection");
@@ -180,6 +181,16 @@ const startGameLoop = (gameId) => {
 io.on("connection", (socket) => {
   console.log(`A player connected: ${socket.id}`);
 
+  socket.on('authenticated', (userId) => {
+    if (userIdToSocketIds.has(userId)) {
+      userIdToSocketIds.get(userId).add(socket.id);
+    } else {
+      userIdToSocketIds.set(userId, new Set([socket.id]));
+    }
+    console.log(`User ${userId} authenticated with socket ID ${socket.id}`);
+    console.log('Current User Mappings:', Array.from(userIdToSocketIds.entries()));
+  });
+
   socket.on("createGame", ({ gameId, category, difficulty }) => {
     if (games[gameId]) {
       socket.emit('error', { message: 'Game ID already exists.' });
@@ -266,14 +277,84 @@ io.on("connection", (socket) => {
   // socket.on('gameInvite', ({ gameId, friendId, inviterId, senderName }) => {
   //   console.log('sending invite to ', { gameId, friendId, inviterId, senderName})
 
-    
+    const recipientSocketIds = userIdToSocketIds.get(friendId);
+
+
+    if (recipientSocketIds && recipientSocketIds.size > 0) {
+    // Emit the invitation to each of the recipient's active sockets
+    recipientSocketIds.forEach((recipientSocketId) => {
+      io.to(recipientSocketId).emit('gameInviteReceived', {
+        gameId,
+        inviterId,
+        senderName,
+      });
+      console.log(`Invite sent to ${friendId} with socket ID ${recipientSocketId}`);
+    });
+  } else {
+    // Notify the inviter that the friend is not online
+    socket.emit('error', { message: 'Friend is not online.' });
+    console.log(`Failed to send invite to ${friendId}: Friend not online.`);
+  }
+});
+
+
+  socket.on('acceptGameInvite', async ({ gameId, opponentId }) => {
+    console.log(`Player ${socket.id} accepted invite to join game ${gameId} from ${opponentId}`);
+
+    const game = games[gameId];
+
+    if (!game) {
+      socket.emit('error', { message: 'Game not found.' });
+      return;
+    }
   
-  //   // io.to(recipientSocketId).emit('gameInviteReceived', {
-  //   //   gameId,
-  //   //   inviterId,
-  //   //   senderName,
-  //   // });
-  // // },
+    if (game.player2) {
+      socket.emit('error', { message: 'Game already has two players.' });
+      return;
+    }
+
+    game.player2 = socket.id
+
+  
+    games[gameId].answers[socket.id] = {};
+    games[gameId].scores[game.player2] = 0;
+    games[gameId].ready[game.player2] = false;
+
+    socket.join(gameId);
+    socket.emit("gameJoined", { gameId });
+
+    console.log(`Player ${socket.id} joined game ${gameId}`);
+
+    try {
+      const questions = await fetchTriviaQuestions(10, game.category, game.difficulty);
+    game.questions = questions;
+
+    console.log(`acceptGameInvite: Questions fetched for game ${gameId}. Total Questions: ${questions.length}`);
+    console.log('First Question:', questions[0]);
+
+    // Emit 'gameStarted' to both players
+    io.to(game.player1).emit('gameStarted', { 
+      gameId, 
+      opponentId: game.player2, 
+      playerId: game.player1,
+      totalQuestions: questions.length,
+    });
+
+    io.to(game.player2).emit('gameStarted', { 
+      gameId, 
+      opponentId: game.player1, 
+      playerId: game.player2,
+      totalQuestions: questions.length,
+    });
+
+    // Start the game loop
+    startGameLoop(gameId);
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+      io.to(gameId).emit('error', { message: 'Failed to fetch questions.' });
+      delete games[gameId];
+    }
+  });
 
   
   //   io.to(friendId).emit('gameInviteReceived', {
@@ -316,34 +397,40 @@ io.on("connection", (socket) => {
 
       showAnswer(gameId, questionIndex);
     }
-  })
+  });
 
 
   socket.on("disconnect", () => {
     console.log(`Player disconnected: ${socket.id}`);
-    // for (let userId in users) {
-    //   if (users[userId] === socket.id) {
-    //     delete users[userId];
-    //     console.log(`User ${userId} disconnected`);
-    //     break;
-    //   }
-    // }
 
+    for (let [userId, socketIdSet] of userIdToSocketIds.entries()) {
+      if (socketIdSet.has(socket.id)) {
+        socketIdSet.delete(socket.id);
+        console.log(`Removed socket ID ${socket.id} from user ${userId}`);
+  
+        if (socketIdSet.size === 0) {
+          userIdToSocketIds.delete(userId);
+          console.log(`User ${userId} has no more active connections and was removed from mappings.`);
+        }
+        break; // Exit the loop once the socket is found and removed
+      }
+    }
+  
+    // Handle game disconnection as before
     for (let gameId in games) {
       const game = games[gameId];
       if (game.player1 === socket.id || game.player2 === socket.id) {
         const opponentId = game.player1 === socket.id ? game.player2 : game.player1;
-
+  
         if (opponentId) {
           io.to(opponentId).emit("opponentLeft");
         }
-
-    
+  
         clearTimeout(game.timers.questionTimer);
         clearTimeout(game.timers.answerTimer);
-
+  
         delete games[gameId];
-
+  
         console.log(`Game ${gameId} ended due to player disconnect.`);
         break;
       }
