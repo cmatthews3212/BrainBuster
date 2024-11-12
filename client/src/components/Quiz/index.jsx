@@ -242,7 +242,7 @@ const Quiz = () => {
           padding: '15px',
           color: 'white',
           borderRadius: '50px'
-        }}>Return to Home</button>
+        }}>Return to Create Game</button>
       </div>
     );
   }
