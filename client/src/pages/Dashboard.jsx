@@ -178,7 +178,7 @@ function Dashboard() {
               <span>🧑</span>
               <span>Customize Avatar</span>
             </Link>
-            <Link
+            {/* <Link
               to="/themes"
               style={{
                 color: '#7E57C2',
@@ -193,7 +193,7 @@ function Dashboard() {
             >
               <span>🎨</span>
               <span>Themes</span>
-            </Link>
+            </Link> */}
           </div>
         </div>
 
