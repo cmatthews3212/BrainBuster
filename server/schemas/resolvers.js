@@ -271,7 +271,8 @@ const resolvers = {
         throw new AuthenticationError('User not found.');
       }
 
-      user.stats = stats;
+      user.stats.gamesPlayed = stats.gamesPlayed ?? user.stats.gamesPlayed;
+      user.stats.gamesWon = stats.gamesWon ?? user.stats.gamesWon;
       await user.save();
       return user.stats;
 

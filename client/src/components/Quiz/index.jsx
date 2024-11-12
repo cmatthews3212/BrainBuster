@@ -28,10 +28,10 @@ const Quiz = () => {
   const [correctAnswer, setCorrectAnswer] = useState(null);
   const {loading, data} = useQuery(QUERY_USERS);
   const [addStats] = useMutation(ADD_STATS)
-  let wins = 0;
-  let played = 0;
-  const usersArray = data.users
-  console.log(usersArray)
+  const [wins, setWins] = useState(0);
+  const [plays, setPlays] = useState(0)
+  // const usersArray = data.users
+  // console.log(usersArray)
 
   const totalQuestions = location.state?.totalQuestions || 0;
   
@@ -107,6 +107,12 @@ const Quiz = () => {
     setFinalScores(scores);
     setResult(result);
     setGameOver(true);
+
+    if (result.winner === socket.id) {
+      setWins((prevWins) => prevWins + 1)
+    }
+
+    setPlays((prevPlays) => prevPlays + 1)
   };
 
   useEffect(() => {
@@ -116,7 +122,15 @@ const Quiz = () => {
     }
   }, [timeLeft]);
 
-  const handleAddStat = async (wins, played) => {
+
+  
+  useEffect(() => {
+    if (gameOver) {
+      handleAddStat(wins, plays)
+    }
+  }, [gameOver, wins, plays])
+
+  const handleAddStat = async () => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
   
     if (!token) {
@@ -129,7 +143,7 @@ const Quiz = () => {
             userId: Auth.getProfile().data._id, 
             stats: {
               gamesWon: wins,
-              gamesPlayed: played
+              gamesPlayed: plays
             }
         },
       })
@@ -147,21 +161,17 @@ const Quiz = () => {
     let resultText;
     if (result.winner === socket.id) {
       resultText = 'You Win!';
-      wins += 1
-      played += 1
+    
+
     } else if (result.winner === null) {
       resultText = "It's a Tie!";
-      played += 1
+
     } else {
       resultText = 'You Lose!';
-      played += 1
+     
     }
 
 
-    console.log('my score', myScore, 'their score', opponentScore)
-    
-  
-    handleAddStat(wins, played);
 
     return (
       <div className={styles.gameOverContainer} style={{
