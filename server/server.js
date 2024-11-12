@@ -273,10 +273,9 @@ io.on("connection", (socket) => {
     //   inviterId,
     //   senderName,
     // });
-  //}
+  },
 
-   
-  )
+  
 
   socket.on("submitAnswer", ({ gameId, questionIndex, answer }) => {
     const game = games[gameId];
@@ -481,4 +480,4 @@ function shuffleAnswers2(answers) {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
-}
+};
