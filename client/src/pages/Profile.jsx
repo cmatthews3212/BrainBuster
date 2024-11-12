@@ -272,7 +272,7 @@ return (
                 <h2>Your Stats</h2>
                 <div>
                     <h3>Games Played:</h3>
-                    <p className=''
+                    <p className='playNum'></p>
                 </div>
             </div>
         </div>
