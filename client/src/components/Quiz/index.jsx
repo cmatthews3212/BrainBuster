@@ -25,8 +25,14 @@ const Quiz = () => {
   // const {loading, data} = useQuery(QUERY_USERS);
   const [addStats] = useMutation(ADD_STATS);
   const [wins, setWins] = useState(0);
-  const [plays, setPlays] = useState(0);
-  const [totalQuestions, setTotalQuestions] = useState(location.state?.totalQuestions || 0);
+  const [plays, setPlays] = useState(0)
+  // const usersArray = data.users
+  // console.log(usersArray)
+
+  const totalQuestions = location.state?.totalQuestions || 0;
+  // const usersArray = data.users
+  // console.log(usersArray)
+  // const [totalQuestions, setTotalQuestions] = useState(0);
   const [opponentId, setOpponentId] = useState(null);
   const {loading, data} = useQuery(GET_ME)
 
