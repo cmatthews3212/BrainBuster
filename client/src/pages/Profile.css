@@ -125,3 +125,17 @@
     background-color: rgb(230, 50, 110);
     transform: translateY(-2px);
 }
+
+.stats-container div {
+    /* display: flex; */
+}
+
+.stats-container div .stats {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.stats-container div .stats h3, p {
+    text-align: center;
+}

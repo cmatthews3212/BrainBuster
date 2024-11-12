@@ -28,7 +28,7 @@ const resolvers = {
       return user;
     },
     users: async () => {
-      return await User.find({});
+      return await User.find().sort({"stats.gamesWon" : -1});
     },
     game: async (parent, { gameId }, context) => {
       if (context.user) {
@@ -259,10 +259,10 @@ const resolvers = {
       //   return user.avatar;
     },
     addStats: async (parent, { userId, stats }, context) => {
-      if (!context.user) {
-        console.error('Please log in');
-        throw new AuthenticationError('Please log in.');
-      }
+      // if (!context.user) {
+      //   console.error('Please log in');
+      //   throw new AuthenticationError('Please log in.');
+      // }
 
       const user = await User.findById(userId);
 
@@ -271,7 +271,8 @@ const resolvers = {
         throw new AuthenticationError('User not found.');
       }
 
-      user.stats = stats;
+      user.stats.gamesPlayed = stats.gamesPlayed ?? user.stats.gamesPlayed;
+      user.stats.gamesWon = stats.gamesWon ?? user.stats.gamesWon;
       await user.save();
       return user.stats;
 

@@ -26,9 +26,15 @@ const Quiz = () => {
   const [correctAnswer, setCorrectAnswer] = useState(null);
   const {loading, data} = useQuery(QUERY_USERS);
   const [addStats] = useMutation(ADD_STATS)
-  const usersArray = data.users
-  console.log(usersArray)
-  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [wins, setWins] = useState(0);
+  const [plays, setPlays] = useState(0)
+  // const usersArray = data.users
+  // console.log(usersArray)
+
+  const totalQuestions = location.state?.totalQuestions || 0;
+  // const usersArray = data.users
+  // console.log(usersArray)
+  // const [totalQuestions, setTotalQuestions] = useState(0);
   const [opponentId, setOpponentId] = useState(null);
   
   const handleGameStarted = (data) => {
@@ -73,15 +79,15 @@ const Quiz = () => {
     setTimeLeft(10); 
   };
 
-  const handleGameOver = (data) => {
-    const { scores, result } = data;
-    setFinalScores(scores);
-    setResult(result);
-    setGameOver(true);
+  // const handleGameOver = (data) => {
+  //   const { scores, result } = data;
+  //   setFinalScores(scores);
+  //   setResult(result);
+  //   setGameOver(true);
 
-    console.log('Final Scores:', scores);
-    console.log('Game Result:', result);
-  };
+  //   console.log('Final Scores:', scores);
+  //   console.log('Game Result:', result);
+  // };
 
 
   useEffect(() => {
@@ -125,15 +131,62 @@ const Quiz = () => {
     }
   }, [gameOver, finalScores, opponentId]);
   
+  const handleGameOver = (data) => {
+    const { scores, result } = data;
+    setFinalScores(scores);
+    setResult(result);
+    setGameOver(true);
+
+    if (result.winner === socket.id) {
+      setWins((prevWins) => prevWins + 1)
+    }
+
+    setPlays((prevPlays) => prevPlays + 1)
+  };
+
   useEffect(() => {
     if (timeLeft > 0) {
       const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timerId);
     }
   }, [timeLeft]);
+
+
+  
+  useEffect(() => {
+    if (gameOver) {
+      handleAddStat(wins, plays)
+    }
+  }, [gameOver, wins, plays])
+
+  const handleAddStat = async () => {
+    const token = Auth.loggedIn() ? Auth.getToken() : null;
+  
+    if (!token) {
+        return false;
+    }
+
+    try {
+      const { data } = await addStats({
+        variables: {
+            userId: Auth.getProfile().data._id, 
+            stats: {
+              gamesWon: wins,
+              gamesPlayed: plays
+            }
+        },
+      })
+      console.log(data)
+
+    } catch (err) {
+      console.error(err)
+    }
+  }
   
   if (gameOver) {
     const myScore = finalScores[socket.id] || 0;
+    // const opponentScore = finalScores[opponentId] || 0;
+   
     const opponentEntry = Object.entries(finalScores).find(([id, score]) => id !== socket.id);
     const opponentScore = opponentEntry ? opponentEntry[1] : 0;
 
@@ -141,21 +194,21 @@ const Quiz = () => {
     console.log(`Opponent Socket ID: ${opponentEntry ? opponentEntry[0] : 'Not Found'}`);
     console.log(`My Score: ${myScore}`);
     console.log(`Opponent's Score: ${opponentScore}`);
-    let wins = 0;
-    let played = 0;
+
     let resultText;
 
     if (result.winner === socket.id) {
       resultText = 'You Win!';
-      wins += 1
-      played += 1
+    
+
     } else if (result.winner === null) {
       resultText = "It's a Tie!";
-      played += 1
+
     } else {
       resultText = 'You Lose!';
-      played += 1
+     
     }
+
 
     console.log(`My Score: ${myScore}, Opponent's Score: ${opponentScore}`);
 
