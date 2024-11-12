@@ -85,22 +85,22 @@ const FriendSelect = ({ friend, onClear, gameId }) => {
            
             
             <div>
-                {data.me.friends ? (
-                   data.me.friends.map((meFriend) => (
-                    meFriend._id === friend._id ? 
+                {data.me.friends && data.me.friends.some((meFriend) => meFriend._id === friend._id) ? (
                     <>
-                    <h3>You are friends!</h3> 
+                      <h3 style={{
+                        textAlign: 'center'
+                    }}>Your Friends!</h3>
                     <button onClick={() => renderFriendProfile(friend._id)}>View {friend.firstName}'s Profile</button>
-                    </> : <button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
-                   ))
+                    </>
                 ) : (
                     <>
-                   
+                     <h3 style={{
+                        textAlign: 'center'
+                    }}>Your Not Friends!</h3>
+                    <button onClick={handleAddFriend}>Send Friend Request to {friend.firstName}</button>
+                  
                     </>
-                )}
-
-
-                
+                    )}
 
                
             </div>
