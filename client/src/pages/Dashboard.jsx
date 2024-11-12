@@ -108,8 +108,7 @@ function Dashboard() {
     console.log("game Invite", data)
   })
   
-  const topThreePlayers = dataUsers.users.slice(0, 3);
-
+  
   if (errorUsers) {
     console.error(errorUsers)
   }
@@ -125,11 +124,12 @@ function Dashboard() {
   if (error ) {
     console.error(error)
   }
-
+  
   if (!me.avatar) {
     navigate('/avatars')
   }
   
+  const topThreePlayers = dataUsers.users.slice(0, 3);
   
   
   
