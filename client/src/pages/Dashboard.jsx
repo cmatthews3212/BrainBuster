@@ -5,7 +5,6 @@ import { GET_ME, QUERY_USERS } from '../utils/queries';
 import socket from '../socket';
 import { Link } from 'react-router-dom';
 import { useTheme } from './ThemeContext.jsx';
-import { useSocket } from '../contexts/SocketContext';
 
 function Dashboard() {
   const navigate = useNavigate();

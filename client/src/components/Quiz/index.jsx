@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { useSocket } from '../../contexts/SocketContext';
+import socket from '../../socket';
 import styles from './quiz.module.css';
 import Auth from '../../utils/auth'
 import { useMutation, useQuery } from "@apollo/client";
@@ -12,8 +12,6 @@ import { ADD_STATS } from "../../utils/mutations";
 const Quiz = () => {
   const { gameId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  const socket = useSocket(); 
 
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(null);
@@ -26,8 +24,8 @@ const Quiz = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
-  const { loading, data } = useQuery(QUERY_USERS);
-  const [addStats] = useMutation(ADD_STATS);
+  const {loading, data} = useQuery(QUERY_USERS);
+  const [addStats] = useMutation(ADD_STATS)
   const [wins, setWins] = useState(0);
   const [plays, setPlays] = useState(0)
   // const usersArray = data.users
@@ -72,8 +70,7 @@ const Quiz = () => {
 
     setCorrectAnswer(correctAnswer);
 
-    const userId = Auth.getProfile().data._id; 
-    const userAnswer = players[userId] || '';
+    const userAnswer = players[socket.id] || '';
 
     if (userAnswer === correctAnswer) {
       setScore((prev) => prev + 1);
@@ -84,25 +81,20 @@ const Quiz = () => {
     setTimeLeft(10); 
   };
 
-  const handleGameOver = (data) => {
-    const { scores, result } = data;
+  // const handleGameOver = (data) => {
+  //   const { scores, result } = data;
+  //   setFinalScores(scores);
+  //   setResult(result);
+  //   setGameOver(true);
 
-    setFinalScores(scores);
-    setResult(result);
-    setGameOver(true);
+  //   console.log('Final Scores:', scores);
+  //   console.log('Game Result:', result);
+  // };
 
-    const userId = Auth.getProfile().data._id;
-
-    if (result.winner === userId) {
-      setWins((prevWins) => prevWins + 1);
-    }
-
-    setPlays((prevPlays) => prevPlays + 1);
-  };
 
   useEffect(() => {
-    if (!gameId || !socket) {
-      console.log('Missing game ID or socket not initialized.');
+    if (!gameId) {
+      console.log('Missing game ID.');
       return;
     }
     
@@ -129,7 +121,7 @@ const Quiz = () => {
       socket.off('opponentLeft');
       socket.off('error');
     };
-  }, [gameId, navigate, socket]);
+  }, [gameId, navigate]);
 
   useEffect(() => {
     if (gameOver) {
@@ -141,6 +133,18 @@ const Quiz = () => {
     }
   }, [gameOver, finalScores, opponentId]);
   
+  const handleGameOver = (data) => {
+    const { scores, result } = data;
+    setFinalScores(scores);
+    setResult(result);
+    setGameOver(true);
+
+    if (result.winner === socket.id) {
+      setWins((prevWins) => prevWins + 1)
+    }
+
+    setPlays((prevPlays) => prevPlays + 1)
+  };
 
   useEffect(() => {
     if (timeLeft > 0) {
@@ -182,12 +186,12 @@ const Quiz = () => {
   }
   
   if (gameOver) {
-    const userId = Auth.getProfile().data._id;
-    const myScore = finalScores[userId] || 0;
-    const opponentScore = opponentId ? (finalScores[opponentId] || 0) : 0;
+    const myScore = finalScores[socket.id] || 0;
+    // const opponentScore = finalScores[opponentId] || 0;
    
     const opponentEntry = Object.entries(finalScores).find(([id, score]) => id !== socket.id);
-    
+    const opponentScore = opponentEntry ? opponentEntry[1] : 0;
+
     console.log(`My Socket ID: ${socket.id}`);
     console.log(`Opponent Socket ID: ${opponentEntry ? opponentEntry[0] : 'Not Found'}`);
     console.log(`My Score: ${myScore}`);

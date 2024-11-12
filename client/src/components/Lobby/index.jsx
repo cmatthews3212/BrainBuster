@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { GET_ME } from '../../utils/queries';
-import { useSocket } from '../../contexts/SocketContext'; 
 import Auth from '../../utils/auth';
 import socket from '../../socket';
 const Lobby = () => {
@@ -14,14 +13,13 @@ const Lobby = () => {
   const [error, setError] = useState('');
   const [inviteReceived, setInviteReceived] = useState(false);
   const [invitingPlayer, setInvitingPlayer] = useState(null);
-  const [inviterId, setInviterId] = useState(null); // New state to store inviterId
-  const [inviteSent, setInviteSent] = useState(false);
-  const { loading, data } = useQuery(GET_ME);
-  const me = data?.me || {};
-  const socket = useSocket();
+  const [inviteSent, setInviteSent] = useState(false)
+  const {loading, data} = useQuery(GET_ME)
+  const me = data?.me || {}
   
   useEffect(() => {
-    if (!socket || !gameId) return;
+    
+    if (!gameId) return;
     
     console.log('Lobby useEffect triggered with gameId:', gameId);
     if (me._id) {
@@ -31,19 +29,9 @@ const Lobby = () => {
     
     const handleGameStarted = (gameData) => {
       console.log('Received gameStarted event with data:', gameData);
-
-      if (!gameData.opponentId) {
-        console.error('Opponent ID is undefined. Redirecting to home.');
-  
-        navigate('/');
-
-        return;
-      }
       
       setWaiting(false);
       setOpponent(gameData.opponentId);
-
-      console.log(`Navigating to quiz page for gameId: ${gameId}`);
       
       navigate(`/quiz/${gameId}`,{ 
         state: { 
@@ -54,25 +42,23 @@ const Lobby = () => {
     
     const handleOpponentLeft = () => {
       setOpponent(null);
-      console.log('Opponent left game.');
-      navigate('/'); 
+      console.log('Opponent left game.')
     };
+    console.log(socket)
     
     
-    const handleGameInviteReceived = (gameData) => {
-      console.log('Game invite received:', gameData);
-      setInviteReceived(true);
-      setInvitingPlayer(gameData.senderName);
-      setInviterId(gameData.inviterId);
-    };
-  
+    const handleGameInviteRecieved = (gameData) => {
+      console.log('Game invite recieved:', gameData);
+      setInviteReceived(true)
+      setInvitingPlayer(gameData.senderName)
+    }
     
-    socket.on('gameInviteReceived', handleGameInviteReceived);
+    socket.on('gameInviteReceived', handleGameInviteRecieved);
     socket.on('gameStarted', handleGameStarted);
     socket.on('opponentLeft', handleOpponentLeft);
     
     return () => {
-      socket.off('gameInviteReceived', handleGameInviteReceived);
+      socket.off('gameInviteReceived', handleGameInviteRecieved);
       socket.off('gameStarted', handleGameStarted);
       socket.off('opponentLeft', handleOpponentLeft);
     };
@@ -137,13 +123,14 @@ const Lobby = () => {
         }}>
         {me.friends ? (
             me.friends.map((friend) =>(
-              <button 
-                key={friend._id}
-                onClick={() => handleInvite(friend._id)} 
-                style={{margin: '10px'}}>
-                  Invite {friend.firstName} {friend.lastName} to this game!
-              </button>
-          ) )
+              <>
+              {/* <li>{friend.firstName} {friend.lastName}</li> */}
+              <button onClick={() => handleInvite(friend._id)} key={friend._id} style={{
+                margin: '10px'
+              }}>Invite {friend.firstName} {friend.lastName} to this game!</button>
+              </>
+            
+            ))
         ) : (
           <p>You have no friends to invite</p>
         )}

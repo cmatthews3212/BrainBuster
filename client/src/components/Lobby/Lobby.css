@@ -50,7 +50,7 @@
     text-align: center;
     margin: 40px 0;
     background: linear-gradient(120deg, #FF4081, #7E57C2);
-    -webkit-background-clip: text;
+    /* -webkit-background-clip: text; */
     -webkit-text-fill-color: transparent;
     animation: pulse 2s infinite;
 }

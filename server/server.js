@@ -5,10 +5,7 @@ const { expressMiddleware } = require("@apollo/server/express4");
 const path = require("path");
 const { authMiddleware } = require("./utils/auth");
 const { fetchTriviaQuestions } = require('./utils/requests');
-const { v4: uuidv4 } = require('uuid');
-
 const userIdToSocketIds = new Map();
-const socketIdToUserId = new Map();
 
 const { typeDefs, resolvers } = require("./schemas");
 const db = require("./config/connection");
@@ -72,148 +69,7 @@ startApolloServer();
 
 let games = {};
 
-function shuffleAnswers2(answers) {
-  let shuffled = [...answers];
-
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-
-function showAnswer(gameId, questionIndex) {
-  const game = games[gameId];
-
-  if (!game) {
-    console.error(`showAnswer: Game ${gameId} not found.`);
-    return;
-  }
-
-  const question = game.questions[questionIndex];
-  const correctAnswer = question.correctAnswer;
-
-  [game.player1, game.player2].forEach((playerId) => {
-    const answer = game.answers[playerId][questionIndex];
-    if (answer === correctAnswer) {
-      game.scores[playerId] = (game.scores[playerId] || 0) + 1;
-      console.log(
-        `showAnswer: Player ${socketIdToUserId.get(playerId)} answered correctly. Score: ${game.scores[playerId]}`
-      );
-    } else {
-      console.log(
-        `showAnswer: Player ${socketIdToUserId.get(playerId)} answered incorrectly or did not answer.`
-      );
-    }
-  });
-
-  const player1UserId = socketIdToUserId.get(game.player1);
-  const player2UserId = socketIdToUserId.get(game.player2);
-
-  io.to(gameId).emit('showAnswer', {
-    questionIndex,
-    correctAnswer,
-    players: {
-      [player1UserId]: game.answers[game.player1][questionIndex],
-      [player2UserId]: game.answers[game.player2][questionIndex],
-    },
-  });
-
-  console.log(`Emitted showAnswer for gameId: ${gameId}, questionIndex: ${questionIndex}`);
-
-  game.timers.answerTimer = setTimeout(() => {
-    game.currentQuestionIndex += 1;
-    sendQuestion(gameId);
-  }, 5000); 
-};
-
-function endGame(gameId) {
-  const game = games[gameId];
-
-  if (!game) {
-    console.error(`endGame: Game ${gameId} not found.`);
-    return;
-  }
-
-  console.log(`Ending game ${gameId}.`);
-
-  const player1UserId = socketIdToUserId.get(game.player1);
-  const player2UserId = socketIdToUserId.get(game.player2);
-
-  const score1 = game.scores[game.player1] || 0;
-  const score2 = game.scores[game.player2] || 0;
-
-  let result;
-
-  if (score1 > score2) {
-    result = {
-      winner: player1UserId,
-      loser: player2UserId,
-    };
-    console.log(`endGame: Player ${player1UserId} wins against Player ${player2UserId}.`);
-  } else if (score2 > score1) {
-    result = {
-      winner: player2UserId,
-      loser: player1UserId,
-    };
-    console.log(`endGame: Player ${player2UserId} wins against Player ${player1UserId}.`);
-  } else {
-    result = {
-      winner: null,
-    };
-    console.log(`endGame: Game ${gameId} ended in a tie.`);
-  }
-
-  io.to(gameId).emit('gameOver', {
-    scores: game.scores,
-    result,
-  });
-
-  console.log(`Emitted gameOver for gameId: ${gameId}`);
-
-  clearTimeout(game.timers.questionTimer);
-  clearTimeout(game.timers.answerTimer);
-  
-  delete games[gameId];
-  console.log(`endGame: Game ${gameId} has been cleaned up.`);
-};
-
-function sendQuestion(gameId) {
-  const game = games[gameId];
-  if (!game) {
-    console.error(`sendQuestion: Game ${gameId} not found.`);
-    return;
-  }
-
-  if (game.currentQuestionIndex >= game.totalQuestions) {
-    endGame(gameId);
-    return;
-  }
-
-  const question = game.questions[game.currentQuestionIndex];
-  const shuffledAnswers = shuffleAnswers2([
-    ...question.incorrectAnswers,
-    question.correctAnswer,
-  ]);
-
-  game.answersSubmitted = {};
-
-  io.to(gameId).emit('newQuestion', {
-    questionIndex: game.currentQuestionIndex,
-    question: question.question,
-    answers: shuffledAnswers,
-    totalQuestions: game.totalQuestions,
-  });
-
-  console.log(`Sent newQuestion to gameId: ${gameId}, questionIndex: ${game.currentQuestionIndex}`);
-
-  game.timers.questionTimer = setTimeout(() => {
-    showAnswer(gameId, game.currentQuestionIndex);
-  }, 10000); // 10 seconds
-}
-
-function startGameLoop(gameId) {
-  console.log(`Attempting to start game loop for gameId: ${gameId}`);
+const startGameLoop = (gameId) => {
   const game = games[gameId];
 
   if (!game) {
@@ -221,21 +77,106 @@ function startGameLoop(gameId) {
     return;
   }
 
-  if (game.isStarted) {
-    console.log(`Game ${gameId} is already started.`);
-    return;
-  }
-
-  console.log(`Starting game loop for gameId: ${gameId}`);
-
-  game.isStarted = true;
   game.currentQuestionIndex = 0;
   game.totalQuestions = game.questions.length;
 
-  console.log(`Starting game loop for gameId: ${gameId}`);
+  const sendQuestion = () => {
+    if (game.currentQuestionIndex >= game.totalQuestions) {
+      endGame(gameId);
+      return;
+    }
 
-  sendQuestion(gameId);
-}
+    const question = game.questions[game.currentQuestionIndex];
+
+
+    const shuffledAnswers = shuffleAnswers2([
+      ...question.incorrectAnswers,
+      question.correctAnswer,
+    ]);
+
+    game.answersSubmitted = {};
+    
+    io.to(gameId).emit('newQuestion', {
+      questionIndex: game.currentQuestionIndex,
+      question: question.question, 
+      answers: shuffledAnswers,
+      totalQuestions: game.totalQuestions,
+    });
+
+    game.timers.questionTimer = setTimeout(() => {
+      
+      showAnswer(gameId, game.currentQuestionIndex);
+    }, 10000); // 10 seconds
+  };
+
+  const showAnswer = (gameId, questionIndex) => {
+    const game = games[gameId];
+    if (!game) return;
+
+    const question = game.questions[questionIndex];
+    const correctAnswer = question.correctAnswer; 
+
+    [game.player1, game.player2].forEach((playerId) => {
+      const answer = game.answers[playerId][questionIndex];
+      if (answer === correctAnswer) {
+        game.scores[playerId] = (game.scores[playerId] || 0) + 1;
+      }
+    });
+
+    io.to(gameId).emit('showAnswer', {
+      questionIndex,
+      correctAnswer,
+      players: {
+        [game.player1]: game.answers[game.player1][questionIndex],
+        [game.player2]: game.answers[game.player2][questionIndex],
+      },
+    });
+
+    
+    game.timers.answerTimer = setTimeout(() => {
+      game.currentQuestionIndex += 1;
+      sendQuestion();
+    }, 5000); 
+  };
+
+  const endGame = (gameId) => {
+    const game = games[gameId];
+    if (!game) return;
+
+    const score1 = game.scores[game.player1] || 0;
+    const score2 = game.scores[game.player2] || 0;
+
+    let result;
+
+    if (score1 > score2) {
+      result = {
+        winner: game.player1,
+        loser: game.player2,
+      };
+    } else if (score2 > score1) {
+      result = {
+        winner: game.player2,
+        loser: game.player1,
+      };
+    } else {
+      result = {
+        winner: null, 
+      };
+    }
+
+    io.to(gameId).emit('gameOver', {
+      scores: game.scores,
+      result,
+    });
+
+    clearTimeout(game.timers.questionTimer);
+    clearTimeout(game.timers.answerTimer);
+    delete games[gameId];
+  };
+
+  sendQuestion();
+};
+
 
 io.on("connection", (socket) => {
   console.log(`A player connected: ${socket.id}`);
@@ -246,7 +187,6 @@ io.on("connection", (socket) => {
     } else {
       userIdToSocketIds.set(userId, new Set([socket.id]));
     }
-    socketIdToUserId.set(socket.id, userId);
     console.log(`User ${userId} authenticated with socket ID ${socket.id}`);
     console.log('Current User Mappings:', Array.from(userIdToSocketIds.entries()));
   });
@@ -254,13 +194,6 @@ io.on("connection", (socket) => {
   socket.on("createGame", ({ gameId, category, difficulty }) => {
     if (games[gameId]) {
       socket.emit('error', { message: 'Game ID already exists.' });
-      console.log(`createGame: Game ID ${gameId} already exists.`);
-      return;
-    }
-  
-    if (games[gameId]) {
-      socket.emit('error', { message: 'Game ID already exists.' });
-      console.error(`createGame: Game ID ${gameId} already exists.`);
       return;
     }
 
@@ -275,9 +208,6 @@ io.on("connection", (socket) => {
       timers: {},
       ready: {},
       answersSubmitted: {},
-      isStarted: false,
-      currentQuestionIndex: 0,
-      totalQuestions: 0,
     };
 
     games[gameId].answers[socket.id] = {};
@@ -285,11 +215,10 @@ io.on("connection", (socket) => {
     games[gameId].ready[socket.id] = false; 
 
     socket.join(gameId);
-    socket.emit("waitingForOpponent", { gameId });
+    socket.emit("waitingForOpponent");
     console.log(`Game ${gameId} created by ${socket.id}`);
   });
 
-  // Handle game joining via 'joinGame'
   socket.on("joinGame", async ({ gameId }) => {
     console.log(`${socket.id} attempting to join game ${gameId}`);
 
@@ -300,8 +229,8 @@ io.on("connection", (socket) => {
         game.player2 = socket.id;
 
         games[gameId].answers[socket.id] = {};
-        games[gameId].scores[socket.id] = 0;
-        games[gameId].ready[socket.id] = false;
+        games[gameId].scores[game.player1] = 0;
+        games[gameId].scores[game.player2] = 0;
 
         socket.join(gameId);
         socket.emit("gameJoined", { gameId });
@@ -315,34 +244,25 @@ io.on("connection", (socket) => {
           console.log(`joinGame: Questions fetched for game ${gameId}. Total Questions: ${questions.length}`);
           console.log('First Question:', questions[0]);
 
-          const player1UserId = socketIdToUserId.get(game.player1);
-          const player2UserId = socketIdToUserId.get(game.player2);
-
-          // Emit 'gameStarted' to both players with user IDs
           io.to(game.player1).emit('gameStarted', { 
             gameId, 
-            opponentId: player2UserId, 
-            playerId: player1UserId,
+            opponentId: game.player2, 
+            playerId: game.player1,
             totalQuestions: questions.length,
           });
 
           io.to(game.player2).emit('gameStarted', { 
             gameId, 
-            opponentId: player1UserId, 
-            playerId: player2UserId,
+            opponentId: game.player1, 
+            playerId: game.player2,
             totalQuestions: questions.length,
           });
 
-          console.log(`Emitted gameStarted to Player1: ${player1UserId} and Player2: ${player2UserId}`);
-
-          // Start the game loop
           startGameLoop(gameId);
-          console.log(`startGameLoop called for gameId: ${gameId}`);
         } catch (error) {
           console.error('Error fetching questions:', error);
           io.to(gameId).emit('error', { message: 'Failed to fetch questions.' });
           delete games[gameId];
-          console.log(`joinGame: Game ${gameId} deleted due to error.`);
         }
       } else {
         console.log(`Game ${gameId} is full.`);
@@ -359,23 +279,25 @@ io.on("connection", (socket) => {
 
     const recipientSocketIds = userIdToSocketIds.get(friendId);
 
-    if (recipientSocketIds && recipientSocketIds.size > 0) {
-      recipientSocketIds.forEach((recipientSocketId) => {
-        io.to(recipientSocketId).emit('gameInviteReceived', {
-          gameId,
-          inviterId,
-          senderName,
-        });
-        console.log(`Invite sent to ${friendId} with socket ID ${recipientSocketId}`);
-      });
-    } else {
-      // Notify the inviter that the friend is not online
-      socket.emit('error', { message: 'Friend is not online.' });
-      console.log(`Failed to send invite to ${friendId}: Friend not online.`);
-    }
-  });
 
-  // Handle acceptance of game invitations
+    if (recipientSocketIds && recipientSocketIds.size > 0) {
+    // Emit the invitation to each of the recipient's active sockets
+    recipientSocketIds.forEach((recipientSocketId) => {
+      io.to(recipientSocketId).emit('gameInviteReceived', {
+        gameId,
+        inviterId,
+        senderName,
+      });
+      console.log(`Invite sent to ${friendId} with socket ID ${recipientSocketId}`);
+    });
+  } else {
+    // Notify the inviter that the friend is not online
+    socket.emit('error', { message: 'Friend is not online.' });
+    console.log(`Failed to send invite to ${friendId}: Friend not online.`);
+  }
+});
+
+
   socket.on('acceptGameInvite', async ({ gameId, opponentId }) => {
     console.log(`Player ${socket.id} accepted invite to join game ${gameId} from ${opponentId}`);
 
@@ -383,21 +305,20 @@ io.on("connection", (socket) => {
 
     if (!game) {
       socket.emit('error', { message: 'Game not found.' });
-      console.log(`acceptGameInvite: Game ${gameId} not found.`);
       return;
     }
   
     if (game.player2) {
       socket.emit('error', { message: 'Game already has two players.' });
-      console.log(`acceptGameInvite: Game ${gameId} already has two players.`);
       return;
     }
 
     game.player2 = socket.id
 
+  
     games[gameId].answers[socket.id] = {};
-    games[gameId].scores[socket.id] = 0;
-    games[gameId].ready[socket.id] = false;
+    games[gameId].scores[game.player2] = 0;
+    games[gameId].ready[game.player2] = false;
 
     socket.join(gameId);
     socket.emit("gameJoined", { gameId });
@@ -406,36 +327,28 @@ io.on("connection", (socket) => {
 
     try {
       const questions = await fetchTriviaQuestions(10, game.category, game.difficulty);
-      game.questions = questions;
+    game.questions = questions;
 
-      console.log(`acceptGameInvite: Questions fetched for game ${gameId}. Total Questions: ${questions.length}`);
-      console.log('First Question:', questions[0]);
+    console.log(`acceptGameInvite: Questions fetched for game ${gameId}. Total Questions: ${questions.length}`);
+    console.log('First Question:', questions[0]);
 
-      const player1UserId = socketIdToUserId.get(game.player1);
-      const player2UserId = socketIdToUserId.get(game.player2);
+    // Emit 'gameStarted' to both players
+    io.to(game.player1).emit('gameStarted', { 
+      gameId, 
+      opponentId: game.player2, 
+      playerId: game.player1,
+      totalQuestions: questions.length,
+    });
 
-      // Emit 'gameStarted' to both players with user IDs
-      io.to(game.player1).emit('gameStarted', { 
-        gameId, 
-        opponentId: player2UserId, 
-        playerId: player1UserId,
-        totalQuestions: questions.length,
-      });
+    io.to(game.player2).emit('gameStarted', { 
+      gameId, 
+      opponentId: game.player1, 
+      playerId: game.player2,
+      totalQuestions: questions.length,
+    });
 
-      io.to(game.player2).emit('gameStarted', { 
-        gameId, 
-        opponentId: player1UserId, 
-        playerId: player2UserId,
-        totalQuestions: questions.length,
-      });
-
-      console.log(`Emitted gameStarted to Player1: ${player1UserId} and Player2: ${player2UserId}`);
-
-      if (!game.isStarted) {
-        game.isStarted = true;
-        startGameLoop(gameId);
-        console.log(`startGameLoop called for gameId: ${gameId}`);
-      }
+    // Start the game loop
+    startGameLoop(gameId);
     } catch (error) {
       console.error('Error fetching questions:', error);
       io.to(gameId).emit('error', { message: 'Failed to fetch questions.' });
@@ -464,8 +377,7 @@ io.on("connection", (socket) => {
     game.answers[socket.id][questionIndex] = answer;
     game.answersSubmitted[socket.id] = true;
 
-    const userId = socketIdToUserId.get(socket.id);
-    console.log(`Player ${userId} answered question ${questionIndex}: ${answer}`);
+    console.log(`Player ${socket.id} answered question ${questionIndex}: ${answer}`);
 
     const bothAnswered = [game.player1, game.player2].every(player => game.answersSubmitted[player])
 
@@ -478,40 +390,38 @@ io.on("connection", (socket) => {
     }
   });
 
+
   socket.on("disconnect", () => {
     console.log(`Player disconnected: ${socket.id}`);
 
-    const userId = socketIdToUserId.get(socket.id);
-    if (userId) {
-      const socketIdSet = userIdToSocketIds.get(userId);
-      if (socketIdSet) {
+    for (let [userId, socketIdSet] of userIdToSocketIds.entries()) {
+      if (socketIdSet.has(socket.id)) {
         socketIdSet.delete(socket.id);
         console.log(`Removed socket ID ${socket.id} from user ${userId}`);
-
+  
         if (socketIdSet.size === 0) {
           userIdToSocketIds.delete(userId);
           console.log(`User ${userId} has no more active connections and was removed from mappings.`);
         }
+        break; // Exit the loop once the socket is found and removed
       }
-      socketIdToUserId.delete(socket.id);
     }
   
-    // Handle game disconnection
+    // Handle game disconnection as before
     for (let gameId in games) {
       const game = games[gameId];
       if (game.player1 === socket.id || game.player2 === socket.id) {
         const opponentId = game.player1 === socket.id ? game.player2 : game.player1;
-
+  
         if (opponentId) {
           io.to(opponentId).emit("opponentLeft");
-          console.log(`Emitted opponentLeft to ${opponentId}`);
         }
-
+  
         clearTimeout(game.timers.questionTimer);
         clearTimeout(game.timers.answerTimer);
-
+  
         delete games[gameId];
-
+  
         console.log(`Game ${gameId} ended due to player disconnect.`);
         break;
       }
