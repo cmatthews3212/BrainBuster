@@ -26,17 +26,20 @@ To use this app, create an account and avatar with your account. Send friend req
 The MIT License is an older license used to provide copyright protection.
 
 ## Contributors
-Patrick Hennessey, Chase Waldron, Christine Matthews, and Brianna Pirro
+- Patrick Hennessey
+- Chase Waldron 
+- Christine Matthews
+- Brianna Perrio
 
 ## Testing
 n/a
 
 ## Contact info for Questions
 #### Github: 
-<a href="https://github.com/cmatthews3212">cmatthews3212</a>
-https://github.com/RickHennessey87
-https://github.com/CatMamaGB
-https://github.com/chasewaldron2400
+- <a href="https://github.com/cmatthews3212">cmatthews3212</a>
+- https://github.com/RickHennessey87
+- https://github.com/CatMamaGB
+- https://github.com/chasewaldron2400
 
 ## Screenshots
 <img src="./imgs/bb1.png"/>
