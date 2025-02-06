@@ -2,8 +2,8 @@
 const api = 's6yjzpy5awiXLFgyS3KqQ7xC4'
 
 async function fetchTriviaQuestions(amount, category, difficulty) {
-    // let url = `https://the-trivia-api.com/api/questions?limit=${amount || 10}`;
-    let url = `https://brainbuster-12xu.onrender.com/api/questions?limit=${amount || 10}`
+    let url = `https://the-trivia-api.com/api/questions?limit=${amount || 10}`;
+    // let url = `https://brainbuster-12xu.onrender.com/api/questions?limit=${amount || 10}`
 
     if (category) {
         url += `&categories=${encodeURIComponent(category)}`;
