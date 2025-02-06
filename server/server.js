@@ -22,7 +22,7 @@ const server = new ApolloServer({
 const gameServer = http.createServer(app);
 const io = socketIo(gameServer, {
   cors: {
-    origin: 'https://brainbuster-4543.onrender.com',
+    origin: 'https://brainbuster-12xu.onrender.com/',
     methods: ['GET', 'POST'],
     credentials: true,
   },

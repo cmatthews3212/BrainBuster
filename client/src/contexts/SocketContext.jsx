@@ -11,7 +11,7 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("https://brainbuster-4543.onrender.com", { // Replace with your server URL
+    const newSocket = io("https://brainbuster-12xu.onrender.com/", { // Replace with your server URL
       autoConnect: false,
     });
     setSocket(newSocket);
