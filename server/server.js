@@ -1,5 +1,5 @@
 const express = require("express");
-const https = require("https");
+const http = require("http");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
 const path = require("path");
@@ -19,7 +19,7 @@ const server = new ApolloServer({
   resolvers,
 });
 
-const gameServer = https.createServer(app);
+const gameServer = http.createServer(app);
 const io = socketIo(gameServer, {
   cors: {
     origin: 'https://brainbuster-12xu.onrender.com',
